@@ -1,0 +1,287 @@
+<!doctype html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>Flamingo Web App</title>
+    <meta name="description" content="Control the Flamingo Chair with a Web Bluetooth app.">
+    <meta name="theme-color" content="#333333" />
+    <link rel="icon" sizes="192x192" href="../favicon.png">
+    <link rel="manifest" href="manifest.json">
+
+    <link rel="stylesheet" href="code.getmdl.io/1.0.4/material.green-light_green.min.css">
+    <script src="code.getmdl.io/1.0.4/material.min.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body id="state">
+    <div id="step1">
+      <div id="title">Flamingo Web App</div>
+      <div id="inputUserEmailTitle">User Email:</div>
+
+      <input type="text" id="inputUserEmail" name="inputUserEmail"><br><br>
+
+      <button id="connect" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">CONNECT</button>
+      <div id="no-bluetooth" class="no-bluetooth-card-square mdl-card mdl-shadow--2dp">
+        <div class="mdl-card__title mdl-card--expand">
+          <h2 class="mdl-card__title-text">No Web Bluetooth</h2>
+        </div>
+        <div class="mdl-card__supporting-text">
+          Web Bluetooth isn't currently enabled. Please check that your browser and
+          device support it and have any necessary development flags set.
+        </div>
+      </div>
+    </div>
+
+    <div id="step2">
+      <div id="title2">Connected to a Flamingo!</div>
+      <div id="titleDeviceModel"></div>
+      <div id="titleDeviceSerial"></div>
+      <div id="buttons">
+        <!-- <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="manualMode"> -->
+        <label for="manualMode">
+          <input type="radio" id="manualMode" name="effectSwitch" checked/>
+          <span class="mdl-radio__label">Manual Mode</span>
+        </label>
+        <!-- <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="autoMode"> -->
+        <label for="autoMode">
+          <input type="radio" id="autoMode" name="effectSwitch"/>
+          <span class="mdl-radio__label">Auto Mode</span>
+        </label>
+
+        <label for="triggerByMotionEnable">
+          <input type="checkbox" id="triggerByMotionEnable" name="checkoptions" value=0 color="#34495E">
+          <span class="mdl-radio__label"> Enable Responsive Mode</span>
+        </label>
+      </div>
+
+      <div class="slider1container">
+        <div id="slider1Title" class="sliderTitle"></div>
+        <input type="range" min="1" max="10" value="1"  step="0.1" class="slider" id="slider1">
+        <div id="slider1Value" class="sliderValue">?</div>
+      </div>
+
+
+      <div id="stats">
+        <div id="statusString"></div>
+        <div id="blow"></div>
+      </div>
+
+      <div id="container">
+          <!-- <div id="left">Left Side:</div> -->
+          <button id="left" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">Left Side:</button>
+          <div id="middle"></div>
+          <button id="right" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">Right Side:</button>
+          <!-- <div id="right">Right Side:</div> -->
+      </div>
+    
+
+
+
+    </div>
+
+    <div id="step_device_info">
+      <div id="containerInput">
+        <div id="inputModelTitle"> Model Number: </div>
+        <input type="text" id="inputModel" name="serialNumber"><br>
+        <div id="inputSerialTitle">Serial Number:</div>
+        <input type="text" id="inputSerial" name="modelNumber"><br><br>
+        <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" id="setDeviceInfo">Set Info</button>
+      </div>
+    </div>
+
+    <div id="step_advancedSliders">
+
+      <div class="engineeringSlider">
+        <div id="slider2Title"  class="sliderTitle"></div>
+        <input type="range" min="1" max="10" value="1"  step="0.1" class="slider" id="slider2">
+        <div id="slider2Value" class="sliderValue">?</div>
+      </div>
+
+
+      <div class="engineeringSlider">
+        <div id="slider3Title"  class="sliderTitle"></div>
+        <input type="range" min="1" max="10" value="1"  step="0.1" class="slider" id="slider3">
+        <div id="slider3Value" class="sliderValue">?</div>
+      </div>
+
+      <div class="engineeringSlider">
+        <div id="slider4Title"  class="sliderTitle"></div>
+        <input type="range" min="1" max="10" value="1"  step="0.1" class="slider" id="slider4">
+        <div id="slider4Value" class="sliderValue">?</div>
+      </div>
+
+      <div class="engineeringSlider">
+        <div id="slider5Title"  class="sliderTitle"></div>
+        <input type="range" min="1" max="10" value="1"  step="0.1" class="slider" id="slider5">
+        <div id="slider5Value" class="sliderValue">?</div>
+      </div>
+    </div>
+
+    <div id="step_plots">
+      <!-- <script src="plotly.min.js"></script>
+      <div class="navbar"><span></span></div>
+      <div id = "plots">
+          <div id="chart"></div>
+      </div> -->
+
+      <div class="navbar"><span></span></div>
+      <div id = "plots">
+          <div id="chart"></div>
+      </div>
+
+
+      <button id="download_csv" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">Download CSV</button>
+
+    </div>
+
+
+    <div id="sw_update">
+
+      <div id="otaContainer">
+
+        <div id="inputOtaTitle"> Select a software binary file for update: </div>
+
+        <input type="file" name="inputfile"
+              id="inputfile">
+        <br>
+       
+        <pre id="output"></pre>
+      
+      </div>
+    </div>
+
+
+
+    <script src="plotly.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="FlamingoBle.js?random=<?php echo filemtime('FlamingoBle.js'); ?>"></script>
+    <script src="usage_reports.js?random=<?php echo filemtime('usage_reports.js'); ?>"></script>
+    <script src="slider.js?random=<?php echo filemtime('slider.js'); ?>"></script>
+    <script src="app.js?random=<?php echo filemtime('app.js'); ?>"></script>
+    <!-- <script>
+      if('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js')
+        .then(function(registration) {
+          console.log("Service Worker Registered");
+        });
+      }
+    </script> -->
+    
+
+
+    <div id="step_auto_table">
+      <div id="containerInput">
+        
+        <!-- <TABLE id="dataTable"  border="1"> -->
+          <table class = "mdl-data-table mdl-js-data-table mdl-shadow--2dp" id="dataTable" >
+            <thead>
+
+          <TR>
+            <TH > </TH>
+            <TH style="width:70%;">Posture</TH>
+            <TH >Duration (minutes)</TH>
+          </TR>
+          <TR>
+            <TD ><INPUT type="checkbox" name="chk"/></TD>
+            <!-- <TD >
+              <input type="range" min="1" max="10" value="1"  step="0.1" class="slider" id="duration3">
+            </TD> -->
+            <TD style="width:70%;"><SELECT type="select-one" id="posture" style="width:100%">
+                <option value="0">--None--</option>
+                <option value=4>Standing</option>
+                <option value="1">Sitting</option>
+                <option value="2">Left Flamingo -- standing on the left </option>
+                <option value="3">Right Flamingo -- standing on the right </option>
+              </SELECT></TD>
+
+            <TD ><input type="text" class="duration" id="duration" name="modelNumber" value="1.0"></TD>
+          </TR>
+        </thead>
+        </TABLE>
+        <br>
+
+        <div style="width:100%; display: inline-block; *display: inline; vertical-align: top;">
+          <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" id="AddPosture" onclick="addRow('dataTable')" style="display: inline-block; *display: inline; vertical-align: top; width: 20%;">Add</button>
+
+          <!-- <div style=" width:5%; display: inline-block; *display: inline; vertical-align: top;"></div> -->
+
+          <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" id="DeletePosture" onclick="deleteRow('dataTable')" style="display: inline-block; *display: inline; vertical-align: top; width: 20%;">Delete</button>
+
+          <div style=" width:20%; display: inline-block; *display: inline; vertical-align: top;"></div>
+
+          <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" id="SetPosture" onclick="getAutoSequence()" style="display: inline-block; *display: inline; vertical-align: top; width: 30%;"> Set Sequence </button>
+        </div>
+
+        <div id = "pieplots">
+            <div id="piechart"></div>
+        </div>
+      </div>
+    </div>
+
+    
+
+
+    <div id="loading">
+      <div class="mdl-spinner mdl-spinner--single-color mdl-js-spinner is-active"></div>
+    </div>
+
+    <div id = "usagePanel">
+      <div id = "usageContainer">
+          <!-- from https://www.daterangepicker.com/#options -->
+          <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+          <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+          <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+          <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
+          <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 90%; color: black">
+              <i class="fa fa-calendar"></i>&nbsp;
+              <span></span> <i class="fa fa-caret-down"></i>
+          </div>
+
+          <script type="text/javascript">
+          $(function() {
+
+              var start = moment().subtract(1, 'hour');
+              var end = moment();
+
+              function cb(start, end) {
+                  $('#reportrange span').html(start.format('MMMM D, YYYY hh:mm A') + ' - ' + end.format('MMMM D, YYYY hh:mm A'));
+                  console.log(start.format('YYYY-MM-DD HH:mm:ss'),end.format('YYYY-MM-DD HH:mm:ss'))
+                  reportUsage(start.format('YYYY-MM-DD HH:mm:ss'),end.format('YYYY-MM-DD HH:mm:ss'))
+              }
+
+              $('#reportrange').daterangepicker({
+                  timePicker: true,
+                  startDate: start,
+                  endDate: end,
+                  ranges: {
+                     'Past Hour': [moment().subtract(1, 'hour'), moment()],
+                     'Today': [moment().subtract(1, 'days'), moment()],
+                     'Yesterday': [moment().subtract(2, 'days'), moment().subtract(1, 'days')],
+                     'Last 7 Days': [moment().subtract(7, 'days'), moment()],
+                     'Last 30 Days': [moment().subtract(30, 'days'), moment()],
+                     'This Month': [moment().startOf('month'), moment().endOf('month')],
+                     'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                  }
+              }, cb);
+
+              
+              // cb(start, end);
+
+          });
+          </script>
+
+          <div id="usagePlot"></div>
+
+          <script src="https://www.gstatic.com/charts/loader.js"></script>
+          <div id="chart_wrapper">
+            <div id="chart_div"></div>
+          </div>
+        </div>
+    </div>
+
+
+
+
+  </body>
+</html>
