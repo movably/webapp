@@ -1,8 +1,8 @@
 body{
   margin: 0 auto;
   background-color: #333;
-  /*max-width: 1000px;*/
-  font-family: 'Poppins',sans-serif;/*Roboto;*/
+  max-width: 1000px;
+  font-family: Roboto;
   /*color: white;*/
 }
 .mdl-radio__label{
@@ -24,7 +24,7 @@ body.connected #step1 {
 }
 #step1 {
   display: inherit;
-  /*width: 50%;*/
+  width: 50%;
   align-items: center;
   text-align: center;
   margin-left: auto;
@@ -46,9 +46,9 @@ body.analytics #usagePanel {
 
 body #step2 {
   display: none;
-  /*width: 50%;*/
-  /*align-items: center;*/
-  /*text-align: center;*/
+  width: 50%;
+  align-items: center;
+  text-align: center;
   margin-left: auto;
   margin-right: auto;
 }
@@ -123,7 +123,7 @@ body.connected #sw_update {
   padding-top: 24px;
 }
 #title, #title2 {
-  font-family: Poppins;
+  font-family: Roboto;
   color: rgb(255, 255, 255);
   font-size: 24px;
   letter-spacing: -.02em;
@@ -134,7 +134,7 @@ body.connected #sw_update {
 }
 
 #title2 {
-  font-family: Poppins;
+  font-family: Roboto;
   color: rgb(255, 255, 255);
   font-size: 24px;
   letter-spacing: -.02em;
@@ -145,10 +145,10 @@ body.connected #sw_update {
 }
 
 #titleDeviceModel, #titleDeviceSerial {
-  font-family: Poppins;
+  font-family: Roboto;
   color: rgb(255, 255, 255);
   font-size: 12px;
-  /*letter-spacing: -.02em;*/
+  letter-spacing: -.02em;
   text-align: center;
   width: 100%;
   padding: 0px 0;
@@ -159,7 +159,7 @@ body.connected #sw_update {
   display: none;
 }
 #deviceName {
-  font-family: Poppins;
+  font-family: Roboto;
   background: transparent;
   border: 0;
   color: rgb(255, 255, 255);
@@ -180,15 +180,12 @@ body.connected #sw_update {
 #statusString::before {
   content: '';
 }
-#connect, #left, #right, #setDeviceInfo, #AddPosture, #DeletePosture, #SetPosture, #inputFile  {
+#connect {
   color: white;
   background-color: #4CAF50;
-  width: 50%;
+  width: 100%;
   font-weight: bold;
-  /*display: none;*/
-  align-items: center;
-  text-align: center;
-  margin:  auto;
+  display: none;
 }
 #buttons {
   background-color: #222222;
@@ -267,28 +264,17 @@ body.connected #sw_update {
   /*width: 100%;*/
 }
 
-#left, #middle, #right, #setDeviceInfo, #AddPosture, #DeletePosture, #SetPosture, #inputFile {display: inline-block; *display: inline; zoom: 1; vertical-align: top; font-size: 10px;}
+#left, #middle, #right, #setDeviceInfo, #AddPosture, #DeletePosture, #SetPosture {display: inline-block; *display: inline; zoom: 1; vertical-align: top; font-size: 10px;}
 /*#left {width: 40%;}
 #middle {width: 10%;}
 #right {width: 40%;}*/
-
-#file { display: none }
-
-pre {
-    white-space: pre-wrap;       /* Since CSS 2.1 */
-    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
-    white-space: -pre-wrap;      /* Opera 4-6 */
-    white-space: -o-pre-wrap;    /* Opera 7 */
-    word-wrap: break-word;       /* Internet Explorer 5.5+ */
-}
 
 #middle {width: 10%;}
 
 #left, #right, #setDeviceInfo, #AddPosture, #DeletePosture, #SetPosture {
   color: white;
   background-color: #4CAF50;
-  width: 43%;*/
-  /*height: 30%;*/
+  width: 30%;
   /*font-weight: bold;*/
   /*display: none;*/
 }
@@ -334,7 +320,7 @@ pre {
   width: 55%;
   height: 15px;
   border-radius: 5px;  
-  /*background: #d3d3d3;*/
+  background: #d3d3d3;
   outline: none;
   opacity: 1;
   -webkit-transition: .2s;
@@ -370,7 +356,6 @@ input[type="range"]:after {
   border-radius: 50%; 
   background: #4CAF50;
   cursor: pointer;
-
 }
 
 .slider::-moz-range-thumb {
@@ -379,7 +364,6 @@ input[type="range"]:after {
   border-radius: 50%;
   background: #4CAF50;
   cursor: pointer;
-
 }
 
 .chart{
@@ -410,7 +394,7 @@ input[type="range"]:after {
 /*google chart*/
 .ggl-tooltip {
   border: 1px solid #E0E0E0;
-  font-family: Poppins;
+  font-family: Arial, Helvetica;
   padding: 6px 6px 6px 6px;
 }
 
@@ -423,129 +407,3 @@ input[type="range"]:after {
   overflow-y: hidden;
   width: 100%;
 }
-
-/*collapsible*/
-
-/* Style the button that is used to open and close the collapsible content */
-.collapsible {
-  margin-top: 3rem;
-    grid-gap: 2.5rem;
-  background-color: #eee;
-  color: #444;
-  cursor: pointer;
-  padding: 18px;
-  width: auto;
-  border: none;
-  text-align: left;
-  outline: none;
-  font-size: 15px;
-  border-radius: 4px;
-}
-
-/* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
-.active, .collapsible:hover {
-  background-color: #ccc;
-}
-
-/* Style the collapsible content. Note: hidden by default */
-.content {
-
-  padding: 0 18px;
-  background-color: var(--bg-body);;
-  border-style: none;
-  border-color: #ccc;
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.2s ease-out;
-  border-radius: 4px;
-}
-
-.collapsible:after {
-  content: '\02795'; /* Unicode character for "plus" sign (+) */
-  font-size: 13px;
-  color: white;
-  float: right;
-  margin-left: 5px;
-}
-
-.active:after {
-  content: "\2796"; /* Unicode character for "minus" sign (-) */
-}
-
-.column {
-  float: left;
-  /*width: 50%;*/
-}
-
-.row:after {
-  content: "";
-  display: table;
-  clear: both;
-}
-
-.preference {
-    display: flex;
-    justify-content: space-between;
-    width: 60%;
-    /*margin: .5rem;*/
-    /*display: grid;*/
-    /*grid-template-columns: 100%;*/
-    /*gap: 0.5em;*/
-}
-
-/*timer*/
-
-.base-timer {
-  position: relative;
-  width: 70px;
-  height: 70px;
-}
-
-.base-timer__svg {
-  transform: scaleX(-1);
-}
-
-.base-timer__circle {
-  fill: none;
-  stroke: none;
-}
-
-.base-timer__path-elapsed {
-  stroke-width: 8px;
-  stroke: #333;
-}
-
-.base-timer__path-remaining {
-  stroke-width: 8px;
-  stroke-linecap: round;
-  transform: rotate(90deg);
-  transform-origin: center;
-  transition: 0.5s linear all;
-  fill-rule: nonzero;
-  stroke: currentColor;
-}
-
-.base-timer__path-remaining.green {
-  color: rgb(76, 175, 79);
-}
-
-.base-timer__path-remaining.orange {
-  color: orange;
-}
-
-.base-timer__path-remaining.red {
-  color: red;
-}
-
-.base-timer__label {
-  position: absolute;
-  width: 70px;
-  height: 70px;
-  top: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 15px;
-}
-
-

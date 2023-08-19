@@ -6,43 +6,61 @@
     constructor() {
       this.r = "";
 
+      // let yesterday = new Date;
+      // yesterday.setDate(now.getDate() - 1);
+
+      // let past_week = new Date;
+      // past_week.setDate(now.getDate() - 7);
+
+      // let past_month = new Date;
+      // past_month.setDate(now.getDate() - 30);
+
     }
+
+    
+
     plotUsage(data){
       this.r = data;
       console.log("usage=",data)
 
-      var labels = []
-      var durations = []
+      var report = {
+        durations: [],
+        labels: [],
+        total_time: 0,
+        total_time_formated: ''
+      };
 
       for (var i = 0; i < data["data"]["chairUsageByLegPosition"].length; i++){
         var value = data["data"]["chairUsageByLegPosition"][i];
         if (value["leftLegPos"]["name"] == "Up" && value["rightLegPos"]["name"] == "Up"){
-          labels.push("seated");
-          durations.push(value["stateDuration"]);
+          report.labels.push("seated");
+          report.durations.push(value["stateDuration"]);
 
         }else if (value["leftLegPos"]["name"] == "Down" && value["rightLegPos"]["name"] == "Up"){
-          labels.push("leftFlamingo");
-          durations.push(value["stateDuration"]);
+          report.labels.push("leftFlamingo");
+          report.durations.push(value["stateDuration"]);
         
         }else if (value["leftLegPos"]["name"] == "Up" && value["rightLegPos"]["name"] == "Down"){
-          labels.push("rightFlamingo");
-          durations.push(value["stateDuration"]);
+          report.labels.push("rightFlamingo");
+          report.durations.push(value["stateDuration"]);
         }else if (value["leftLegPos"]["name"] == "Down" && value["rightLegPos"]["name"] == "Down"){
-          labels.push("Standing");
-          durations.push(value["stateDuration"]);
+          report.labels.push("Standing");
+          report.durations.push(value["stateDuration"]);
         }
       }
 
-      const reducer = (previousValue, currentValue) => previousValue + currentValue;
-      var total_time = durations.reduce(reducer);
-      var total_time_formated = new Date(total_time * 1000).toISOString().substr(11, 8);
+      if(report.durations.length > 0){
+        const reducer = (previousValue, currentValue) => previousValue + currentValue;
+        report.total_time = report.durations.reduce(reducer);
+        report.total_time_formated = new Date(report.total_time * 1000).toISOString().substr(11, 8);
+      }
       
 
       var d3 = Plotly.d3
       var format = d3.format(',02f')
 
-      var text = durations.map((v, i) => `
-        ${labels[i]}<br>
+      var text = report.durations.map((v, i) => `
+        ${report.labels[i]}<br>
         ${format(v)} min<br>
         `)
 
@@ -55,13 +73,13 @@
         Standing: '#ffa600'
       }
 
-      for (var i = 0; i < labels.length; i++) {
-        colors.push(colorMap[labels[i]]);
+      for (var i = 0; i < report.labels.length; i++) {
+        colors.push(colorMap[report.labels[i]]);
       }
 
       var data = [{
-        values: durations,
-        labels: labels,
+        values: report.durations,
+        labels: report.labels,
         type: 'pie',
         sort:false,
         direction:'clockwise',
@@ -87,7 +105,7 @@
           font:{"color":'#FFFFFF',
             family: 'Old Standard TT, serif',
             size: 18,},
-          text: "Usage Report -- total usage time= "+ total_time_formated
+          text: "Usage Report -- total usage time= "+ report.total_time_formated
         }
       };
 
@@ -98,22 +116,8 @@
 
       var myPlot = document.getElementById('piechart');
 
-      // myPlot.on('plotly_click', function(data){
-      //   var pts = '';
-      //   for(var i=0; i < data.points.length; i++){
-      //       pts = 'label(country) = '+ data.points[0].label + '\nvalue(%) = ' + data.points[0].value;
-      //   }
-      //   console.log("--------")
-      //   console.log(data)
-      //   // alert('Closest point clicked:\n\n'+pts);
-      //   // console.log('Closest point clicked:\n\n'+pts);
-      //   data.points[0].value = data.points[0].value + 1;
-      //   // console.log(data.points[0].value);
-      //   index = data.points[0].i;
-      //   myPlot.data[0].values[index] +=1;
-      //   Plotly.redraw('piechart');
-      // });
-
+      
+      return report;
       
     }
 
@@ -168,81 +172,68 @@
 
       console.log(list)
       
+      if(list.Length > 0){
+        google.charts.load("current", {packages:["timeline"]});
+        google.charts.setOnLoadCallback(drawChart);
+        function drawChart() {
 
-      google.charts.load("current", {packages:["timeline"]});
-      google.charts.setOnLoadCallback(drawChart);
-      function drawChart() {
+          var container = document.getElementById('chart_div');
+          var chart = new google.visualization.Timeline(container);
+          var dataTable = google.visualization.arrayToDataTable(list);
+          var dataTable = new google.visualization.DataTable();
+          dataTable.addColumn({ type: 'string', id: 'Position' });
+          dataTable.addColumn({ type: 'string', id: 'Name' });
+          dataTable.addColumn({ type: 'string', role: 'style' });
+          dataTable.addColumn({ type: 'date', id: 'Start' });
+          dataTable.addColumn({ type: 'date', id: 'End' });
+          dataTable.addRows(list);
 
-        var container = document.getElementById('chart_div');
-        var chart = new google.visualization.Timeline(container);
-        var dataTable = google.visualization.arrayToDataTable(list);
-        var dataTable = new google.visualization.DataTable();
-        dataTable.addColumn({ type: 'string', id: 'Position' });
-        dataTable.addColumn({ type: 'string', id: 'Name' });
-        dataTable.addColumn({ type: 'string', role: 'style' });
-        dataTable.addColumn({ type: 'date', id: 'Start' });
-        dataTable.addColumn({ type: 'date', id: 'End' });
-        dataTable.addRows(list);
+          var date_first_event = dataTable.getValue(0, 3);
+          var date_last_event = dataTable.getValue(dataTable.getNumberOfRows() - 1, 3);
+          var Difference_In_Days = (date_last_event - date_first_event) / (1000 * 3600 * 24.0);
+          console.log("Diff = ", Difference_In_Days)
 
-
-        // var colors = [];
-        // var colorMap = {
-        //   // should contain a map of category -> color for every category
-        //   seated: '#003f5c',
-        //   leftFlamingo: '#7a5195',
-        //   rightFlamingo: '#ef5675',
-        //   Standing: '#ffa600'
-        // }
-
-        // for (var i = 0; i < dataTable.getNumberOfRows(); i++) {
-        //   colors.push(colorMap[dataTable.getValue(i, 1)]);
-        //   console.log(dataTable.getValue(i, 1), colorMap[dataTable.getValue(i, 1)]);
-        // }
-
-        var date_first_event = dataTable.getValue(0, 3);
-        var date_last_event = dataTable.getValue(dataTable.getNumberOfRows() - 1, 3);
-        var Difference_In_Days = (date_last_event - date_first_event) / (1000 * 3600 * 24.0);
-        console.log("Diff = ", Difference_In_Days)
-
-        var options = {
-            timeline: { 
-                showBarLabels: false,
-                groupByRowLabel: true,
-                rowLabelStyle: {
-                    fontName: 'Roboto Condensed',
-                    fontSize: 14,
-                    color: '#333333'
-                },
-                barLabelStyle: {
-                    fontName: 'Roboto Condensed',
-                    fontSize: 14,
-                    color: 'white'
-                }
-            },                          
-            avoidOverlappingGridLines: true,
-            // height: chartHeight,
-            width: Math.floor(12000*Difference_In_Days),
-            // colors: colors,
-            hAxis: {
-               format: 'HH:mm',
-            }
-        };
+          var options = {
+              timeline: { 
+                  showBarLabels: false,
+                  groupByRowLabel: true,
+                  rowLabelStyle: {
+                      fontName: 'Roboto Condensed',
+                      fontSize: 14,
+                      color: '#333333'
+                  },
+                  barLabelStyle: {
+                      fontName: 'Roboto Condensed',
+                      fontSize: 14,
+                      color: 'white'
+                  }
+              },                          
+              avoidOverlappingGridLines: true,
+              // height: chartHeight,
+              width: Math.floor(12000*Difference_In_Days),
+              // colors: colors,
+              hAxis: {
+                 format: 'HH:mm',
+              }
+          };
 
 
 
-        google.visualization.events.addListener(chart, 'ready', function () {
-          var labels = container.getElementsByTagName('text');
-          Array.prototype.forEach.call(labels, function(label) {
-            if (label.getAttribute('text-anchor') === 'middle') {
-              label.setAttribute('fill', '#ffffff');
-            }
+          google.visualization.events.addListener(chart, 'ready', function () {
+            var labels = container.getElementsByTagName('text');
+            Array.prototype.forEach.call(labels, function(label) {
+              if (label.getAttribute('text-anchor') === 'middle') {
+                label.setAttribute('fill', '#ffffff');
+              }
+            });
           });
-        });
 
-        chart.draw(dataTable, options);
+          chart.draw(dataTable, options);
 
 
+        }
       }
+      return list;
 
     }
 
@@ -269,7 +260,7 @@
       query = query.replace("$toDate", toDate)
       console.log(query)
 
-      fetch("https://movably.fielden.com.au/api/graphql", {
+      return fetch("https://movably.fielden.com.au/api/graphql", {
         method: 'POST',
         headers: {
           "API-KEY":"f3162d2f-e798-4b5e-ae59-9540d69dc56c",
@@ -291,53 +282,6 @@
     request(userEmail,fromDate,toDate) {
 
       console.log("reporting usage...")
-
-    //   google.charts.load('current', {
-    //   callback: function () {
-    //     var container = document.getElementById('chart_div');
-    //     var chart = new google.visualization.Timeline(container);
-
-    //     var dataTable = new google.visualization.DataTable();
-    //     dataTable.addColumn({type: 'string', id: 'RowLabel'});
-    //     dataTable.addColumn({type: 'string', id: 'BarLabel'});
-    //     dataTable.addColumn({type: 'date', id: 'Start'});
-    //     dataTable.addColumn({type: 'date', id: 'End'});
-
-    //     dataTable.addRows([
-    //       ['25 August', 'Kasabian - La Fee Verte', new Date(2016,1,1, 13,37,32), new Date(2016,1,1, 13,43,19)],
-    //       ['26 August', 'Test Data 1', new Date(2016,1,1, 13,37,32), new Date(2016,1,1, 13,53,19)],
-    //       ['27 August', 'Test Data 2', new Date(2016,1,1, 13,37,32), new Date(2016,1,1, 13,43,19)]
-    //     ]);
-
-    //     dataTable.insertColumn(2, {type: 'string', role: 'tooltip', p: {html: true}});
-
-    //     var dateFormat = new google.visualization.DateFormat({
-    //       pattern: 'h:mm a'
-    //     });
-
-    //     for (var i = 0; i < dataTable.getNumberOfRows(); i++) {
-    //       var tooltip = '<div class="ggl-tooltip"><span>' +
-    //         dataTable.getValue(i, 1) + '</span></div><div class="ggl-tooltip"><span>' +
-    //         dataTable.getValue(i, 0) + '</span>: ' +
-    //         dateFormat.formatValue(dataTable.getValue(i, 3)) + ' - ' +
-    //         dateFormat.formatValue(dataTable.getValue(i, 4)) + '</div>';
-
-    //       dataTable.setValue(i, 2, tooltip);
-    //     }
-
-    //     chart.draw(dataTable, {
-    //       tooltip: {
-    //         isHtml: true
-    //       }
-    //     });
-    //   },
-    //   packages: ['timeline']
-    // });
-
-      
-      // var userEmail = "raghid.mardini@gmail.com"
-      // var fromDate = "2021-10-06 00:0:0"
-      // var toDate = "2021-10-06 23:59:59"
 
       var query = `query
             {
@@ -364,7 +308,7 @@
       query = query.replace("$toDate", toDate)
       console.log(query)
 
-      fetch("https://movably.fielden.com.au/api/graphql", {
+      return fetch("https://movably.fielden.com.au/api/graphql", {
         method: 'POST',
         headers: {
           "API-KEY":"f3162d2f-e798-4b5e-ae59-9540d69dc56c",
@@ -380,6 +324,61 @@
         .then(r => r.json())
         .then(data => this.plotUsage(data))
 
+
+    }
+
+    getDailyUsages(userEmail){
+
+      const promises = [];
+
+      let now = new Date;
+      this.usageReports = [];
+      this.scores = [];
+
+      for(let i = 0; i < 7; i++){
+        let start = new Date;
+        let end = new Date;
+
+        start.setDate(now.getDate() - i - i);
+        end.setDate(now.getDate() - i);
+
+        this.usageReports[i] = []
+        this.scores[i] = 0;
+
+        promises.push(this.requestTimeUsage(userEmail, dateToString(start), dateToString(end))
+          .then(report => this.usageReports[i] = report)
+          .then(report => this.calculateScore(report))
+          .then(score => this.scores[i] = score)
+          .catch(e => console.log(e)))
+      }
+
+      Promise.all(promises)
+        .then(() => {
+          console.log("ready to plot!!")
+        })
+        .catch((e) => {
+          console.log(e)
+        });
+
+    }
+
+    calculateScore(usage){
+      let totalScore = 0;
+
+      for(let i = 0; i < usage.length; i++){
+        if(usage[i].length == 0){
+          continue;
+        }
+        let duration = (usage[i][4] - usage[i][3])/1000/60;
+
+        if(duration < 3*60){
+          totalScore += 3;
+        }else{
+          totalScore += 1;
+        }
+
+      }
+      return totalScore;
     }
   }
 

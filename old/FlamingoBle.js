@@ -4,13 +4,16 @@
   let encoder = new TextEncoder('utf-8');
   let decoder = new TextDecoder('utf-8');
 
-  const DISCOVERY_SERVICE_UUID = 0x180A
-  // const MODEL_NUMBER_UUID = 0x2A24
-  // const SERIAL_NUMBER_UUID = 0x2A25
-  const FIRMWARE_REVISION_UUID = 0x2A26
-  const HARDWARE_REVISION_UUID = 0x2A27
-  const SOFTWARE_REVISION_UUID = 0x2A28
-  const MANUFACTURER_NAME_UUID = 0x2A29
+  /* Custom Bluetooth Service UUIDs */
+
+  const CANDLE_SERVICE_UUID = "730c0001-7ec9-4dd5-ba24-44a04e14cf08";
+
+  /* Custom Bluetooth Characteristic UUIDs */
+
+  const CANDLE_DEVICE_NAME_UUID = 0xFFFF;
+  const CANDLE_COLOR_UUID = 0xFFFC;
+  const CANDLE_EFFECT_UUID = 0xFFFB;
+  const CANDLE_BLOW_NOTIFICATIONS_UUID = 0x2A37;
 
   const CHAIR_SERVICE_UUID = "730c0001-7ec9-4dd5-ba24-44a04e14cf08";
 
@@ -21,8 +24,6 @@
   const SEND_EVENTS_UUID = "730c0007-7ec9-4dd5-ba24-44a04e14cf08";
   const EVENT_ACK_UUID = "730c0008-7ec9-4dd5-ba24-44a04e14cf08";
   const CHAIR_STATE_UUID = "730c0009-7ec9-4dd5-ba24-44a04e14cf08";
-  const AUTO_MODE_SELECTOR_UUID = "730c000a-7ec9-4dd5-ba24-44a04e14cf08";
-  const TIME_TO_NEXT_TRANSITION_UUID = "730c000b-7ec9-4dd5-ba24-44a04e14cf08";
 
   const ENGINEERING_SERVICE_UUID = "1b25ee00-dadf-11eb-8d19-0242ac130003";
 
@@ -36,11 +37,6 @@
   const STREAMING_ENABLE_UUID = "1b25ee08-dadf-11eb-8d19-0242ac130003";
   const BASE_AWAY_LOWER_THRESHOLD_UUID = "1b25ee09-dadf-11eb-8d19-0242ac130003";
   const BASE_AWAY_UPPER_THRESHOLD_UUID = "1b25ee0a-dadf-11eb-8d19-0242ac130003";
-
-  const USE_VIBRO_UUID = "1b25ee0b-dadf-11eb-8d19-0242ac130003";
-  const VIBRO_STRENGTH_UUID = "1b25ee0c-dadf-11eb-8d19-0242ac130003";
-  const LEFT_SEAT_MOTOR_SOUND_UUID = "1b25ee0d-dadf-11eb-8d19-0242ac130003";
-  const RIGHT_SEAT_MOTOR_SOUND_UUID = "1b25ee0e-dadf-11eb-8d19-0242ac130003";
 
   const CONFIGURATION_SERVICE_UUID = "7f1a0001-252d-4f8b-baea-6bfc6b255ab6";
 
@@ -69,14 +65,6 @@
       this.automode_enabled = false;
       this.automode_period = 0;
       this.automode_period_response = null;
-      this.device_found = false;
-      this.data = {
-        'sw': 'unknown', 
-        'fw': 'unknown',
-        'getVersion': function() {
-          return this.sw+"_"+this.fw
-        }
-      };
 
     }
     request(onDisconnect) {
@@ -87,51 +75,13 @@
       let options = {//acceptAllDevices: true,
                       filters:[{namePrefix: 'Flamingo'}],
                       // filters:[{services:[ CHAIR_SERVICE_UUID ]}],
-                      optionalServices: [CHAIR_SERVICE_UUID, ENGINEERING_SERVICE_UUID, CONFIGURATION_SERVICE_UUID, TIME_SERVICE_UUID, OTAServiceUUID, DISCOVERY_SERVICE_UUID]};
+                      optionalServices: [CHAIR_SERVICE_UUID, ENGINEERING_SERVICE_UUID, CONFIGURATION_SERVICE_UUID, TIME_SERVICE_UUID, OTAServiceUUID]};
       return navigator.bluetooth.requestDevice(options)
       .then(device => {
         this.device = device;
         this.device.addEventListener('gattserverdisconnected', onDisconnect);
 
       })
-    }
-
-    async scanForDevice(){
-      this.device_found = false;
-      let devices = await navigator.bluetooth.getDevices();
-      console.log(devices);
-      for (let device of devices) {
-        // Start a scan for each device before connecting to check that they're in
-        // range.
-        let abortController = new AbortController();
-        device.addEventListener('advertisementreceived', async (evt) => {
-          // Stop the scan to conserve power on mobile devices.
-          abortController.abort();
-
-     
-          // Advertisement data can be read from |evt|.
-          let deviceName = evt.name;
-          let uuids = evt.uuids;
-          let appearance = evt.appearance;
-          let pathloss = evt.txPower - evt.rssi;
-          let manufacturerData = evt.manufacturerData;
-          let serviceData = evt.serviceData;
-     
-          console.log(deviceName);
-          console.log(manufacturerData);
-
-          // At this point, we know that the device is in range, and we can attempt
-          // to connect to it.
-          // await evt.device.gatt.connect();
-          if(deviceName=="Flamingo"){
-            this.device_found = true;
-            this.device = evt.device;
-          }
-        });
-
-        await device.watchAdvertisements({signal: abortController.signal});
-
-      }
     }
     
     async connect(engineering_enabled) {
@@ -152,12 +102,6 @@
       this._cacheCharacteristic(service, SEND_EVENTS_UUID);
       this._cacheCharacteristic(service, EVENT_ACK_UUID);
       this._cacheCharacteristic(service, CHAIR_STATE_UUID);
-      this._cacheCharacteristic(service, AUTO_MODE_SELECTOR_UUID);
-      this._cacheCharacteristic(service, TIME_TO_NEXT_TRANSITION_UUID);
-
-      service = await server.getPrimaryService(DISCOVERY_SERVICE_UUID);
-      this._cacheCharacteristic(service, FIRMWARE_REVISION_UUID);
-      this._cacheCharacteristic(service, SOFTWARE_REVISION_UUID);
 
 
       service = await server.getPrimaryService(CONFIGURATION_SERVICE_UUID);
@@ -177,10 +121,6 @@
       this._cacheCharacteristic(service, STREAMING_ENABLE_UUID);
       this._cacheCharacteristic(service, BASE_AWAY_LOWER_THRESHOLD_UUID);
       this._cacheCharacteristic(service, BASE_AWAY_UPPER_THRESHOLD_UUID);
-      this._cacheCharacteristic(service, USE_VIBRO_UUID);
-      this._cacheCharacteristic(service, VIBRO_STRENGTH_UUID);
-      this._cacheCharacteristic(service, LEFT_SEAT_MOTOR_SOUND_UUID);
-      this._cacheCharacteristic(service, RIGHT_SEAT_MOTOR_SOUND_UUID);
 
       service = await server.getPrimaryService(TIME_SERVICE_UUID);
       this._cacheCharacteristic(service, CURRENT_TIME_UUID);
@@ -189,8 +129,6 @@
       service = await server.getPrimaryService(OTAServiceUUID);
       this._cacheCharacteristic(service, BeginUUID);
       this._cacheCharacteristic(service, DataUUID);
-
-      
              
     }
 
@@ -206,6 +144,7 @@
       // console.log("reading automode")
       this._readCharacteristicValue(AUTO_MODE_UUID).then((response) => this.handleAutoModeRead(response))  
     }
+
 
     handleAutoPeriodRead(data){
       // console.log("auto period")
@@ -225,22 +164,6 @@
       value = value * 60;
       return this._writeCharacteristicValue(AUTO_PERIOD_UUID, new Uint32Array([value]))
     }
-
-    async startListenAutoPeriod(listener) {
-      let characteristic = this._characteristics.get(AUTO_PERIOD_UUID);
-      return await characteristic.startNotifications()
-      .then(_ => {
-        characteristic.addEventListener('characteristicvaluechanged', listener);
-      });
-    }
-
-    getSwVersion(){
-      return this._readCharacteristicValue(SOFTWARE_REVISION_UUID).then((response) => this.data.sw = this._decodeString(response)) 
-    }
-
-    getFwVersion(){
-      return this._readCharacteristicValue(FIRMWARE_REVISION_UUID).then((response) => this.data.fw = this._decodeString(response)) 
-    }
     
     setMode(mode) {
       this._writeCharacteristicValue(AUTO_MODE_UUID, new Uint8Array([mode]))
@@ -252,20 +175,6 @@
     
     getChairEvent(){
         return this._readCharacteristicValue(CHAIR_STATE_UUID)
-    }
-
-    setAutoModeSelector(autoType){
-      this._writeCharacteristicValue(AUTO_MODE_SELECTOR_UUID, new Uint8Array([autoType]))
-    }
-
-    getAutoModeSelector(){
-      return this._readCharacteristicValue(AUTO_MODE_SELECTOR_UUID).then((response) => response.getUint8(0));  
-
-    }
-
-    getTimeToNextTransition(){
-      // console.log("reading accel limit")
-      return this._readCharacteristicValue(TIME_TO_NEXT_TRANSITION_UUID).then((response) => this.handleFloatReading(response))  
     }
     
     async startListenChairStateRead(listener) {
@@ -431,42 +340,6 @@
     getAwayUpperThreshold(){
       return this._readCharacteristicValue(BASE_AWAY_UPPER_THRESHOLD_UUID).then((response) => this.handleUint32Reading(response))  
     }
-
-    /// Vibration configuration
-    enableVibroMotor(enable){
-      this._writeCharacteristicValue(USE_VIBRO_UUID, new Uint8Array([enable]))
-    }
-
-    getEnableVibroMotor(){
-      return this._readCharacteristicValue(USE_VIBRO_UUID).then((response) => response.getUint8(0));  
-    }
-
-    setVibroStrength(strength){
-      this._writeCharacteristicValue(VIBRO_STRENGTH_UUID, new Uint8Array([strength]))
-    }
-
-    getVibroStrength(){
-      return this._readCharacteristicValue(VIBRO_STRENGTH_UUID).then((response) => response.getUint8(0));  
-    }
-
-    setLeftMotorSoundStrength(strength){
-      this._writeCharacteristicValue(LEFT_SEAT_MOTOR_SOUND_UUID, new Uint8Array([strength]))
-
-    }
-
-    getLeftMotorSoundStrength(){
-      return this._readCharacteristicValue(LEFT_SEAT_MOTOR_SOUND_UUID).then((response) => response.getUint8(0));  
-    }
-
-    setRightMotorSoundStrength(strength){
-      this._writeCharacteristicValue(RIGHT_SEAT_MOTOR_SOUND_UUID, new Uint8Array([strength]))
-
-    }
-
-    getRightMotorSoundStrength(){
-      return this._readCharacteristicValue(RIGHT_SEAT_MOTOR_SOUND_UUID).then((response) => response.getUint8(0));  
-    }
-    //////////////////////////
 
 
     /* Discovery Service */

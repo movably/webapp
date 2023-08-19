@@ -21,51 +21,33 @@ autoSlider.registerChanges(FlamingoBle.setAutoPeriod,
     FlamingoBle.getAutoPeriod,
     FlamingoBle);
 
-let vibroSlider = new Slider("vibroSlider","vibroSliderTitle","vibroSliderValue");
-vibroSlider.setProperties("Vibration:","0","50", "%")
-vibroSlider.registerChanges(FlamingoBle.setVibroStrength, 
-    FlamingoBle.getVibroStrength,
-    FlamingoBle);
-
-let leftMotorSoundSlider = new Slider("leftSoundSlider","leftSoundSliderTitle","leftSoundSliderValue");
-leftMotorSoundSlider.setProperties("Left sound:","0","50", "%")
-leftMotorSoundSlider.registerChanges(FlamingoBle.setLeftMotorSoundStrength, 
-    FlamingoBle.getLeftMotorSoundStrength,
-    FlamingoBle);
-
-let rightMotorSoundSlider = new Slider("rightSoundSlider","rightSoundSliderTitle","rightSoundSliderValue");
-rightMotorSoundSlider.setProperties("Right sound:","0","50", "%")
-rightMotorSoundSlider.registerChanges(FlamingoBle.setRightMotorSoundStrength, 
-    FlamingoBle.getRightMotorSoundStrength,
-    FlamingoBle);
-
 let velSlider, accelSlider, deccelSlider, trajVelSlider;
 
-// if(engineering_enabled){
-//   velSlider = new Slider("slider2","slider2Title","slider2Value");
-//   velSlider.setProperties("Vel Limit:","1","25","")
-//   velSlider.registerChanges(FlamingoBle.setVelLimit, 
-//       FlamingoBle.getVelLimit,
-//       FlamingoBle);
+if(engineering_enabled){
+  velSlider = new Slider("slider2","slider2Title","slider2Value");
+  velSlider.setProperties("Vel Limit:","1","25","")
+  velSlider.registerChanges(FlamingoBle.setVelLimit, 
+      FlamingoBle.getVelLimit,
+      FlamingoBle);
 
-//   accelSlider = new Slider("slider3","slider3Title","slider3Value");
-//   accelSlider.setProperties("Accel Limit:","1","25","")
-//   accelSlider.registerChanges(FlamingoBle.setAccelLimit, 
-//       FlamingoBle.getAccelLimit,
-//       FlamingoBle);
+  accelSlider = new Slider("slider3","slider3Title","slider3Value");
+  accelSlider.setProperties("Accel Limit:","1","25","")
+  accelSlider.registerChanges(FlamingoBle.setAccelLimit, 
+      FlamingoBle.getAccelLimit,
+      FlamingoBle);
 
-//   deccelSlider = new Slider("slider4","slider4Title","slider4Value");
-//   deccelSlider.setProperties("Deccel Limit:","1","25","")
-//   deccelSlider.registerChanges(FlamingoBle.setDeccelLimit, 
-//       FlamingoBle.getDeccelLimit,
-//       FlamingoBle);
+  deccelSlider = new Slider("slider4","slider4Title","slider4Value");
+  deccelSlider.setProperties("Deccel Limit:","1","25","")
+  deccelSlider.registerChanges(FlamingoBle.setDeccelLimit, 
+      FlamingoBle.getDeccelLimit,
+      FlamingoBle);
 
-//   trajVelSlider = new Slider("slider5","slider5Title","slider5Value");
-//   trajVelSlider.setProperties("Traj Vel Limit:","1","25","")
-//   trajVelSlider.registerChanges(FlamingoBle.setTrajVelLimit, 
-//       FlamingoBle.getTrajVelLimit,
-//       FlamingoBle);
-// }
+  trajVelSlider = new Slider("slider5","slider5Title","slider5Value");
+  trajVelSlider.setProperties("Traj Vel Limit:","1","25","")
+  trajVelSlider.registerChanges(FlamingoBle.setTrajVelLimit, 
+      FlamingoBle.getTrajVelLimit,
+      FlamingoBle);
+}
 
 
 console.log("engineering enabled =", engineering_enabled)
@@ -94,23 +76,16 @@ function onDisconnect(event){
     // FlamingoBle.getChairEvent().then((response) => handleChairEventRead(response));
     FlamingoBle.startListenChairEvents(handleChairEvents);
     FlamingoBle.startListenChairStateRead(handleChairEventRead);
-    FlamingoBle.startListenAutoPeriod(handlePeriodChange)
     FlamingoBle.getChairEvent()
-    FlamingoBle.getSwVersion().then(
-      FlamingoBle.getFwVersion().then(
-        _ => document.querySelector('#currentVersionTitle').textContent = "Current version: " + FlamingoBle.data.getVersion()
-      )
-    )
-
 
     if(engineering_enabled){
       document.querySelector('#state').classList.add('engineering');
       FlamingoBle.startRealtimeEvents(handleRealtimeEvents);
 
-      // FlamingoBle.getVelLimit().then(velSlider.handleRead);
-      // FlamingoBle.getAccelLimit().then(accelSlider.handleRead);
-      // FlamingoBle.getDeccelLimit().then(deccelSlider.handleRead);
-      // FlamingoBle.getTrajVelLimit().then(trajVelSlider.handleRead);
+      FlamingoBle.getVelLimit().then(velSlider.handleRead);
+      FlamingoBle.getAccelLimit().then(accelSlider.handleRead);
+      FlamingoBle.getDeccelLimit().then(deccelSlider.handleRead);
+      FlamingoBle.getTrajVelLimit().then(trajVelSlider.handleRead);
 
       FlamingoBle.startErrorCodeEvents(handleErrorCodes);
       FlamingoBle.getErrorCodes();
@@ -118,7 +93,6 @@ function onDisconnect(event){
       FlamingoBle.getTriggerByMotion().then(handleTriggerByMotionEnable);
       FlamingoBle.getSerialNumber().then(handleDeviceSerial);
       FlamingoBle.getModelNumber().then(handleDeviceModel);
-      FlamingoBle.getEnableVibroMotor().then(handleEnableVibroMotor);
     }
   })
   .catch(error => {
@@ -146,25 +120,13 @@ document.querySelector('#connect').addEventListener('click', function() {
 
 
   FlamingoBle.request(onDisconnect)
-  .then(_ => connectDevice())
-  .catch(error => {
-    document.querySelector('#state').classList.remove('connecting');
-    // TODO: Replace with toast when snackbar lands.
-    console.error('Argh!', error);
-    console.log(error.messsage);
-
-  });
-});
-
-function connectDevice(){
-    FlamingoBle.request(onDisconnect)
-
+  .then(_ => {
     document.querySelector('#state').classList.remove('engineering');
     document.querySelector('#state').classList.remove('connected');
     document.querySelector('#state').classList.add('connecting');
-
-    return FlamingoBle.connect(engineering_enabled)
-    .then(_ => {
+    return FlamingoBle.connect(engineering_enabled);
+  })
+  .then(_ => {
     document.querySelector('#state').classList.remove('connecting');
     document.querySelector('#state').classList.add('connected');
     document.querySelector('#blow').textContent = '';
@@ -175,28 +137,16 @@ function connectDevice(){
     // FlamingoBle.getChairEvent().then((response) => handleChairEventRead(response));
     FlamingoBle.startListenChairEvents(handleChairEvents);
     FlamingoBle.startListenChairStateRead(handleChairEventRead);
-    FlamingoBle.startListenAutoPeriod(handlePeriodChange)
     FlamingoBle.getChairEvent()
-    FlamingoBle.getSwVersion().then(
-      FlamingoBle.getFwVersion().then(
-        _ => document.querySelector('#currentVersionTitle').textContent = "Current version: " + FlamingoBle.data.getVersion()
-      )
-    )
-    FlamingoBle.getVibroStrength().then(vibroSlider.handleRead);
-    FlamingoBle.getLeftMotorSoundStrength().then(leftMotorSoundSlider.handleRead);
-    FlamingoBle.getRightMotorSoundStrength().then(rightMotorSoundSlider.handleRead);
-
-
-    FlamingoBle.getAutoModeSelector().then(handleAutoModeSelectorRead)
 
     if(engineering_enabled){
       document.querySelector('#state').classList.add('engineering');
       FlamingoBle.startRealtimeEvents(handleRealtimeEvents);
 
-      // FlamingoBle.getVelLimit().then(velSlider.handleRead);
-      // FlamingoBle.getAccelLimit().then(accelSlider.handleRead);
-      // FlamingoBle.getDeccelLimit().then(deccelSlider.handleRead);
-      // FlamingoBle.getTrajVelLimit().then(trajVelSlider.handleRead);
+      FlamingoBle.getVelLimit().then(velSlider.handleRead);
+      FlamingoBle.getAccelLimit().then(accelSlider.handleRead);
+      FlamingoBle.getDeccelLimit().then(deccelSlider.handleRead);
+      FlamingoBle.getTrajVelLimit().then(trajVelSlider.handleRead);
 
       FlamingoBle.startErrorCodeEvents(handleErrorCodes);
       FlamingoBle.getErrorCodes();
@@ -204,7 +154,6 @@ function connectDevice(){
       FlamingoBle.getTriggerByMotion().then(handleTriggerByMotionEnable);
       FlamingoBle.getSerialNumber().then(handleDeviceSerial);
       FlamingoBle.getModelNumber().then(handleDeviceModel);
-      FlamingoBle.getEnableVibroMotor().then(handleEnableVibroMotor);
     }
   })
   .catch(error => {
@@ -214,17 +163,17 @@ function connectDevice(){
     console.log(error.messsage);
 
   });
-}
+});
 
 
 pushNotificationMsg("Notifications Enabled.")
 
 function pushNotificationMsg(msg) {
-  // try{
-  //   playSound("mixkit-positive-notification-951.wav")
-  // } catch (e) {
-  //   console.log(e)
-  // }
+  try{
+    playSound("mixkit-positive-notification-951.wav")
+  } catch (e) {
+    console.log(e)
+  }
 
   try {
     console.log("Notification! " + msg)
@@ -280,21 +229,14 @@ function handleChairEventRead(event){
     chairMode = modes[mode];
   }
 
-  let s = document.getElementById("auto-switch")
-
-
   if(v.getUint8(2) == 0){
     // document.querySelector('#manualMode').checked = true;
-    // document.getElementById('manualMode').checked = true;
-
-    s.parentElement.MaterialSwitch.off();
-
+    document.getElementById('manualMode').checked = true;
     // document.querySelector('[name="effectSwitch"]:checked').id = 'manualMode';
     // console.log("manualMode")
   }else if(v.getUint8(2) == 1){
     // document.querySelector('#autoMode').checked = true;
-    // document.getElementById('autoMode').checked = true;
-    s.parentElement.MaterialSwitch.on();
+    document.getElementById('autoMode').checked = true;
     // document.querySelector('[name="effectSwitch"]:checked').id = 'autoMode';
     // console.log("autoMode")
 
@@ -329,13 +271,6 @@ function handleChairEvents(event){
   // handleChairEventRead(event.target.value);
   console.log("-> chair event =", v.getUint8(0), v.getUint8(1), v.getUint8(2))
   sendChairEventToCloud(leftSide, rightSide, chairMode, event_time);
-}
-
-let chair_period = 0;
-function handlePeriodChange(event){
-  v = event.target.value;
-  chair_period = new Uint32Array(v.buffer)[0];
-  console.log("-> period changed: ", chair_period, "sec = ", chair_period/60.0, "min");
 }
 
 function sendChairEventToCloud(left,right,mode, event_time){
@@ -401,62 +336,44 @@ function handleErrorCodes(event){
   }
 
   if(left_motor_comm_error){
-    error_string += "Left Motor Communication, "
+    error_string += "LeftMotorComm, "
   }
 
   if(right_motor_comm_error){
-    error_string += "Right Motor Communication, "
+    error_string += "RightMotorComm, "
   }
 
   if(left_button_comm_error){
-    error_string += "Left Button Communication, "
+    error_string += "LeftButtonComm, "
   }
 
   if(right_button_comm_error){
-    error_string += "Right Botton Communication, "
+    error_string += "RightBottonComm, "
   }
 
   if(base_comm_error){
-    error_string += "Base Sensor Communication, "
+    error_string += "BaseComm, "
   }
 
   document.querySelector('#statusString').textContent = error_string;
 
 }
 
-function handleAutoModeSelectorRead(modeId){
-  console.log("AutoSelctor = " + modeId);
 
-  document.querySelector('#AutoMode' + modeId).checked = true;
-}
-
-
-document.querySelector('#AutoMode0').addEventListener('click', selectAutoMode);
-document.querySelector('#AutoMode1').addEventListener('click', selectAutoMode);
-document.querySelector('#AutoMode2').addEventListener('click', selectAutoMode);
-document.querySelector('#AutoMode3').addEventListener('click', selectAutoMode);
-document.querySelector('#AutoMode4').addEventListener('click', selectAutoMode);
-
-// document.querySelector('#manualMode').addEventListener('click', changeMode);
-// document.querySelector('#autoMode').addEventListener('click', changeMode);
+document.querySelector('#manualMode').addEventListener('click', changeMode);
+document.querySelector('#autoMode').addEventListener('click', changeMode);
 document.querySelector('#triggerByMotionEnable').addEventListener('click', triggerByMotionEnable);
 document.querySelector('#setDeviceInfo').addEventListener('click', setDeviceInfo);
 
-document.getElementById("auto-switch").addEventListener('click', changeModeToggle);
-
-document.querySelector('#enableVibroMotor').addEventListener('click', enableVibroMotorClicked);
-
 
 function handleDeviceSerial(info){
-
-  document.querySelector('#title2').textContent = "Connected to Flamingo Chair " + info;
-  // document.querySelector('#titleDeviceSerial').textContent = "Serial #: " + info;
+  document.querySelector('#titleDeviceSerial').textContent = "Serial #: " + info;
   document.querySelector('#inputSerial').value = info;
   chairSerial = info;
 }
 
 function handleDeviceModel(info){
-  // document.querySelector('#titleDeviceModel').textContent = "Model #: " + info;
+  document.querySelector('#titleDeviceModel').textContent = "Model #: " + info;
   document.querySelector('#inputModel').value = info;
 }
 
@@ -472,6 +389,7 @@ function setDeviceInfo(){
       FlamingoBle.getModelNumber().then(handleDeviceModel);
     }, 1000);
 
+    
 }
 
 function handleTriggerByMotionEnable(value){
@@ -486,17 +404,6 @@ function triggerByMotionEnable(){
     .then((value) => handleTriggerByMotionEnable(value));
 }
 
-function handleEnableVibroMotor(value){
-  console.log(value)
-  document.querySelector('#enableVibroMotor').checked = value;
-}
-
-function enableVibroMotorClicked(){
-  FlamingoBle.enableVibroMotor(document.querySelector('#enableVibroMotor').checked)
-    .then(_ => FlamingoBle.getEnableVibroMotor())
-    .then((value) => handleEnableVibroMotor(value));
-}
-
 function changeMode() {
   var effect = document.querySelector('[name="effectSwitch"]:checked').id;
   switch(effect) {
@@ -507,25 +414,6 @@ function changeMode() {
       FlamingoBle.setMode(1);;
       break;
   }
-}
-
-function selectAutoMode() {
-  var modeType = document.querySelector('[name="effectSwitch"]:checked').value;
-  console.log("selecting mode type: " + modeType)
-  FlamingoBle.setAutoModeSelector(modeType);
-  // switch(effect) {
-  //   case 'manualMode':
-  //     FlamingoBle.setMode(0);
-  //     break;
-  //   case 'autoMode':
-  //     FlamingoBle.setMode(1);;
-  //     break;
-  // }
-}
-
-function changeModeToggle() {
-  var effect = document.getElementById("auto-switch").checked;
-  FlamingoBle.setMode(effect);
 }
 
 window.addEventListener('unhandledrejection', function() {
@@ -676,8 +564,7 @@ function createNewPlotter() {
 
     },
     paper_bgcolor: "rgba(0, 0, 0, 0)",
-    // width: 1000,
-    autosize: true,
+    width: 1000,
   }
 
 
@@ -1254,19 +1141,20 @@ function calibrate() {
     // rejection
     alert("Something went wrong. Try again later.");
   });
-
+  
+  
 }
 
-document.getElementById('file')
+document.getElementById('inputfile')
     .addEventListener('change', function() {
 
-    let filename = document.getElementById('file').files[0].name;
+    let filename = document.getElementById('inputfile').files[0].name;
 
     let filenameSplit = filename.split('.');
 
     let fileExtension = filenameSplit[filenameSplit.length - 1];
 
-    if(fileExtension != 'bin'){
+    if(fileExtension != 'bin'){      
       document.getElementById('output').textContent = 'wrong file format';
       return;
     }else{
@@ -1279,10 +1167,10 @@ document.getElementById('file')
           console.log(uint8View.length)
 
           FlamingoBle.performUpdate(uint8View)
-          // document.getElementById('file').value = null
+          // document.getElementById('inputfile').value = null
       }
-        
-      fr.readAsArrayBuffer(document.getElementById('file').files[0]);
+      
+      fr.readAsArrayBuffer(document.getElementById('inputfile').files[0]);
     }
 
 })
@@ -1298,7 +1186,9 @@ function dateToString(now){
   return today_time_string;
 }
 
-
+let now = new Date;
+let yesterday = new Date;
+yesterday.setDate(now.getDate() - 1);
 
 
 // UsageReporter.request(userEmail, dateToString(yesterday), dateToString(now));
@@ -1316,210 +1206,6 @@ function reportUsage(start, end){
 
 function playSound(url) {
   const audio = new Audio(url);
-  audio.volume = 0.3;
   audio.play();
 }
-
-
-var coll = document.getElementsByClassName("collapsible");
-var i;
-
-for (i = 0; i < coll.length; i++) {
-  coll[i].addEventListener("click", function() {
-    this.classList.toggle("active");
-    var content = this.nextElementSibling;
-    if (content.style.maxHeight){
-      content.style.maxHeight = null;
-      content.style.borderStyle = "none";
-    } else {
-      content.style.maxHeight = content.scrollHeight + "px";
-      content.style.borderStyle = "solid";
-    }
-  });
-}
-
-function openCity(evt, cityName) {
-  var i, x, tablinks;
-  x = document.getElementsByClassName("city");
-  for (i = 0; i < x.length; i++) {
-    x[i].style.display = "none";
-  }
-  tablinks = document.getElementsByClassName("tablink");
-  for (i = 0; i < x.length; i++) {
-    tablinks[i].className = tablinks[i].className.replace(" w3-amber", "");
-  }
-  document.getElementById(cityName).style.display = "block";
-  evt.currentTarget.className += " w3-amber";
-}
-
-
-//  Morris.Donut({
-//   element: 'donut-example',
-//   data: [
-//   {label: "Nombre des Ecoles", value: 851},
-//   {label: "Nombre des Apprenant", value: 3281},
-//   {label: "Nombre des Formateur", value: 1912}
-//   ],colors:['#ffb606','#0072f2','#f42a26'],
-//   labelColor: '#ffffff'
-  
-// });
-
-
-UsageReporter.getDailyUsages(userEmail);
-
-
-async function autoScan() {
-  if(FlamingoBle.device){
-    if(FlamingoBle.device.gatt.connected){
-      return;
-    }
-  }
-
-  await FlamingoBle.scanForDevice();
-  
-  // console.log("connect now..")
-  setTimeout(connectIfFound, 1000);
-
-    function connectIfFound(){
-      if(FlamingoBle.device_found){
-        connectDevice();
-      }
-    }
-}
-
-
-try{
-  autoScan();
-  var autoScanId = setInterval(autoScan, 5000);
-
-}catch (ex)
-{
-  console.log("auto scan and connect is not supported..", ex)
-}
-
-
-// Credit: Mateusz Rybczonec
-
-const FULL_DASH_ARRAY = 283;
-const WARNING_THRESHOLD = 10;
-const ALERT_THRESHOLD = 5;
-
-const COLOR_CODES = {
-  info: {
-    color: "green"
-  },
-  warning: {
-    color: "orange",
-    threshold: WARNING_THRESHOLD
-  },
-  alert: {
-    color: "red",
-    threshold: ALERT_THRESHOLD
-  }
-};
-
-let TIME_LIMIT = chair_period;
-let timeLeft = 0;
-let timerInterval = null;
-let remainingPathColor = COLOR_CODES.info.color;
-
-startTimer();
-
-function onTimesUp() {
-  // clearInterval(timerInterval);
-  document.getElementById("base-timer-label")
-  $('#base_timer').hide()
-}
-
-function startTimer() {
-  timerInterval = setInterval(() => {
-
-    if(!FlamingoBle.device || FlamingoBle.device.gatt.connected == false){
-      $('#base_timer').hide()
-      return;
-    }
-
-    timeLeft = timeLeft - 1; 
-    TIME_LIMIT = chair_period;
-
-    let timeLeftDisplay = Math.max(timeLeft, 0)
-
-    document.getElementById("base-timer-label").innerHTML = formatTime(
-      timeLeftDisplay
-    );
-    setCircleDasharray(timeLeftDisplay);
-    setRemainingPathColor(timeLeftDisplay);
-
-    if (chairMode == "auto" && timeLeft!=-1) {
-      $('#base_timer').show()
-    }else{
-      onTimesUp();
-    }
-  }, 1000);
-
-  updateTimerInterval = setInterval(() => {
-    if(!FlamingoBle.device || FlamingoBle.device.gatt.connected == false){
-      return;
-    }
-
-    // FlamingoBle.getAutoPeriod().then((response) => TIME_LIMIT = Math.floor(response*60) );
-    FlamingoBle.getTimeToNextTransition().then((response) => timeLeft = Math.floor(response) );
-    
-  }, 3000);
-}
-
-function formatTime(time) {
-  const minutes = Math.floor(time / 60);
-  let seconds = time % 60;
-
-  if (seconds < 10) {
-    seconds = `0${seconds}`;
-  }
-
-  return `${minutes}:${seconds}`;
-}
-
-function setRemainingPathColor(timeLeft) {
-  const { alert, warning, info } = COLOR_CODES;
-  if (timeLeft <= alert.threshold) {
-    document
-      .getElementById("base-timer-path-remaining")
-      .classList.remove(warning.color);
-    document
-      .getElementById("base-timer-path-remaining")
-      .classList.add(alert.color);
-  } else if (timeLeft <= warning.threshold) {
-    document
-      .getElementById("base-timer-path-remaining")
-      .classList.remove(info.color);
-    document
-      .getElementById("base-timer-path-remaining")
-      .classList.add(warning.color);
-  } else {
-    document
-      .getElementById("base-timer-path-remaining")
-      .classList.remove(warning.color);
-    document
-      .getElementById("base-timer-path-remaining")
-      .classList.remove(alert.color);
-    document
-      .getElementById("base-timer-path-remaining")
-      .classList.add(info.color);
-  }
-}
-
-function calculateTimeFraction(timeLeft) {
-  const rawTimeFraction = timeLeft / TIME_LIMIT;
-  return rawTimeFraction - (1 / TIME_LIMIT) * (1 - rawTimeFraction);
-}
-
-function setCircleDasharray(timeLeft) {
-  const circleDasharray = `${(
-    calculateTimeFraction(timeLeft) * FULL_DASH_ARRAY
-  ).toFixed(0)} 283`;
-  document
-    .getElementById("base-timer-path-remaining")
-    .setAttribute("stroke-dasharray", circleDasharray);
-}
-
 
