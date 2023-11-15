@@ -1145,6 +1145,8 @@ function calibrate() {
   
 }
 
+
+//Check
 document.getElementById('inputfile')
     .addEventListener('change', function() {
 

@@ -441,6 +441,8 @@ document.querySelector('#AutoMode4').addEventListener('click', selectAutoMode);
 // document.querySelector('#autoMode').addEventListener('click', changeMode);
 document.querySelector('#triggerByMotionEnable').addEventListener('click', triggerByMotionEnable);
 document.querySelector('#setDeviceInfo').addEventListener('click', setDeviceInfo);
+document.querySelector('#getDebugDataInfo').addEventListener('click', getDebugDataInfo);
+
 
 document.getElementById("auto-switch").addEventListener('click', changeModeToggle);
 
@@ -1286,6 +1288,36 @@ document.getElementById('file')
     }
 
 })
+
+document.getElementById('file_OTA_v2')
+    .addEventListener('change', function() {
+
+    let filename = document.getElementById('file_OTA_v2').files[0].name;
+
+    let filenameSplit = filename.split('.');
+
+    let fileExtension = filenameSplit[filenameSplit.length - 1];
+
+    if(fileExtension != 'bin'){      
+      document.getElementById('output_OTA_v2').textContent = 'wrong file format';
+      return;
+    }else{
+
+      var fr=new FileReader();
+      fr.onload=function(){
+          document.getElementById('output_OTA_v2').textContent="File selected";
+
+          var uint8View = new Uint8Array(fr.result);
+          console.log(uint8View.length)
+
+          FlamingoBle.performUpdate_OTA_v2(uint8View)
+      }
+      
+      fr.readAsArrayBuffer(document.getElementById('file_OTA_v2').files[0]);
+    }
+
+})
+
 
 function dateToString(now){
   let today_time_string = sprintf('%i-%02i-%02i %i:%02i:%02i', now.getFullYear(), 

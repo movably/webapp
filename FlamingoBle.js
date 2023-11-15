@@ -50,6 +50,11 @@
   const OTAServiceUUID = "d0274711-aefa-42c3-93f1-535a09812c37";
   const BeginUUID = "403b76d9-9bc6-4837-8112-cd62516ef214";
   const DataUUID = "d0270001-aefa-42c3-93f1-535a09812c37";
+  const OTAService_OTA_v2_UUID = "d0274711-aefa-42c3-93f1-535a09812c37";
+  const Status_OTA_v2_UUID = "399fa500-b71f-4681-950c-2a1cb307c629";
+  const Begin_OTA_v2_UUID = "403b76d9-9bc6-4837-8112-cd62516ef315";
+  const Data_OTA_v2_UUID = "d0270001-aefa-42c3-93f1-535a09812d38";
+  
   const OTA_INIT = 0;
   const OTA_BEGIN = 1;
   const OTA_INPROGRESS = 2;
@@ -85,7 +90,7 @@
       // let options = {filters:[{services:[ CHAIR_SERVICE_UUID ]}],
       //                optionalServices: ['battery_service']};
       let options = {//acceptAllDevices: true,
-                      filters:[{namePrefix: 'Flamingo'}],
+                      filters:[{namePrefix: 'Movably Chair'}],
                       // filters:[{services:[ CHAIR_SERVICE_UUID ]}],
                       optionalServices: [CHAIR_SERVICE_UUID, ENGINEERING_SERVICE_UUID, CONFIGURATION_SERVICE_UUID, TIME_SERVICE_UUID, OTAServiceUUID, DISCOVERY_SERVICE_UUID]};
       return navigator.bluetooth.requestDevice(options)
@@ -181,7 +186,7 @@
       this._cacheCharacteristic(service, VIBRO_STRENGTH_UUID);
       this._cacheCharacteristic(service, LEFT_SEAT_MOTOR_SOUND_UUID);
       this._cacheCharacteristic(service, RIGHT_SEAT_MOTOR_SOUND_UUID);
-
+      
       service = await server.getPrimaryService(TIME_SERVICE_UUID);
       this._cacheCharacteristic(service, CURRENT_TIME_UUID);
 
@@ -189,6 +194,9 @@
       service = await server.getPrimaryService(OTAServiceUUID);
       this._cacheCharacteristic(service, BeginUUID);
       this._cacheCharacteristic(service, DataUUID);
+      this._cacheCharacteristic(service, Begin_OTA_v2_UUID);
+      this._cacheCharacteristic(service, Data_OTA_v2_UUID);
+      this._cacheCharacteristic(service, Status_OTA_v2_UUID);
 
       
              
@@ -646,6 +654,171 @@
   return false;
 
   }
+
+//------------------------------------STM32 update routine---------------------------------------------
+
+  async performUpdate_OTA_v2(buffer){
+
+    try {
+      // start the process
+      var lengthAsBytes = buffer.length;
+
+      try {
+        console.log('Setting Characteristic User Description...');
+        await this._writeCharacteristicValue(Begin_OTA_v2_UUID,new Uint32Array([lengthAsBytes]));
+
+        var outputString = "Successfully wrote OTA Begin";
+        document.getElementById('output_OTA_v2').textContent = outputString;
+        console.log(outputString);
+
+      } catch(error) {
+        var outputString = "FAILED: OTA did not start"  + error;
+        document.getElementById('output_OTA_v2').textContent = outputString;
+        console.log(outputString);
+      }
+
+
+
+      // read it back
+      var readResult = await this._readCharacteristicValue(Begin_OTA_v2_UUID);
+      var res = new Uint32Array(readResult.buffer)[0]
+      console.log(readResult)
+      console.log(res)
+      if (res == OTA_BEGIN)
+      {
+          var outputString = "Entered OTA Begin successfully";
+          document.getElementById('output_OTA_v2').textContent = outputString;
+          console.log(outputString);
+      }
+      else
+      {
+          var outputString = "FAILED: OTA failed to read or nvalid OTA state {state}" + readResult;
+          document.getElementById('output_OTA_v2').textContent = outputString;
+          console.log(outputString);
+          return false;
+      }
+
+
+      var bytesSent = 0;
+      var interval = 1;
+      var maxWrite = 250;
+      var startTime = Date.now();
+      while (bytesSent < buffer.length)
+      {
+          // extract a subbuffer of, at most, 20 bytes to send
+          var bytesToSend = Math.min(maxWrite , buffer.length - bytesSent);
+          try
+          {
+              await this._writeCharacteristicValue(Data_OTA_v2_UUID, buffer.subarray(bytesSent, bytesSent + bytesToSend));
+
+              // result = await _otaDataChar.WriteValueAsync( buffer.AsBuffer( bytesSent, bytesToSend ) );
+              if(bytesSent < maxWrite){
+                var mins = (Date.now() - startTime)/1000.0 / 60.0;
+
+                var outputString = sprintf("#1Done! - %i bytes sent in %7.2f mins" ,bytesSent, mins);
+                document.getElementById('output_OTA_v2').textContent = outputString;
+                console.log(outputString);
+              }
+          }
+          catch (ex)
+          {
+              if (bytesToSend <= maxWrite )
+              {
+                  bytesSent += bytesToSend;
+                  var mins = (Date.now() - startTime)/1000.0 / 60.0;
+                  // the last call will abort because the system will restart
+                  // need to start the reconnect process
+                  // FlashProgressChanged?.Invoke( null, new FlashProgressEventArgs( ) { Progress = $"Done - {bytesSent} bytes sent in {mins:F2} mins" } );
+                  var outputString = sprintf("#2Done!! - %i bytes sent in %7.2f mins" ,bytesSent, mins);
+
+                  document.getElementById('output_OTA_v2').textContent = outputString;
+                  console.log(outputString);
+                  return true;
+              }else{
+                console.log("FAILED: to send OTA data" );
+                return false;
+              }
+          }
+
+          bytesSent += bytesToSend;
+          if ((interval++ % 2) == 0)
+          {
+              var percentComplete = bytesSent*100 / buffer.length;
+              var bytesRemaining = buffer.length - bytesSent;
+              var secsPassed = (Date.now() - startTime)/1000.0;
+              var bytesPerSecond = bytesSent / secsPassed;
+              var minsRemaining = bytesRemaining / bytesPerSecond / 60.0;
+              // FlashProgressChanged?.Invoke( null, new FlashProgressEventArgs( ) { Progress=$"{percentComplete}% sent - {bytesRemaining} bytes remaining, {minsRemaining:F2} mins remaining" } );
+              
+              var outputString = sprintf("%%%i sent, %3.2f mins remaining" ,percentComplete, minsRemaining);
+              
+              document.getElementById('output_OTA_v2').textContent = outputString;
+              // console.log(outputString);
+          }
+      }
+
+      var readUpdateStatus = await this._readCharacteristicValue(Status_OTA_v2_UUID);
+      // Assuming readResult is a buffer containing the data read from the characteristic
+      // Convert the buffer to a Uint32Array with a length of 3
+      var dataArray = new Uint32Array(readUpdateStatus.buffer, 0, 3);
+      // Log the raw read result
+      console.log(readUpdateStatus);
+      // Log the interpreted array
+      console.log(dataArray);
+
+      var pagesToUpdate = dataArray[2];
+      var pagesUpdated = dataArray[1];
+      var updateStatus = dataArray[0];
+
+      var core0UpdateInProgress = 1;
+      
+      while((pagesUpdated <= pagesToUpdate) && core0UpdateInProgress)
+      {
+          readUpdateStatus = await this._readCharacteristicValue(Status_OTA_v2_UUID);
+          var dataArray = new Uint32Array(readUpdateStatus.buffer, 0, 3);
+          console.log(readUpdateStatus);
+          console.log(dataArray);
+          var pagesToUpdate = dataArray[2];
+          var pagesUpdated = dataArray[1];
+          var updateStatus = dataArray[0];
+          
+          switch(updateStatus)
+          {
+            case 9:
+              var outputString = sprintf("Transmiting to CORE0 PAGE %i / %i " ,pagesUpdated, pagesToUpdate);
+            break;
+            case 11:
+            case 13: 
+              var outputString = sprintf("Writing to CORE0 Flash PAGE %i / %i " ,pagesUpdated, pagesToUpdate);
+            break;
+            case 4: 
+              if(pagesUpdated == 0)
+              {
+                var outputString = sprintf("Transmiting to CORE0 PAGE %i / %i " ,pagesUpdated, pagesToUpdate);
+              }else{
+                var outputString = sprintf("!Update COMPLETED!");
+                core0UpdateInProgress = 0;
+              }
+              
+            break;
+          }
+              
+          document.getElementById('output_OTA_v2').textContent = outputString;
+      }
+      
+      // finished sending data
+
+  }
+  catch (ex)
+  {
+    var outputString = "Flash exception" + ex ;
+    document.getElementById('output_OTA_v2').textContent = outputString;
+    console.log(outputString);
+  }
+  return false;
+
+  }
+//------------------------------------STM32 update routine END---------------------------------------------
 
 }
 
