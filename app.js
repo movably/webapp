@@ -441,8 +441,6 @@ document.querySelector('#AutoMode4').addEventListener('click', selectAutoMode);
 // document.querySelector('#autoMode').addEventListener('click', changeMode);
 document.querySelector('#triggerByMotionEnable').addEventListener('click', triggerByMotionEnable);
 document.querySelector('#setDeviceInfo').addEventListener('click', setDeviceInfo);
-document.querySelector('#getDebugDataInfo').addEventListener('click', getDebugDataInfo);
-
 
 document.getElementById("auto-switch").addEventListener('click', changeModeToggle);
 
@@ -1312,12 +1310,11 @@ document.getElementById('file_OTA_v2')
 
           FlamingoBle.performUpdate_OTA_v2(uint8View)
       }
-      
+
       fr.readAsArrayBuffer(document.getElementById('file_OTA_v2').files[0]);
     }
 
 })
-
 
 function dateToString(now){
   let today_time_string = sprintf('%i-%02i-%02i %i:%02i:%02i', now.getFullYear(), 

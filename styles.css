@@ -275,7 +275,6 @@ body.connected #sw_update {
 #file { display: none }
 #file_OTA_v2 { display: none }
 
-
 pre {
     white-space: pre-wrap;       /* Since CSS 2.1 */
     white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
