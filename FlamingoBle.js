@@ -38,9 +38,10 @@
   const BASE_AWAY_UPPER_THRESHOLD_UUID = "1b25ee0a-dadf-11eb-8d19-0242ac130003";
 
   const USE_VIBRO_UUID = "1b25ee0b-dadf-11eb-8d19-0242ac130003";
-  const VIBRO_STRENGTH_UUID = "1b25ee0c-dadf-11eb-8d19-0242ac130003";
-  const LEFT_SEAT_MOTOR_SOUND_UUID = "1b25ee0d-dadf-11eb-8d19-0242ac130003";
+  const VIBRO_STRENGTH_UUID =         "1b25ee0c-dadf-11eb-8d19-0242ac130003";
+  const LEFT_SEAT_MOTOR_SOUND_UUID =  "1b25ee0d-dadf-11eb-8d19-0242ac130003";
   const RIGHT_SEAT_MOTOR_SOUND_UUID = "1b25ee0e-dadf-11eb-8d19-0242ac130003";
+
 
   const CONFIGURATION_SERVICE_UUID = "7f1a0001-252d-4f8b-baea-6bfc6b255ab6";
 
@@ -90,6 +91,7 @@
       //                optionalServices: ['battery_service']};
       let options = {//acceptAllDevices: true,
                       filters:[{namePrefix: 'Movably Chair'}],
+                      //filters:[{namePrefix: 'Flamingo'}],
                       // filters:[{services:[ CHAIR_SERVICE_UUID ]}],
                       optionalServices: [CHAIR_SERVICE_UUID, ENGINEERING_SERVICE_UUID, CONFIGURATION_SERVICE_UUID, TIME_SERVICE_UUID, OTAServiceUUID, DISCOVERY_SERVICE_UUID]};
       return navigator.bluetooth.requestDevice(options)
@@ -555,12 +557,12 @@ async performUpdate_OTA_v2(buffer){
       await this._writeCharacteristicValue(Begin_OTA_v2_UUID,new Uint32Array([lengthAsBytes]));
 
       var outputString = "Successfully wrote OTA Begin";
-      document.getElementById('output_OTA_v2').textContent = outputString;
+      document.getElementById('output').textContent = outputString;
       console.log(outputString);
 
     } catch(error) {
       var outputString = "FAILED: OTA did not start"  + error;
-      document.getElementById('output_OTA_v2').textContent = outputString;
+      document.getElementById('output').textContent = outputString;
       console.log(outputString);
     }
 
@@ -574,13 +576,13 @@ async performUpdate_OTA_v2(buffer){
     if (res == OTA_BEGIN)
     {
         var outputString = "Entered OTA Begin successfully";
-        document.getElementById('output_OTA_v2').textContent = outputString;
+        document.getElementById('output').textContent = outputString;
         console.log(outputString);
     }
     else
     {
         var outputString = "FAILED: OTA failed to read or nvalid OTA state {state}" + readResult;
-        document.getElementById('output_OTA_v2').textContent = outputString;
+        document.getElementById('output').textContent = outputString;
         console.log(outputString);
         return false;
     }
@@ -603,7 +605,7 @@ async performUpdate_OTA_v2(buffer){
               var mins = (Date.now() - startTime)/1000.0 / 60.0;
 
               var outputString = sprintf("#1Done! - %i bytes sent in %7.2f mins" ,bytesSent, mins);
-              document.getElementById('output_OTA_v2').textContent = outputString;
+              document.getElementById('output').textContent = outputString;
               console.log(outputString);
             }
         }
@@ -618,7 +620,7 @@ async performUpdate_OTA_v2(buffer){
                 // FlashProgressChanged?.Invoke( null, new FlashProgressEventArgs( ) { Progress = $"Done - {bytesSent} bytes sent in {mins:F2} mins" } );
                 var outputString = sprintf("#2Done!! - %i bytes sent in %7.2f mins" ,bytesSent, mins);
 
-                document.getElementById('output_OTA_v2').textContent = outputString;
+                document.getElementById('output').textContent = outputString;
                 console.log(outputString);
                 return true;
             }else{
@@ -639,7 +641,7 @@ async performUpdate_OTA_v2(buffer){
 
             var outputString = sprintf("%%%i sent, %3.2f mins remaining" ,percentComplete, minsRemaining);
 
-            document.getElementById('output_OTA_v2').textContent = outputString;
+            document.getElementById('output').textContent = outputString;
             // console.log(outputString);
         }
     }
@@ -690,7 +692,7 @@ async performUpdate_OTA_v2(buffer){
           break;
         }
 
-        document.getElementById('output_OTA_v2').textContent = outputString;
+        document.getElementById('output').textContent = outputString;
     }
 
     // finished sending data
@@ -699,11 +701,46 @@ async performUpdate_OTA_v2(buffer){
   catch (ex)
   {
     var outputString = "Flash exception" + ex ;
-    document.getElementById('output_OTA_v2').textContent = outputString;
+    document.getElementById('output').textContent = outputString;
     console.log(outputString);
   }
   return false;
 
+}
+
+handleZipFile(zipBlob) {
+  return new Promise((resolve, reject) => {
+    var zip = new JSZip();
+
+    zip.loadAsync(zipBlob)
+      .then(function (zip) {
+        // Check if "FlamingoB1.bin" exists in the zip
+        if (zip.file("FlamingoB1.bin")) {
+          // Get the content of "FlamingoB1.bin"
+          return zip.file("FlamingoB1.bin").async('uint8array');
+        }
+        // Check if "Flamingo-Firmware.bin" exists in the zip
+        else if (zip.file("Flamingo-Firmware.bin")) {
+          // Get the content of "Flamingo-Firmware.bin"
+          return zip.file("Flamingo-Firmware.bin").async('uint8array');
+        } else {
+          // Neither "FlamingoB1.bin" nor "Flamingo-Firmware.bin" exists in the zip
+          console.log("Firmware not found in the ZIP file.");
+          reject(new Error("Firmware not found in the ZIP file."));
+        }
+      })
+      .then(function (fileData) {
+        // If "FlamingoB1.bin" exists, run MyFunction1; if "file2.bin" exists, run MyFunction2
+        if (zip.file("FlamingoB1.bin")) {
+          resolve({ fileData, functionName: 'OTA_v2_Update' });
+        } else if (zip.file("Flamingo-Firmware.bin")) {
+          resolve({ fileData, functionName: 'OTA_Update' });
+        }
+      })
+      .catch(function (error) {
+        reject(error);
+      });
+  });
 }
 //------------------------------------STM32 update routine END---------------------------------------------
 

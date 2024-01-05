@@ -180,7 +180,7 @@ body.connected #sw_update {
 #statusString::before {
   content: '';
 }
-#connect, #left, #right, #setDeviceInfo, #AddPosture, #DeletePosture, #SetPosture, #inputFile, #inputfile_OTA_v2  {
+#connect, #left, #right, #setDeviceInfo, #AddPosture, #DeletePosture, #SetPosture, #inputFile  {
   color: white;
   background-color: #4CAF50;
   width: 50%;
@@ -267,13 +267,12 @@ body.connected #sw_update {
   /*width: 100%;*/
 }
 
-#left, #middle, #right, #setDeviceInfo, #AddPosture, #DeletePosture, #SetPosture, #inputFile, #inputfile_OTA_v2 {display: inline-block; *display: inline; zoom: 1; vertical-align: top; font-size: 10px;}
+#left, #middle, #right, #setDeviceInfo, #AddPosture, #DeletePosture, #SetPosture, #inputFile {display: inline-block; *display: inline; zoom: 1; vertical-align: top; font-size: 10px;}
 /*#left {width: 40%;}
 #middle {width: 10%;}
 #right {width: 40%;}*/
 
 #file { display: none }
-#file_OTA_v2 { display: none }
 
 pre {
     white-space: pre-wrap;       /* Since CSS 2.1 */

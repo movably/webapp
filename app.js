@@ -1266,55 +1266,31 @@ document.getElementById('file')
 
     let fileExtension = filenameSplit[filenameSplit.length - 1];
 
-    if(fileExtension != 'bin'){
+    if(fileExtension != 'zip'){
       document.getElementById('output').textContent = 'wrong file format';
       return;
     }else{
 
-      var fr=new FileReader();
-      fr.onload=function(){
-          document.getElementById('output').textContent="File selected";
-
-          var uint8View = new Uint8Array(fr.result);
-          console.log(uint8View.length)
-
-          FlamingoBle.performUpdate(uint8View)
-          // document.getElementById('file').value = null
-      }
-        
-      fr.readAsArrayBuffer(document.getElementById('file').files[0]);
+      var zipFile = document.getElementById('file').files[0];
+      FlamingoBle.handleZipFile(zipFile)
+        .then(function ({ fileData, functionName }) {
+          if (functionName === 'OTA_v2_Update') {
+            console.log("Executing STM32 OTA update.");
+            FlamingoBle.performUpdate_OTA_v2(fileData);
+          } else if (functionName === 'OTA_Update') {
+            console.log("Executing ESP32 OTA update.");
+            FlamingoBle.performUpdate(fileData);
+          }
+        })
+        .catch(function (error) {
+          document.getElementById('output').textContent = 'Wrong OTA file!';
+          console.error('Error handling ZIP file:', error);
+        });
     }
 
 })
 
-document.getElementById('file_OTA_v2')
-    .addEventListener('change', function() {
 
-    let filename = document.getElementById('file_OTA_v2').files[0].name;
-
-    let filenameSplit = filename.split('.');
-
-    let fileExtension = filenameSplit[filenameSplit.length - 1];
-
-    if(fileExtension != 'bin'){      
-      document.getElementById('output_OTA_v2').textContent = 'wrong file format';
-      return;
-    }else{
-
-      var fr=new FileReader();
-      fr.onload=function(){
-          document.getElementById('output_OTA_v2').textContent="File selected";
-
-          var uint8View = new Uint8Array(fr.result);
-          console.log(uint8View.length)
-
-          FlamingoBle.performUpdate_OTA_v2(uint8View)
-      }
-
-      fr.readAsArrayBuffer(document.getElementById('file_OTA_v2').files[0]);
-    }
-
-})
 
 function dateToString(now){
   let today_time_string = sprintf('%i-%02i-%02i %i:%02i:%02i', now.getFullYear(), 
