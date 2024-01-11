@@ -239,12 +239,60 @@
                 <button class="w3-bar-item w3-button tablink w3-amber" onclick="openCity(event,'Hide Tabs')">Hide Tabs</button>
                 <button class="w3-bar-item w3-button tablink" onclick="openCity(event,'Diagnostics Tab')">Diagnostics Tab</button>
                 <button class="w3-bar-item w3-button tablink" onclick="openCity(event,'Analytics Tab')">Analytics Tab</button>
+                <button class="w3-bar-item w3-button tablink" onclick="openCity(event,'WiFi setup')">WiFi setup</button>
               </div>
 
               <div id="Hide Tabs" class="w3-container w3-border city">
                 
               </div>
               
+              <div id="WiFi setup" class="w3-container w3-border city" style="display:none">
+                <div class="cards">
+                  <div class="card">
+                    <div class="card">
+                      <div class="card-info">
+                          <small>Setup WiFi credentials</small>
+                      </div>
+
+                      <div>WiFi SSID:</div>
+                      <input type="text" id="inputWiFiSSID" name="WiFiSSID"><br>
+                      <div>WiFi password:</div>
+                      <input type="text" id="inputWiFiPWD" name="WiFiPWD"><br>
+                      <div> ***************** </div>
+                      <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" id="setWiFiSettings">Set</button>
+
+                      <div class="preference">
+                        <label class = "mdl-switch mdl-js-switch mdl-js-ripple-effect" 
+                          for = "wifi-switch" >
+                          Enable WiFi
+                        <input type = "checkbox" id = "wifi-switch" 
+                               class = "mdl-switch__input" >
+                        </label>
+                      </div>
+                      <div> WiFi commands: </div>
+                      <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" id="ConnectWiFiCommand">Connect</button>
+                      <div id="middle"></div>
+                      <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" id="DisconnecttWiFiCommand">Disconnect</button>
+
+                      <!-- 
+                      serialNumber
+
+                      <div>Serial Number:</div>
+
+                      <input type="text" id="inputSerial" name="modelNumber"><br><br>
+                      <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" id="setDeviceInfo">Set Info</button>
+                        -->
+                      <hr>
+                      <div id="wifistatusString"></div>
+                      <div id="blow"></div>
+                    </div>
+
+                    </div>
+
+                  
+                </div>
+              </div>
+
               <div id="Analytics Tab" class="w3-container w3-border city" style="display:none">
                 <div class="cards">
                   <div class="card">

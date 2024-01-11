@@ -118,6 +118,8 @@ function onDisconnect(event){
       FlamingoBle.getTriggerByMotion().then(handleTriggerByMotionEnable);
       FlamingoBle.getSerialNumber().then(handleDeviceSerial);
       FlamingoBle.getModelNumber().then(handleDeviceModel);
+      FlamingoBle.getWiFiSSIDString().then(handleWiFiSSID);
+      FlamingoBle.getWiFiPWDString().then(handleWiFiPWD);
       FlamingoBle.getEnableVibroMotor().then(handleEnableVibroMotor);
     }
   })
@@ -200,6 +202,12 @@ function connectDevice(){
 
       FlamingoBle.startErrorCodeEvents(handleErrorCodes);
       FlamingoBle.getErrorCodes();
+
+      FlamingoBle.startWiFiStatusCodeEvents(handleWiFiCodes);
+      FlamingoBle.getWiFiStatusCodes();
+      FlamingoBle.getWiFiEnableStatus().then(handleWiFiEnableCode);
+      FlamingoBle.getWiFiSSIDString().then(handleWiFiSSID);
+      FlamingoBle.getWiFiPWDString().then(handleWiFiPWD);
 
       FlamingoBle.getTriggerByMotion().then(handleTriggerByMotionEnable);
       FlamingoBle.getSerialNumber().then(handleDeviceSerial);
@@ -381,6 +389,57 @@ function sendChairEventToCloud(left,right,mode, event_time){
   })
 }
 
+function handleWiFiEnableCode(value) {
+  // Log the raw value to the console
+  console.log("handleWiFiEnableCode() -> Raw Value:", value);
+
+  let s = document.getElementById("wifi-switch")
+  if(value == 0)
+  {
+    s.parentElement.MaterialSwitch.off();
+  }else{
+    s.parentElement.MaterialSwitch.on();
+  }
+
+}
+
+
+function handleWiFiCodes(event) {
+  console.log("-> WiFi status event");
+
+  // Assuming event.target.value is a Uint8Array containing the WiFi status code
+  let wifi_code = event.target.value.getUint8(0);
+  // Log the raw value to the console
+  console.log("handleWiFiCodes() -> Raw Value:", wifi_code);
+
+  // Mapping C enum values to corresponding strings in JavaScript
+  const wifiStatusStrings = [
+    "Disabled",
+    "NotConfigured",
+    "ErrorConnecting",
+    "Connecting",
+    "Connected",
+    "Disconnected",
+    "WifiNotFound",
+    "SSID_PW_Invalid",
+    "InternalError",
+    "Disconnecting",
+  ];
+
+  let wifi_string = "WiFi Status: ";
+
+  // Check if wifi_code is within the valid range
+  if (wifi_code >= 0 && wifi_code < wifiStatusStrings.length) {
+    wifi_string += wifiStatusStrings[wifi_code];
+  } else {
+    wifi_string += "Unknown";
+  }
+
+  document.querySelector('#wifistatusString').textContent = wifi_string;
+}
+
+
+
 function handleErrorCodes(event){
   console.log("-> error event");
   let error_code = event.target.value.getUint16(0);
@@ -441,8 +500,13 @@ document.querySelector('#AutoMode4').addEventListener('click', selectAutoMode);
 // document.querySelector('#autoMode').addEventListener('click', changeMode);
 document.querySelector('#triggerByMotionEnable').addEventListener('click', triggerByMotionEnable);
 document.querySelector('#setDeviceInfo').addEventListener('click', setDeviceInfo);
+document.querySelector('#setWiFiSettings').addEventListener('click', setDeviceWiFiSettings);
+
+document.querySelector('#ConnectWiFiCommand').addEventListener('click', connectDeviceWiFiCommand);
+document.querySelector('#DisconnecttWiFiCommand').addEventListener('click', disconnectDeviceWiFiCommand);
 
 document.getElementById("auto-switch").addEventListener('click', changeModeToggle);
+document.getElementById("wifi-switch").addEventListener('click', enableWiFiToggle);
 
 document.querySelector('#enableVibroMotor').addEventListener('click', enableVibroMotorClicked);
 
@@ -459,6 +523,38 @@ function handleDeviceModel(info){
   // document.querySelector('#titleDeviceModel').textContent = "Model #: " + info;
   document.querySelector('#inputModel').value = info;
 }
+
+function handleWiFiSSID(info){
+  document.querySelector('#inputWiFiSSID').value = info;
+}
+
+function handleWiFiPWD(info){
+  document.querySelector('#inputWiFiPWD').value = info;
+}
+
+function connectDeviceWiFiCommand(){
+  FlamingoBle.issueWiFiCommand(1);
+}
+
+function disconnectDeviceWiFiCommand(){
+  FlamingoBle.issueWiFiCommand(2);
+}
+
+
+function setDeviceWiFiSettings(){
+  ssid = document.querySelector('#inputWiFiSSID').value;
+  pwd = document.querySelector('#inputWiFiPWD').value;
+
+  FlamingoBle.setWiFiSSIDString(ssid)
+  .then(FlamingoBle.setWiFiPWDString(pwd))
+
+  setTimeout(function(){ 
+      FlamingoBle.getWiFiSSIDString().then(handleWiFiSSID);
+      handleWiFiPWD("");
+    }, 1000);
+
+}
+
 
 function setDeviceInfo(){
   model = document.querySelector('#inputModel').value;
@@ -522,6 +618,13 @@ function selectAutoMode() {
   //     break;
   // }
 }
+
+function enableWiFiToggle() {
+  var effect = document.getElementById("wifi-switch").checked;
+  console.log("WiFi switch state = ", effect);
+  FlamingoBle.setWiFiEnable(effect);
+}
+
 
 function changeModeToggle() {
   var effect = document.getElementById("auto-switch").checked;

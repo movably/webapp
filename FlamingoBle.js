@@ -60,6 +60,12 @@
   const OTA_INPROGRESS = 2;
   const OTA_SUCCESS = 3;
 
+  const WiFiserviceUUID         = "73e80001-24f7-464d-8de7-3b1e1bfb5dfa";
+  const WiFienableWifiUUID      = "73e80002-24f7-464d-8de7-3b1e1bfb5dfa";
+  const WiFissidUUID            = "73e80003-24f7-464d-8de7-3b1e1bfb5dfa";
+  const WiFipasswordUUID        = "73e80004-24f7-464d-8de7-3b1e1bfb5dfa";
+  const WiFistatusUUID          = "73e80005-24f7-464d-8de7-3b1e1bfb5dfa";
+  const WiFicommandUUID         = "73e80006-24f7-464d-8de7-3b1e1bfb5dfa";
 
   const TIME_SERVICE_UUID = 0x1805;
   const CURRENT_TIME_UUID = 0x2A2B;
@@ -93,7 +99,7 @@
                       filters:[{namePrefix: 'Movably Chair'}],
                       //filters:[{namePrefix: 'Flamingo'}],
                       // filters:[{services:[ CHAIR_SERVICE_UUID ]}],
-                      optionalServices: [CHAIR_SERVICE_UUID, ENGINEERING_SERVICE_UUID, CONFIGURATION_SERVICE_UUID, TIME_SERVICE_UUID, OTAServiceUUID, DISCOVERY_SERVICE_UUID]};
+                      optionalServices: [CHAIR_SERVICE_UUID, WiFiserviceUUID, ENGINEERING_SERVICE_UUID, CONFIGURATION_SERVICE_UUID, TIME_SERVICE_UUID, OTAServiceUUID, DISCOVERY_SERVICE_UUID]};
       return navigator.bluetooth.requestDevice(options)
       .then(device => {
         this.device = device;
@@ -187,6 +193,13 @@
       this._cacheCharacteristic(service, VIBRO_STRENGTH_UUID);
       this._cacheCharacteristic(service, LEFT_SEAT_MOTOR_SOUND_UUID);
       this._cacheCharacteristic(service, RIGHT_SEAT_MOTOR_SOUND_UUID);
+
+      service = await server.getPrimaryService(WiFiserviceUUID);
+      this._cacheCharacteristic(service, WiFienableWifiUUID);
+      this._cacheCharacteristic(service, WiFissidUUID);
+      this._cacheCharacteristic(service, WiFipasswordUUID);
+      this._cacheCharacteristic(service, WiFistatusUUID);
+      this._cacheCharacteristic(service, WiFicommandUUID);
 
       service = await server.getPrimaryService(TIME_SERVICE_UUID);
       this._cacheCharacteristic(service, CURRENT_TIME_UUID);
@@ -345,6 +358,30 @@
       });
     }
 
+    async startWiFiStatusCodeEvents(listener) {
+      let characteristic = this._characteristics.get(WiFistatusUUID);
+      return await characteristic.startNotifications()
+      .then(_ => {
+        characteristic.addEventListener('characteristicvaluechanged', listener);
+      });
+    }
+
+    getWiFiStatusCodes(){
+      return this._readCharacteristicValue(WiFistatusUUID)
+    }
+
+    async startWiFiEnableStatus(listener) {
+      let characteristic = this._characteristics.get(WiFienableWifiUUID);
+      return await characteristic.startNotifications()
+      .then(_ => {
+        characteristic.addEventListener('characteristicvaluechanged', listener);
+      });
+    }
+
+    getWiFiEnableStatus(){
+      return this._readCharacteristicValue(WiFienableWifiUUID).then((response) => this._decodeUint8(response)) 
+    }
+
     async startErrorCodeEvents(listener) {
       let characteristic = this._characteristics.get(ERRORCODES_UUID);
       return await characteristic.startNotifications()
@@ -491,6 +528,33 @@
     setModelNumber(str){
       return this._writeCharacteristicValue(MODEL_NUMBER_UUID,this._encodeString(str))
     }
+
+    getWiFiSSIDString(){
+      return this._readCharacteristicValue(WiFissidUUID).then((response) => this._decodeString(response))  
+    }
+
+    setWiFiSSIDString(str){
+      return this._writeCharacteristicValue(WiFissidUUID,this._encodeString(str))
+    }
+
+    getWiFiPWDString(){
+      return this._readCharacteristicValue(WiFipasswordUUID).then((response) => this._decodeString(response))  
+    }
+
+    setWiFiPWDString(str){
+      return this._writeCharacteristicValue(WiFipasswordUUID,this._encodeString(str))
+    }
+
+    setWiFiEnable(mode) {
+      console.log("setWiFiEnable() = ", mode);
+      this._writeCharacteristicValue(WiFienableWifiUUID, new Uint8Array([mode]))
+    }
+
+    issueWiFiCommand(cmd) {
+      console.log("issueWiFiCommand() = ", cmd);
+      this._writeCharacteristicValue(WiFicommandUUID, new Uint8Array([cmd]))
+    }
+
 
     setSerialNumber(str){
       return this._writeCharacteristicValue(SERIAL_NUMBER_UUID,this._encodeString(str))  
