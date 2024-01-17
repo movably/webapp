@@ -45,8 +45,9 @@
 
   const CONFIGURATION_SERVICE_UUID = "7f1a0001-252d-4f8b-baea-6bfc6b255ab6";
 
-  const MODEL_NUMBER_UUID = "7f1a0002-252d-4f8b-baea-6bfc6b255ab6";
-  const SERIAL_NUMBER_UUID = "7f1a0003-252d-4f8b-baea-6bfc6b255ab6";
+  const MODEL_NUMBER_UUID =     "7f1a0002-252d-4f8b-baea-6bfc6b255ab6";
+  const SERIAL_NUMBER_UUID =    "7f1a0003-252d-4f8b-baea-6bfc6b255ab6";
+  const USER_NAME_UUID =        "7f1a0004-252d-4f8b-baea-6bfc6b255ab6";
 
   const OTAServiceUUID = "d0274711-aefa-42c3-93f1-535a09812c37";
   const BeginUUID = "403b76d9-9bc6-4837-8112-cd62516ef214";
@@ -175,6 +176,7 @@
       service = await server.getPrimaryService(CONFIGURATION_SERVICE_UUID);
 
       this._cacheCharacteristic(service, MODEL_NUMBER_UUID);
+      this._cacheCharacteristic(service, USER_NAME_UUID);
       this._cacheCharacteristic(service, SERIAL_NUMBER_UUID);
 
 
@@ -521,12 +523,20 @@
       return this._readCharacteristicValue(MODEL_NUMBER_UUID).then((response) => this._decodeString(response))  
     }
 
-    getSerialNumber(){
-      return this._readCharacteristicValue(SERIAL_NUMBER_UUID).then((response) => this._decodeString(response))  
-    }
-
     setModelNumber(str){
       return this._writeCharacteristicValue(MODEL_NUMBER_UUID,this._encodeString(str))
+    }
+
+    getEmailString(){
+      return this._readCharacteristicValue(USER_NAME_UUID).then((response) => this._decodeString(response))  
+    }
+
+    setEmailString(str){
+      return this._writeCharacteristicValue(USER_NAME_UUID,this._encodeString(str))
+    }
+
+    getSerialNumber(){
+      return this._readCharacteristicValue(SERIAL_NUMBER_UUID).then((response) => this._decodeString(response))  
     }
 
     getWiFiSSIDString(){

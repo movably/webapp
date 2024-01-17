@@ -118,6 +118,7 @@ function onDisconnect(event){
       FlamingoBle.getTriggerByMotion().then(handleTriggerByMotionEnable);
       FlamingoBle.getSerialNumber().then(handleDeviceSerial);
       FlamingoBle.getModelNumber().then(handleDeviceModel);
+      FlamingoBle.getEmailString().then(handleDeviceEmail);
       FlamingoBle.getWiFiSSIDString().then(handleWiFiSSID);
       FlamingoBle.getWiFiPWDString().then(handleWiFiPWD);
       FlamingoBle.getEnableVibroMotor().then(handleEnableVibroMotor);
@@ -212,6 +213,7 @@ function connectDevice(){
       FlamingoBle.getTriggerByMotion().then(handleTriggerByMotionEnable);
       FlamingoBle.getSerialNumber().then(handleDeviceSerial);
       FlamingoBle.getModelNumber().then(handleDeviceModel);
+      FlamingoBle.getEmailString().then(handleDeviceEmail);
       FlamingoBle.getEnableVibroMotor().then(handleEnableVibroMotor);
     }
   })
@@ -524,6 +526,11 @@ function handleDeviceModel(info){
   document.querySelector('#inputModel').value = info;
 }
 
+function handleDeviceEmail(info){
+  document.querySelector('#inputEmail').value = info;
+}
+
+
 function handleWiFiSSID(info){
   document.querySelector('#inputWiFiSSID').value = info;
 }
@@ -559,13 +566,16 @@ function setDeviceWiFiSettings(){
 function setDeviceInfo(){
   model = document.querySelector('#inputModel').value;
   serial = document.querySelector('#inputSerial').value;
+  email = document.querySelector('#inputEmail').value;
 
   FlamingoBle.setModelNumber(model)
-    .then(FlamingoBle.setSerialNumber(serial))
+    .then(FlamingoBle.setSerialNumber(serial)
+    .then(FlamingoBle.setEmailString(email)))
 
   setTimeout(function(){ 
       FlamingoBle.getSerialNumber().then(handleDeviceSerial);
       FlamingoBle.getModelNumber().then(handleDeviceModel);
+      FlamingoBle.getEmailString().then(handleDeviceEmail);
     }, 1000);
 
 }
