@@ -204,6 +204,9 @@ function connectDevice(){
       FlamingoBle.startErrorCodeEvents(handleErrorCodes);
       FlamingoBle.getErrorCodes();
 
+      FlamingoBle.startSPIErrorsCodeEvents(handleSPIErrors);
+      FlamingoBle.getSPIErrorsCodes();
+
       FlamingoBle.startWiFiStatusCodeEvents(handleWiFiCodes);
       FlamingoBle.getWiFiStatusCodes();
       FlamingoBle.getWiFiEnableStatus().then(handleWiFiEnableCode);
@@ -440,7 +443,17 @@ function handleWiFiCodes(event) {
   document.querySelector('#wifistatusString').textContent = wifi_string;
 }
 
+function handleSPIErrors(event){
+  // Assuming event.target.value is a Uint8Array containing the WiFi status code
+  let spi_err_cnt = event.target.value.getUint16(0);
+  spi_err_cnt = ((spi_err_cnt & 0xFF) << 8) | ((spi_err_cnt >> 8) & 0xFF);
+  // Log the raw value to the console
+  console.log("handleSPIErrors() -> Raw Value:", spi_err_cnt);
 
+  let SPI_string = "SPI QoS errors: ";
+
+  document.querySelector('#SPIErrorsString').textContent = SPI_string + spi_err_cnt;
+}
 
 function handleErrorCodes(event){
   console.log("-> error event");

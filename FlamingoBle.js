@@ -32,6 +32,7 @@
   const TRAJ_VEL_UUID = "1b25ee04-dadf-11eb-8d19-0242ac130003";
   const REALTIME_UUID = "1b25ee05-dadf-11eb-8d19-0242ac130003";
   const ERRORCODES_UUID = "1b25ee06-dadf-11eb-8d19-0242ac130003";
+  const ERRORCODES_SPI_UUID = "1b25ee0f-dadf-11eb-8d19-0242ac130003";
   const TRIGGER_BY_MOTION_UUID = "1b25ee07-dadf-11eb-8d19-0242ac130003";
   const STREAMING_ENABLE_UUID = "1b25ee08-dadf-11eb-8d19-0242ac130003";
   const BASE_AWAY_LOWER_THRESHOLD_UUID = "1b25ee09-dadf-11eb-8d19-0242ac130003";
@@ -187,6 +188,7 @@
       this._cacheCharacteristic(service, TRAJ_VEL_UUID);
       this._cacheCharacteristic(service, REALTIME_UUID);
       this._cacheCharacteristic(service, ERRORCODES_UUID);
+      this._cacheCharacteristic(service, ERRORCODES_SPI_UUID);
       this._cacheCharacteristic(service, TRIGGER_BY_MOTION_UUID);
       this._cacheCharacteristic(service, STREAMING_ENABLE_UUID);
       this._cacheCharacteristic(service, BASE_AWAY_LOWER_THRESHOLD_UUID);
@@ -370,6 +372,18 @@
 
     getWiFiStatusCodes(){
       return this._readCharacteristicValue(WiFistatusUUID)
+    }
+
+    async startSPIErrorsCodeEvents(listener) {
+      let characteristic = this._characteristics.get(ERRORCODES_SPI_UUID);
+      return await characteristic.startNotifications()
+      .then(_ => {
+        characteristic.addEventListener('characteristicvaluechanged', listener);
+      });
+    }
+
+    getSPIErrorsCodes(){
+      return this._readCharacteristicValue(ERRORCODES_SPI_UUID)
     }
 
     async startWiFiEnableStatus(listener) {

@@ -240,12 +240,34 @@
                 <button class="w3-bar-item w3-button tablink" onclick="openCity(event,'Diagnostics Tab')">Diagnostics Tab</button>
                 <button class="w3-bar-item w3-button tablink" onclick="openCity(event,'Analytics Tab')">Analytics Tab</button>
                 <button class="w3-bar-item w3-button tablink" onclick="openCity(event,'WiFi setup')">WiFi setup</button>
+                <button class="w3-bar-item w3-button tablink" onclick="openCity(event,'Telemetry data')">Telemetry data</button>
               </div>
 
               <div id="Hide Tabs" class="w3-container w3-border city">
                 
               </div>
               
+              <div id="Telemetry data" class="w3-container w3-border city" style="display:none">
+                <div class="cards">
+                  <div class="card">
+                      <div class="card-info">
+                          <small>Telemetry data:</small>
+                      </div>
+                      <hr>
+                      <div id="SPIErrorsString"></div>
+                      <div id="blow"></div>
+
+                  </div>
+
+                  <div class="card">
+                    <div class="card-info">
+                        <small>TBI</small>
+                    </div>
+                                    
+                  </div>
+                </div>
+              </div>
+
               <div id="WiFi setup" class="w3-container w3-border city" style="display:none">
                 <div class="cards">
                   <div class="card">
@@ -279,7 +301,7 @@
                       <div id="blow"></div>
                     </div>
 
-                    </div>
+                  </div>
 
                   
                 </div>
