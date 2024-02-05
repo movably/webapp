@@ -33,6 +33,7 @@
   const REALTIME_UUID = "1b25ee05-dadf-11eb-8d19-0242ac130003";
   const ERRORCODES_UUID = "1b25ee06-dadf-11eb-8d19-0242ac130003";
   const ERRORCODES_SPI_UUID = "1b25ee0f-dadf-11eb-8d19-0242ac130003";
+  const CHAIR_CONFIGURED_FLAG_UUID = "1b25ee10-dadf-11eb-8d19-0242ac130003";
   const TRIGGER_BY_MOTION_UUID = "1b25ee07-dadf-11eb-8d19-0242ac130003";
   const STREAMING_ENABLE_UUID = "1b25ee08-dadf-11eb-8d19-0242ac130003";
   const BASE_AWAY_LOWER_THRESHOLD_UUID = "1b25ee09-dadf-11eb-8d19-0242ac130003";
@@ -189,6 +190,7 @@
       this._cacheCharacteristic(service, REALTIME_UUID);
       this._cacheCharacteristic(service, ERRORCODES_UUID);
       this._cacheCharacteristic(service, ERRORCODES_SPI_UUID);
+      this._cacheCharacteristic(service, CHAIR_CONFIGURED_FLAG_UUID);
       this._cacheCharacteristic(service, TRIGGER_BY_MOTION_UUID);
       this._cacheCharacteristic(service, STREAMING_ENABLE_UUID);
       this._cacheCharacteristic(service, BASE_AWAY_LOWER_THRESHOLD_UUID);
@@ -467,6 +469,14 @@
     getTriggerByMotion(){
       // console.log("reading automode")
       return this._readCharacteristicValue(TRIGGER_BY_MOTION_UUID).then((response) => this._decodeUint8(response))  
+    }
+
+    setChairConfiguredFlag(enable) {
+      return this._writeCharacteristicValue(CHAIR_CONFIGURED_FLAG_UUID, new Uint8Array([enable]))
+    }
+
+    getChairConfiguredFlag(){
+      return this._readCharacteristicValue(CHAIR_CONFIGURED_FLAG_UUID).then((response) => this._decodeUint8(response))  
     }
 
     enableStreaming(enable) {

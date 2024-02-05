@@ -115,6 +115,7 @@ function onDisconnect(event){
       FlamingoBle.startErrorCodeEvents(handleErrorCodes);
       FlamingoBle.getErrorCodes();
 
+      FlamingoBle.getChairConfiguredFlag().then(handleChairConfiguredChBox);
       FlamingoBle.getTriggerByMotion().then(handleTriggerByMotionEnable);
       FlamingoBle.getSerialNumber().then(handleDeviceSerial);
       FlamingoBle.getModelNumber().then(handleDeviceModel);
@@ -213,6 +214,7 @@ function connectDevice(){
       FlamingoBle.getWiFiSSIDString().then(handleWiFiSSID);
       FlamingoBle.getWiFiPWDString().then(handleWiFiPWD);
 
+      FlamingoBle.getChairConfiguredFlag().then(handleChairConfiguredChBox);
       FlamingoBle.getTriggerByMotion().then(handleTriggerByMotionEnable);
       FlamingoBle.getSerialNumber().then(handleDeviceSerial);
       FlamingoBle.getModelNumber().then(handleDeviceModel);
@@ -513,6 +515,7 @@ document.querySelector('#AutoMode4').addEventListener('click', selectAutoMode);
 
 // document.querySelector('#manualMode').addEventListener('click', changeMode);
 // document.querySelector('#autoMode').addEventListener('click', changeMode);
+document.querySelector('#triggerWiFiConfiguredEnable').addEventListener('click', ChairConfiguredEnable);
 document.querySelector('#triggerByMotionEnable').addEventListener('click', triggerByMotionEnable);
 document.querySelector('#setDeviceInfo').addEventListener('click', setDeviceInfo);
 document.querySelector('#setWiFiSettings').addEventListener('click', setDeviceWiFiSettings);
@@ -604,6 +607,19 @@ function triggerByMotionEnable(){
     .then(_ => FlamingoBle.getTriggerByMotion())
     .then((value) => handleTriggerByMotionEnable(value));
 }
+
+function handleChairConfiguredChBox(value){
+  console.log("-> ChairConfigured =")
+  console.log(value)
+  document.querySelector('#triggerWiFiConfiguredEnable').checked = value;
+}
+
+function ChairConfiguredEnable(){
+  FlamingoBle.setChairConfiguredFlag(document.querySelector('#triggerWiFiConfiguredEnable').checked)
+    .then(_ => FlamingoBle.getChairConfiguredFlag())
+    .then((value) => handleChairConfiguredChBox(value));
+}
+
 
 function handleEnableVibroMotor(value){
   console.log(value)
