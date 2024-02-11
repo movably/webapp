@@ -115,9 +115,13 @@ function onDisconnect(event){
       FlamingoBle.startErrorCodeEvents(handleErrorCodes);
       FlamingoBle.getErrorCodes();
 
+      FlamingoBle.getChairConfiguredFlag().then(handleChairConfiguredChBox);
       FlamingoBle.getTriggerByMotion().then(handleTriggerByMotionEnable);
       FlamingoBle.getSerialNumber().then(handleDeviceSerial);
       FlamingoBle.getModelNumber().then(handleDeviceModel);
+      FlamingoBle.getEmailString().then(handleDeviceEmail);
+      FlamingoBle.getWiFiSSIDString().then(handleWiFiSSID);
+      FlamingoBle.getWiFiPWDString().then(handleWiFiPWD);
       FlamingoBle.getEnableVibroMotor().then(handleEnableVibroMotor);
     }
   })
@@ -201,9 +205,20 @@ function connectDevice(){
       FlamingoBle.startErrorCodeEvents(handleErrorCodes);
       FlamingoBle.getErrorCodes();
 
+      FlamingoBle.startSPIErrorsCodeEvents(handleSPIErrors);
+      FlamingoBle.getSPIErrorsCodes();
+
+      FlamingoBle.startWiFiStatusCodeEvents(handleWiFiCodes);
+      FlamingoBle.getWiFiStatusCodes();
+      FlamingoBle.getWiFiEnableStatus().then(handleWiFiEnableCode);
+      FlamingoBle.getWiFiSSIDString().then(handleWiFiSSID);
+      FlamingoBle.getWiFiPWDString().then(handleWiFiPWD);
+
+      FlamingoBle.getChairConfiguredFlag().then(handleChairConfiguredChBox);
       FlamingoBle.getTriggerByMotion().then(handleTriggerByMotionEnable);
       FlamingoBle.getSerialNumber().then(handleDeviceSerial);
       FlamingoBle.getModelNumber().then(handleDeviceModel);
+      FlamingoBle.getEmailString().then(handleDeviceEmail);
       FlamingoBle.getEnableVibroMotor().then(handleEnableVibroMotor);
     }
   })
@@ -381,6 +396,67 @@ function sendChairEventToCloud(left,right,mode, event_time){
   })
 }
 
+function handleWiFiEnableCode(value) {
+  // Log the raw value to the console
+  console.log("handleWiFiEnableCode() -> Raw Value:", value);
+
+  let s = document.getElementById("wifi-switch")
+  if(value == 0)
+  {
+    s.parentElement.MaterialSwitch.off();
+  }else{
+    s.parentElement.MaterialSwitch.on();
+  }
+
+}
+
+
+function handleWiFiCodes(event) {
+  console.log("-> WiFi status event");
+
+  // Assuming event.target.value is a Uint8Array containing the WiFi status code
+  let wifi_code = event.target.value.getUint8(0);
+  // Log the raw value to the console
+  console.log("handleWiFiCodes() -> Raw Value:", wifi_code);
+
+  // Mapping C enum values to corresponding strings in JavaScript
+  const wifiStatusStrings = [
+    "Disabled",
+    "NotConfigured",
+    "ErrorConnecting",
+    "Connecting",
+    "Connected",
+    "Disconnected",
+    "WifiNotFound",
+    "SSID_PW_Invalid",
+    "InternalError",
+    "Disconnecting",
+  ];
+
+  let wifi_string = "WiFi Status: ";
+
+  // Check if wifi_code is within the valid range
+  if (wifi_code >= 0 && wifi_code < wifiStatusStrings.length) {
+    wifi_string += wifiStatusStrings[wifi_code];
+  } else {
+    wifi_string += "Unknown";
+  }
+
+  document.querySelector('#wifistatusString').textContent = wifi_string;
+}
+
+function handleSPIErrors(event){
+  // Assuming event.target.value is a Uint8Array containing the WiFi status code
+  let spi_err_cnt = event.target.value.getUint16(0);
+  spi_err_cnt = ((spi_err_cnt & 0xFF) << 8) | ((spi_err_cnt >> 8) & 0xFF);
+  // Log the raw value to the console
+  console.log("handleSPIErrors() -> Raw Value:", spi_err_cnt);
+
+  let SPI_string = "SPI QoS errors: ";
+
+  document.querySelector('#SPIErrorsString').textContent = SPI_string + spi_err_cnt;
+}
+
 function handleErrorCodes(event){
   console.log("-> error event");
   let error_code = event.target.value.getUint16(0);
@@ -439,10 +515,16 @@ document.querySelector('#AutoMode4').addEventListener('click', selectAutoMode);
 
 // document.querySelector('#manualMode').addEventListener('click', changeMode);
 // document.querySelector('#autoMode').addEventListener('click', changeMode);
+document.querySelector('#triggerWiFiConfiguredEnable').addEventListener('click', ChairConfiguredEnable);
 document.querySelector('#triggerByMotionEnable').addEventListener('click', triggerByMotionEnable);
 document.querySelector('#setDeviceInfo').addEventListener('click', setDeviceInfo);
+document.querySelector('#setWiFiSettings').addEventListener('click', setDeviceWiFiSettings);
+
+document.querySelector('#ConnectWiFiCommand').addEventListener('click', connectDeviceWiFiCommand);
+document.querySelector('#DisconnecttWiFiCommand').addEventListener('click', disconnectDeviceWiFiCommand);
 
 document.getElementById("auto-switch").addEventListener('click', changeModeToggle);
+document.getElementById("wifi-switch").addEventListener('click', enableWiFiToggle);
 
 document.querySelector('#enableVibroMotor').addEventListener('click', enableVibroMotorClicked);
 
@@ -460,16 +542,56 @@ function handleDeviceModel(info){
   document.querySelector('#inputModel').value = info;
 }
 
+function handleDeviceEmail(info){
+  document.querySelector('#inputEmail').value = info;
+}
+
+
+function handleWiFiSSID(info){
+  document.querySelector('#inputWiFiSSID').value = info;
+}
+
+function handleWiFiPWD(info){
+  document.querySelector('#inputWiFiPWD').value = info;
+}
+
+function connectDeviceWiFiCommand(){
+  FlamingoBle.issueWiFiCommand(1);
+}
+
+function disconnectDeviceWiFiCommand(){
+  FlamingoBle.issueWiFiCommand(2);
+}
+
+
+function setDeviceWiFiSettings(){
+  ssid = document.querySelector('#inputWiFiSSID').value;
+  pwd = document.querySelector('#inputWiFiPWD').value;
+
+  FlamingoBle.setWiFiSSIDString(ssid)
+  .then(FlamingoBle.setWiFiPWDString(pwd))
+
+  setTimeout(function(){ 
+      FlamingoBle.getWiFiSSIDString().then(handleWiFiSSID);
+      handleWiFiPWD("");
+    }, 1000);
+
+}
+
+
 function setDeviceInfo(){
   model = document.querySelector('#inputModel').value;
   serial = document.querySelector('#inputSerial').value;
+  email = document.querySelector('#inputEmail').value;
 
   FlamingoBle.setModelNumber(model)
-    .then(FlamingoBle.setSerialNumber(serial))
+    .then(FlamingoBle.setSerialNumber(serial)
+    .then(FlamingoBle.setEmailString(email)))
 
   setTimeout(function(){ 
       FlamingoBle.getSerialNumber().then(handleDeviceSerial);
       FlamingoBle.getModelNumber().then(handleDeviceModel);
+      FlamingoBle.getEmailString().then(handleDeviceEmail);
     }, 1000);
 
 }
@@ -485,6 +607,19 @@ function triggerByMotionEnable(){
     .then(_ => FlamingoBle.getTriggerByMotion())
     .then((value) => handleTriggerByMotionEnable(value));
 }
+
+function handleChairConfiguredChBox(value){
+  console.log("-> ChairConfigured =")
+  console.log(value)
+  document.querySelector('#triggerWiFiConfiguredEnable').checked = value;
+}
+
+function ChairConfiguredEnable(){
+  FlamingoBle.setChairConfiguredFlag(document.querySelector('#triggerWiFiConfiguredEnable').checked)
+    .then(_ => FlamingoBle.getChairConfiguredFlag())
+    .then((value) => handleChairConfiguredChBox(value));
+}
+
 
 function handleEnableVibroMotor(value){
   console.log(value)
@@ -522,6 +657,13 @@ function selectAutoMode() {
   //     break;
   // }
 }
+
+function enableWiFiToggle() {
+  var effect = document.getElementById("wifi-switch").checked;
+  console.log("WiFi switch state = ", effect);
+  FlamingoBle.setWiFiEnable(effect);
+}
+
 
 function changeModeToggle() {
   var effect = document.getElementById("auto-switch").checked;
@@ -1266,26 +1408,31 @@ document.getElementById('file')
 
     let fileExtension = filenameSplit[filenameSplit.length - 1];
 
-    if(fileExtension != 'bin'){
+    if(fileExtension != 'zip'){
       document.getElementById('output').textContent = 'wrong file format';
       return;
     }else{
 
-      var fr=new FileReader();
-      fr.onload=function(){
-          document.getElementById('output').textContent="File selected";
-
-          var uint8View = new Uint8Array(fr.result);
-          console.log(uint8View.length)
-
-          FlamingoBle.performUpdate(uint8View)
-          // document.getElementById('file').value = null
-      }
-        
-      fr.readAsArrayBuffer(document.getElementById('file').files[0]);
+      var zipFile = document.getElementById('file').files[0];
+      FlamingoBle.handleZipFile(zipFile)
+        .then(function ({ fileData, functionName }) {
+          if (functionName === 'OTA_v2_Update') {
+            console.log("Executing STM32 OTA update.");
+            FlamingoBle.performUpdate_OTA_v2(fileData);
+          } else if (functionName === 'OTA_Update') {
+            console.log("Executing ESP32 OTA update.");
+            FlamingoBle.performUpdate(fileData);
+          }
+        })
+        .catch(function (error) {
+          document.getElementById('output').textContent = 'Wrong OTA file!';
+          console.error('Error handling ZIP file:', error);
+        });
     }
 
 })
+
+
 
 function dateToString(now){
   let today_time_string = sprintf('%i-%02i-%02i %i:%02i:%02i', now.getFullYear(), 

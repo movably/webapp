@@ -32,29 +32,43 @@
   const TRAJ_VEL_UUID = "1b25ee04-dadf-11eb-8d19-0242ac130003";
   const REALTIME_UUID = "1b25ee05-dadf-11eb-8d19-0242ac130003";
   const ERRORCODES_UUID = "1b25ee06-dadf-11eb-8d19-0242ac130003";
+  const ERRORCODES_SPI_UUID = "1b25ee0f-dadf-11eb-8d19-0242ac130003";
+  const CHAIR_CONFIGURED_FLAG_UUID = "1b25ee10-dadf-11eb-8d19-0242ac130003";
   const TRIGGER_BY_MOTION_UUID = "1b25ee07-dadf-11eb-8d19-0242ac130003";
   const STREAMING_ENABLE_UUID = "1b25ee08-dadf-11eb-8d19-0242ac130003";
   const BASE_AWAY_LOWER_THRESHOLD_UUID = "1b25ee09-dadf-11eb-8d19-0242ac130003";
   const BASE_AWAY_UPPER_THRESHOLD_UUID = "1b25ee0a-dadf-11eb-8d19-0242ac130003";
 
   const USE_VIBRO_UUID = "1b25ee0b-dadf-11eb-8d19-0242ac130003";
-  const VIBRO_STRENGTH_UUID = "1b25ee0c-dadf-11eb-8d19-0242ac130003";
-  const LEFT_SEAT_MOTOR_SOUND_UUID = "1b25ee0d-dadf-11eb-8d19-0242ac130003";
+  const VIBRO_STRENGTH_UUID =         "1b25ee0c-dadf-11eb-8d19-0242ac130003";
+  const LEFT_SEAT_MOTOR_SOUND_UUID =  "1b25ee0d-dadf-11eb-8d19-0242ac130003";
   const RIGHT_SEAT_MOTOR_SOUND_UUID = "1b25ee0e-dadf-11eb-8d19-0242ac130003";
+
 
   const CONFIGURATION_SERVICE_UUID = "7f1a0001-252d-4f8b-baea-6bfc6b255ab6";
 
-  const MODEL_NUMBER_UUID = "7f1a0002-252d-4f8b-baea-6bfc6b255ab6";
-  const SERIAL_NUMBER_UUID = "7f1a0003-252d-4f8b-baea-6bfc6b255ab6";
+  const MODEL_NUMBER_UUID =     "7f1a0002-252d-4f8b-baea-6bfc6b255ab6";
+  const SERIAL_NUMBER_UUID =    "7f1a0003-252d-4f8b-baea-6bfc6b255ab6";
+  const USER_NAME_UUID =        "7f1a0004-252d-4f8b-baea-6bfc6b255ab6";
 
   const OTAServiceUUID = "d0274711-aefa-42c3-93f1-535a09812c37";
   const BeginUUID = "403b76d9-9bc6-4837-8112-cd62516ef214";
   const DataUUID = "d0270001-aefa-42c3-93f1-535a09812c37";
+  const OTAService_OTA_v2_UUID = "d0274711-aefa-42c3-93f1-535a09812c37";
+  const Status_OTA_v2_UUID = "399fa500-b71f-4681-950c-2a1cb307c629";
+  const Begin_OTA_v2_UUID = "403b76d9-9bc6-4837-8112-cd62516ef315";
+  const Data_OTA_v2_UUID = "d0270001-aefa-42c3-93f1-535a09812d38";
   const OTA_INIT = 0;
   const OTA_BEGIN = 1;
   const OTA_INPROGRESS = 2;
   const OTA_SUCCESS = 3;
 
+  const WiFiserviceUUID         = "73e80001-24f7-464d-8de7-3b1e1bfb5dfa";
+  const WiFienableWifiUUID      = "73e80002-24f7-464d-8de7-3b1e1bfb5dfa";
+  const WiFissidUUID            = "73e80003-24f7-464d-8de7-3b1e1bfb5dfa";
+  const WiFipasswordUUID        = "73e80004-24f7-464d-8de7-3b1e1bfb5dfa";
+  const WiFistatusUUID          = "73e80005-24f7-464d-8de7-3b1e1bfb5dfa";
+  const WiFicommandUUID         = "73e80006-24f7-464d-8de7-3b1e1bfb5dfa";
 
   const TIME_SERVICE_UUID = 0x1805;
   const CURRENT_TIME_UUID = 0x2A2B;
@@ -85,9 +99,10 @@
       // let options = {filters:[{services:[ CHAIR_SERVICE_UUID ]}],
       //                optionalServices: ['battery_service']};
       let options = {//acceptAllDevices: true,
-                      filters:[{namePrefix: 'Flamingo'}],
+                      filters:[{namePrefix: 'Movably Chair'}],
+                      //filters:[{namePrefix: 'Flamingo'}],
                       // filters:[{services:[ CHAIR_SERVICE_UUID ]}],
-                      optionalServices: [CHAIR_SERVICE_UUID, ENGINEERING_SERVICE_UUID, CONFIGURATION_SERVICE_UUID, TIME_SERVICE_UUID, OTAServiceUUID, DISCOVERY_SERVICE_UUID]};
+                      optionalServices: [CHAIR_SERVICE_UUID, WiFiserviceUUID, ENGINEERING_SERVICE_UUID, CONFIGURATION_SERVICE_UUID, TIME_SERVICE_UUID, OTAServiceUUID, DISCOVERY_SERVICE_UUID]};
       return navigator.bluetooth.requestDevice(options)
       .then(device => {
         this.device = device;
@@ -163,6 +178,7 @@
       service = await server.getPrimaryService(CONFIGURATION_SERVICE_UUID);
 
       this._cacheCharacteristic(service, MODEL_NUMBER_UUID);
+      this._cacheCharacteristic(service, USER_NAME_UUID);
       this._cacheCharacteristic(service, SERIAL_NUMBER_UUID);
 
 
@@ -173,6 +189,8 @@
       this._cacheCharacteristic(service, TRAJ_VEL_UUID);
       this._cacheCharacteristic(service, REALTIME_UUID);
       this._cacheCharacteristic(service, ERRORCODES_UUID);
+      this._cacheCharacteristic(service, ERRORCODES_SPI_UUID);
+      this._cacheCharacteristic(service, CHAIR_CONFIGURED_FLAG_UUID);
       this._cacheCharacteristic(service, TRIGGER_BY_MOTION_UUID);
       this._cacheCharacteristic(service, STREAMING_ENABLE_UUID);
       this._cacheCharacteristic(service, BASE_AWAY_LOWER_THRESHOLD_UUID);
@@ -182,6 +200,13 @@
       this._cacheCharacteristic(service, LEFT_SEAT_MOTOR_SOUND_UUID);
       this._cacheCharacteristic(service, RIGHT_SEAT_MOTOR_SOUND_UUID);
 
+      service = await server.getPrimaryService(WiFiserviceUUID);
+      this._cacheCharacteristic(service, WiFienableWifiUUID);
+      this._cacheCharacteristic(service, WiFissidUUID);
+      this._cacheCharacteristic(service, WiFipasswordUUID);
+      this._cacheCharacteristic(service, WiFistatusUUID);
+      this._cacheCharacteristic(service, WiFicommandUUID);
+
       service = await server.getPrimaryService(TIME_SERVICE_UUID);
       this._cacheCharacteristic(service, CURRENT_TIME_UUID);
 
@@ -189,6 +214,9 @@
       service = await server.getPrimaryService(OTAServiceUUID);
       this._cacheCharacteristic(service, BeginUUID);
       this._cacheCharacteristic(service, DataUUID);
+      this._cacheCharacteristic(service, Begin_OTA_v2_UUID);
+      this._cacheCharacteristic(service, Data_OTA_v2_UUID);
+      this._cacheCharacteristic(service, Status_OTA_v2_UUID);
 
       
              
@@ -336,6 +364,42 @@
       });
     }
 
+    async startWiFiStatusCodeEvents(listener) {
+      let characteristic = this._characteristics.get(WiFistatusUUID);
+      return await characteristic.startNotifications()
+      .then(_ => {
+        characteristic.addEventListener('characteristicvaluechanged', listener);
+      });
+    }
+
+    getWiFiStatusCodes(){
+      return this._readCharacteristicValue(WiFistatusUUID)
+    }
+
+    async startSPIErrorsCodeEvents(listener) {
+      let characteristic = this._characteristics.get(ERRORCODES_SPI_UUID);
+      return await characteristic.startNotifications()
+      .then(_ => {
+        characteristic.addEventListener('characteristicvaluechanged', listener);
+      });
+    }
+
+    getSPIErrorsCodes(){
+      return this._readCharacteristicValue(ERRORCODES_SPI_UUID)
+    }
+
+    async startWiFiEnableStatus(listener) {
+      let characteristic = this._characteristics.get(WiFienableWifiUUID);
+      return await characteristic.startNotifications()
+      .then(_ => {
+        characteristic.addEventListener('characteristicvaluechanged', listener);
+      });
+    }
+
+    getWiFiEnableStatus(){
+      return this._readCharacteristicValue(WiFienableWifiUUID).then((response) => this._decodeUint8(response)) 
+    }
+
     async startErrorCodeEvents(listener) {
       let characteristic = this._characteristics.get(ERRORCODES_UUID);
       return await characteristic.startNotifications()
@@ -407,6 +471,14 @@
       return this._readCharacteristicValue(TRIGGER_BY_MOTION_UUID).then((response) => this._decodeUint8(response))  
     }
 
+    setChairConfiguredFlag(enable) {
+      return this._writeCharacteristicValue(CHAIR_CONFIGURED_FLAG_UUID, new Uint8Array([enable]))
+    }
+
+    getChairConfiguredFlag(){
+      return this._readCharacteristicValue(CHAIR_CONFIGURED_FLAG_UUID).then((response) => this._decodeUint8(response))  
+    }
+
     enableStreaming(enable) {
       return this._writeCharacteristicValue(STREAMING_ENABLE_UUID, new Uint8Array([enable]))
     }
@@ -475,13 +547,48 @@
       return this._readCharacteristicValue(MODEL_NUMBER_UUID).then((response) => this._decodeString(response))  
     }
 
+    setModelNumber(str){
+      return this._writeCharacteristicValue(MODEL_NUMBER_UUID,this._encodeString(str))
+    }
+
+    getEmailString(){
+      return this._readCharacteristicValue(USER_NAME_UUID).then((response) => this._decodeString(response))  
+    }
+
+    setEmailString(str){
+      return this._writeCharacteristicValue(USER_NAME_UUID,this._encodeString(str))
+    }
+
     getSerialNumber(){
       return this._readCharacteristicValue(SERIAL_NUMBER_UUID).then((response) => this._decodeString(response))  
     }
 
-    setModelNumber(str){
-      return this._writeCharacteristicValue(MODEL_NUMBER_UUID,this._encodeString(str))
+    getWiFiSSIDString(){
+      return this._readCharacteristicValue(WiFissidUUID).then((response) => this._decodeString(response))  
     }
+
+    setWiFiSSIDString(str){
+      return this._writeCharacteristicValue(WiFissidUUID,this._encodeString(str))
+    }
+
+    getWiFiPWDString(){
+      return this._readCharacteristicValue(WiFipasswordUUID).then((response) => this._decodeString(response))  
+    }
+
+    setWiFiPWDString(str){
+      return this._writeCharacteristicValue(WiFipasswordUUID,this._encodeString(str))
+    }
+
+    setWiFiEnable(mode) {
+      console.log("setWiFiEnable() = ", mode);
+      this._writeCharacteristicValue(WiFienableWifiUUID, new Uint8Array([mode]))
+    }
+
+    issueWiFiCommand(cmd) {
+      console.log("issueWiFiCommand() = ", cmd);
+      this._writeCharacteristicValue(WiFicommandUUID, new Uint8Array([cmd]))
+    }
+
 
     setSerialNumber(str){
       return this._writeCharacteristicValue(SERIAL_NUMBER_UUID,this._encodeString(str))  
@@ -534,6 +641,207 @@
     _decodeUint8(data){
       return data.getUint8(0);
     }
+
+//------------------------------------STM32 update routine---------------------------------------------
+
+async performUpdate_OTA_v2(buffer){
+
+  try {
+    // start the process
+    var lengthAsBytes = buffer.length;
+
+    try {
+      console.log('Setting Characteristic User Description...');
+      await this._writeCharacteristicValue(Begin_OTA_v2_UUID,new Uint32Array([lengthAsBytes]));
+
+      var outputString = "Successfully wrote OTA Begin";
+      document.getElementById('output').textContent = outputString;
+      console.log(outputString);
+
+    } catch(error) {
+      var outputString = "FAILED: OTA did not start"  + error;
+      document.getElementById('output').textContent = outputString;
+      console.log(outputString);
+    }
+
+
+
+    // read it back
+    var readResult = await this._readCharacteristicValue(Begin_OTA_v2_UUID);
+    var res = new Uint32Array(readResult.buffer)[0]
+    console.log(readResult)
+    console.log(res)
+    if (res == OTA_BEGIN)
+    {
+        var outputString = "Entered OTA Begin successfully";
+        document.getElementById('output').textContent = outputString;
+        console.log(outputString);
+    }
+    else
+    {
+        var outputString = "FAILED: OTA failed to read or nvalid OTA state {state}" + readResult;
+        document.getElementById('output').textContent = outputString;
+        console.log(outputString);
+        return false;
+    }
+
+
+    var bytesSent = 0;
+    var interval = 1;
+    var maxWrite = 250;
+    var startTime = Date.now();
+    while (bytesSent < buffer.length)
+    {
+        // extract a subbuffer of, at most, 20 bytes to send
+        var bytesToSend = Math.min(maxWrite , buffer.length - bytesSent);
+        try
+        {
+            await this._writeCharacteristicValue(Data_OTA_v2_UUID, buffer.subarray(bytesSent, bytesSent + bytesToSend));
+
+            // result = await _otaDataChar.WriteValueAsync( buffer.AsBuffer( bytesSent, bytesToSend ) );
+            if(bytesSent < maxWrite){
+              var mins = (Date.now() - startTime)/1000.0 / 60.0;
+
+              var outputString = sprintf("#1Done! - %i bytes sent in %7.2f mins" ,bytesSent, mins);
+              document.getElementById('output').textContent = outputString;
+              console.log(outputString);
+            }
+        }
+        catch (ex)
+        {
+            if (bytesToSend <= maxWrite )
+            {
+                bytesSent += bytesToSend;
+                var mins = (Date.now() - startTime)/1000.0 / 60.0;
+                // the last call will abort because the system will restart
+                // need to start the reconnect process
+                // FlashProgressChanged?.Invoke( null, new FlashProgressEventArgs( ) { Progress = $"Done - {bytesSent} bytes sent in {mins:F2} mins" } );
+                var outputString = sprintf("#2Done!! - %i bytes sent in %7.2f mins" ,bytesSent, mins);
+
+                document.getElementById('output').textContent = outputString;
+                console.log(outputString);
+                return true;
+            }else{
+              console.log("FAILED: to send OTA data" );
+              return false;
+            }
+        }
+
+        bytesSent += bytesToSend;
+        if ((interval++ % 2) == 0)
+        {
+            var percentComplete = bytesSent*100 / buffer.length;
+            var bytesRemaining = buffer.length - bytesSent;
+            var secsPassed = (Date.now() - startTime)/1000.0;
+            var bytesPerSecond = bytesSent / secsPassed;
+            var minsRemaining = bytesRemaining / bytesPerSecond / 60.0;
+            // FlashProgressChanged?.Invoke( null, new FlashProgressEventArgs( ) { Progress=$"{percentComplete}% sent - {bytesRemaining} bytes remaining, {minsRemaining:F2} mins remaining" } );
+
+            var outputString = sprintf("%%%i sent, %3.2f mins remaining" ,percentComplete, minsRemaining);
+
+            document.getElementById('output').textContent = outputString;
+            // console.log(outputString);
+        }
+    }
+
+    var readUpdateStatus = await this._readCharacteristicValue(Status_OTA_v2_UUID);
+    // Assuming readResult is a buffer containing the data read from the characteristic
+    // Convert the buffer to a Uint32Array with a length of 3
+    var dataArray = new Uint32Array(readUpdateStatus.buffer, 0, 3);
+    // Log the raw read result
+    console.log(readUpdateStatus);
+    // Log the interpreted array
+    console.log(dataArray);
+
+    var pagesToUpdate = dataArray[2];
+    var pagesUpdated = dataArray[1];
+    var updateStatus = dataArray[0];
+
+    var core0UpdateInProgress = 1;
+
+    while((pagesUpdated <= pagesToUpdate) && core0UpdateInProgress)
+    {
+        readUpdateStatus = await this._readCharacteristicValue(Status_OTA_v2_UUID);
+        var dataArray = new Uint32Array(readUpdateStatus.buffer, 0, 3);
+        console.log(readUpdateStatus);
+        console.log(dataArray);
+        var pagesToUpdate = dataArray[2];
+        var pagesUpdated = dataArray[1];
+        var updateStatus = dataArray[0];
+
+        switch(updateStatus)
+        {
+          case 9:
+            var outputString = sprintf("Transmiting to CORE0 PAGE %i / %i " ,pagesUpdated, pagesToUpdate);
+          break;
+          case 11:
+          case 13: 
+            var outputString = sprintf("Writing to CORE0 Flash PAGE %i / %i " ,pagesUpdated, pagesToUpdate);
+          break;
+          case 4: 
+            if(pagesUpdated == 0)
+            {
+              var outputString = sprintf("Transmiting to CORE0 PAGE %i / %i " ,pagesUpdated, pagesToUpdate);
+            }else{
+              var outputString = sprintf("!Update COMPLETED!");
+              core0UpdateInProgress = 0;
+            }
+
+          break;
+        }
+
+        document.getElementById('output').textContent = outputString;
+    }
+
+    // finished sending data
+
+  }
+  catch (ex)
+  {
+    var outputString = "Flash exception" + ex ;
+    document.getElementById('output').textContent = outputString;
+    console.log(outputString);
+  }
+  return false;
+
+}
+
+handleZipFile(zipBlob) {
+  return new Promise((resolve, reject) => {
+    var zip = new JSZip();
+
+    zip.loadAsync(zipBlob)
+      .then(function (zip) {
+        // Check if "FlamingoB1.bin" exists in the zip
+        if (zip.file("FlamingoB1.bin")) {
+          // Get the content of "FlamingoB1.bin"
+          return zip.file("FlamingoB1.bin").async('uint8array');
+        }
+        // Check if "Flamingo-Firmware.bin" exists in the zip
+        else if (zip.file("Flamingo-Firmware.bin")) {
+          // Get the content of "Flamingo-Firmware.bin"
+          return zip.file("Flamingo-Firmware.bin").async('uint8array');
+        } else {
+          // Neither "FlamingoB1.bin" nor "Flamingo-Firmware.bin" exists in the zip
+          console.log("Firmware not found in the ZIP file.");
+          reject(new Error("Firmware not found in the ZIP file."));
+        }
+      })
+      .then(function (fileData) {
+        // If "FlamingoB1.bin" exists, run MyFunction1; if "file2.bin" exists, run MyFunction2
+        if (zip.file("FlamingoB1.bin")) {
+          resolve({ fileData, functionName: 'OTA_v2_Update' });
+        } else if (zip.file("Flamingo-Firmware.bin")) {
+          resolve({ fileData, functionName: 'OTA_Update' });
+        }
+      })
+      .catch(function (error) {
+        reject(error);
+      });
+  });
+}
+//------------------------------------STM32 update routine END---------------------------------------------
+
 
     async performUpdate(buffer){
 
