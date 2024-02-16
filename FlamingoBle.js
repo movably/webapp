@@ -39,8 +39,6 @@
   const BASE_AWAY_LOWER_THRESHOLD_UUID = "1b25ee09-dadf-11eb-8d19-0242ac130003";
   const BASE_AWAY_UPPER_THRESHOLD_UUID = "1b25ee0a-dadf-11eb-8d19-0242ac130003";
 
-  const USE_VIBRO_UUID = "1b25ee0b-dadf-11eb-8d19-0242ac130003";
-  const VIBRO_STRENGTH_UUID =         "1b25ee0c-dadf-11eb-8d19-0242ac130003";
   const LEFT_SEAT_MOTOR_SOUND_UUID =  "1b25ee0d-dadf-11eb-8d19-0242ac130003";
   const RIGHT_SEAT_MOTOR_SOUND_UUID = "1b25ee0e-dadf-11eb-8d19-0242ac130003";
 
@@ -111,15 +109,19 @@
       })
     }
 
-    async scanForDevice(){
+    async scanForDevice()
+    {
       this.device_found = false;
-      let devices = await navigator.bluetooth.getDevices();
-      console.log(devices);
-      for (let device of devices) {
+      //let devices = await navigator.bluetooth.getDevices();
+      //console.log(devices);
+      //for (let device of devices) 
+     // {
         // Start a scan for each device before connecting to check that they're in
         // range.
+        /*
         let abortController = new AbortController();
-        device.addEventListener('advertisementreceived', async (evt) => {
+        device.addEventListener('advertisementreceived', async (evt) => 
+        {
           // Stop the scan to conserve power on mobile devices.
           abortController.abort();
 
@@ -143,10 +145,11 @@
             this.device = evt.device;
           }
         });
+        */
+        
 
-        await device.watchAdvertisements({signal: abortController.signal});
-
-      }
+      //}
+      //await device.watchAdvertisements({signal: abortController.signal});
     }
     
     async connect(engineering_enabled) {
@@ -195,8 +198,6 @@
       this._cacheCharacteristic(service, STREAMING_ENABLE_UUID);
       this._cacheCharacteristic(service, BASE_AWAY_LOWER_THRESHOLD_UUID);
       this._cacheCharacteristic(service, BASE_AWAY_UPPER_THRESHOLD_UUID);
-      this._cacheCharacteristic(service, USE_VIBRO_UUID);
-      this._cacheCharacteristic(service, VIBRO_STRENGTH_UUID);
       this._cacheCharacteristic(service, LEFT_SEAT_MOTOR_SOUND_UUID);
       this._cacheCharacteristic(service, RIGHT_SEAT_MOTOR_SOUND_UUID);
 
@@ -504,23 +505,6 @@
       return this._readCharacteristicValue(BASE_AWAY_UPPER_THRESHOLD_UUID).then((response) => this.handleUint32Reading(response))  
     }
 
-    /// Vibration configuration
-    enableVibroMotor(enable){
-      this._writeCharacteristicValue(USE_VIBRO_UUID, new Uint8Array([enable]))
-    }
-
-    getEnableVibroMotor(){
-      return this._readCharacteristicValue(USE_VIBRO_UUID).then((response) => response.getUint8(0));  
-    }
-
-    setVibroStrength(strength){
-      this._writeCharacteristicValue(VIBRO_STRENGTH_UUID, new Uint8Array([strength]))
-    }
-
-    getVibroStrength(){
-      return this._readCharacteristicValue(VIBRO_STRENGTH_UUID).then((response) => response.getUint8(0));  
-    }
-
     setLeftMotorSoundStrength(strength){
       this._writeCharacteristicValue(LEFT_SEAT_MOTOR_SOUND_UUID, new Uint8Array([strength]))
 
@@ -540,6 +524,11 @@
     }
     //////////////////////////
 
+// Define a function to update both left and right motor sound strength
+setBothMotorSoundStrength(value) {
+  this.setLeftMotorSoundStrength(value);
+  this.setRightMotorSoundStrength(value);
+}
 
     /* Discovery Service */
 

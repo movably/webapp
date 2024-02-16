@@ -8,6 +8,10 @@ let engineering_enabled = true
 if(url.searchParams.get("engineering")=="false"){
   engineering_enabled = false;
 }
+if(url.searchParams.get("engineering")=="true"){
+  engineering_enabled = true;
+}
+
 
 if(url.searchParams.get("analytics")=="true"){
   document.querySelector('#state').classList.add('analytics');
@@ -16,28 +20,23 @@ let chairSerial = null
 let set_device_info = url.searchParams.get("set_info")
 
 let autoSlider = new Slider("slider1","slider1Title","slider1Value");
-autoSlider.setProperties("Auto Period (min):","0.1","10", "min")
+autoSlider.setProperties("Auto Period (min):","1","10", "min")
 autoSlider.registerChanges(FlamingoBle.setAutoPeriod, 
     FlamingoBle.getAutoPeriod,
     FlamingoBle);
 
-let vibroSlider = new Slider("vibroSlider","vibroSliderTitle","vibroSliderValue");
-vibroSlider.setProperties("Vibration:","0","50", "%")
-vibroSlider.registerChanges(FlamingoBle.setVibroStrength, 
-    FlamingoBle.getVibroStrength,
-    FlamingoBle);
+
+
 
 let leftMotorSoundSlider = new Slider("leftSoundSlider","leftSoundSliderTitle","leftSoundSliderValue");
-leftMotorSoundSlider.setProperties("Left sound:","0","50", "%")
-leftMotorSoundSlider.registerChanges(FlamingoBle.setLeftMotorSoundStrength, 
+leftMotorSoundSlider.setProperties("Motor sound:","0","50", "%")
+leftMotorSoundSlider.registerChanges(FlamingoBle.setBothMotorSoundStrength, 
     FlamingoBle.getLeftMotorSoundStrength,
     FlamingoBle);
 
-let rightMotorSoundSlider = new Slider("rightSoundSlider","rightSoundSliderTitle","rightSoundSliderValue");
-rightMotorSoundSlider.setProperties("Right sound:","0","50", "%")
-rightMotorSoundSlider.registerChanges(FlamingoBle.setRightMotorSoundStrength, 
-    FlamingoBle.getRightMotorSoundStrength,
-    FlamingoBle);
+
+
+
 
 let velSlider, accelSlider, deccelSlider, trajVelSlider;
 
@@ -69,9 +68,6 @@ let velSlider, accelSlider, deccelSlider, trajVelSlider;
 
 
 console.log("engineering enabled =", engineering_enabled)
-
-let userEmail = localStorage.getItem("flamingoUserEmail");
-document.querySelector('#inputUserEmail').value = userEmail;
 
 function onDisconnect(event){
   console.log("Disconnected");
@@ -105,7 +101,7 @@ function onDisconnect(event){
 
     if(engineering_enabled){
       document.querySelector('#state').classList.add('engineering');
-      FlamingoBle.startRealtimeEvents(handleRealtimeEvents);
+      //FlamingoBle.startRealtimeEvents(handleRealtimeEvents);
 
       // FlamingoBle.getVelLimit().then(velSlider.handleRead);
       // FlamingoBle.getAccelLimit().then(accelSlider.handleRead);
@@ -115,14 +111,10 @@ function onDisconnect(event){
       FlamingoBle.startErrorCodeEvents(handleErrorCodes);
       FlamingoBle.getErrorCodes();
 
-      FlamingoBle.getChairConfiguredFlag().then(handleChairConfiguredChBox);
-      FlamingoBle.getTriggerByMotion().then(handleTriggerByMotionEnable);
       FlamingoBle.getSerialNumber().then(handleDeviceSerial);
-      FlamingoBle.getModelNumber().then(handleDeviceModel);
       FlamingoBle.getEmailString().then(handleDeviceEmail);
       FlamingoBle.getWiFiSSIDString().then(handleWiFiSSID);
       FlamingoBle.getWiFiPWDString().then(handleWiFiPWD);
-      FlamingoBle.getEnableVibroMotor().then(handleEnableVibroMotor);
     }
   })
   .catch(error => {
@@ -134,21 +126,10 @@ function onDisconnect(event){
   });
 }
 
-document.querySelector('#inputUserEmail')
-    .addEventListener('change', function() {
-      console.log("user email changed")
-      localStorage.setItem("flamingoUserEmail", document.querySelector('#inputUserEmail').value);
-      userEmail = localStorage.getItem("flamingoUserEmail");
-})
-
 
 document.querySelector('#connect').addEventListener('click', function() {
 
-
-  localStorage.setItem("flamingoUserEmail", document.querySelector('#inputUserEmail').value);
-  userEmail = localStorage.getItem("flamingoUserEmail");
-
-
+  
   FlamingoBle.request(onDisconnect)
   .then(_ => connectDevice())
   .catch(error => {
@@ -176,7 +157,6 @@ function connectDevice(){
     FlamingoBle.getAutoPeriod().then(autoSlider.handleRead);
     FlamingoBle.setCurrentTime();
     FlamingoBle.enableChairEvents();
-    // FlamingoBle.getChairEvent().then((response) => handleChairEventRead(response));
     FlamingoBle.startListenChairEvents(handleChairEvents);
     FlamingoBle.startListenChairStateRead(handleChairEventRead);
     FlamingoBle.startListenAutoPeriod(handlePeriodChange)
@@ -186,27 +166,18 @@ function connectDevice(){
         _ => document.querySelector('#currentVersionTitle').textContent = "Current version: " + FlamingoBle.data.getVersion()
       )
     )
-    FlamingoBle.getVibroStrength().then(vibroSlider.handleRead);
     FlamingoBle.getLeftMotorSoundStrength().then(leftMotorSoundSlider.handleRead);
-    FlamingoBle.getRightMotorSoundStrength().then(rightMotorSoundSlider.handleRead);
+
 
 
     FlamingoBle.getAutoModeSelector().then(handleAutoModeSelectorRead)
 
     if(engineering_enabled){
       document.querySelector('#state').classList.add('engineering');
-      FlamingoBle.startRealtimeEvents(handleRealtimeEvents);
-
-      // FlamingoBle.getVelLimit().then(velSlider.handleRead);
-      // FlamingoBle.getAccelLimit().then(accelSlider.handleRead);
-      // FlamingoBle.getDeccelLimit().then(deccelSlider.handleRead);
-      // FlamingoBle.getTrajVelLimit().then(trajVelSlider.handleRead);
+      //FlamingoBle.startRealtimeEvents(handleRealtimeEvents);
 
       FlamingoBle.startErrorCodeEvents(handleErrorCodes);
       FlamingoBle.getErrorCodes();
-
-      FlamingoBle.startSPIErrorsCodeEvents(handleSPIErrors);
-      FlamingoBle.getSPIErrorsCodes();
 
       FlamingoBle.startWiFiStatusCodeEvents(handleWiFiCodes);
       FlamingoBle.getWiFiStatusCodes();
@@ -214,12 +185,8 @@ function connectDevice(){
       FlamingoBle.getWiFiSSIDString().then(handleWiFiSSID);
       FlamingoBle.getWiFiPWDString().then(handleWiFiPWD);
 
-      FlamingoBle.getChairConfiguredFlag().then(handleChairConfiguredChBox);
-      FlamingoBle.getTriggerByMotion().then(handleTriggerByMotionEnable);
       FlamingoBle.getSerialNumber().then(handleDeviceSerial);
-      FlamingoBle.getModelNumber().then(handleDeviceModel);
       FlamingoBle.getEmailString().then(handleDeviceEmail);
-      FlamingoBle.getEnableVibroMotor().then(handleEnableVibroMotor);
     }
   })
   .catch(error => {
@@ -343,7 +310,6 @@ function handleChairEvents(event){
 
   // handleChairEventRead(event.target.value);
   console.log("-> chair event =", v.getUint8(0), v.getUint8(1), v.getUint8(2))
-  sendChairEventToCloud(leftSide, rightSide, chairMode, event_time);
 }
 
 let chair_period = 0;
@@ -353,48 +319,6 @@ function handlePeriodChange(event){
   console.log("-> period changed: ", chair_period, "sec = ", chair_period/60.0, "min");
 }
 
-function sendChairEventToCloud(left,right,mode, event_time){
-  if(chairSerial == null){
-    console.log("chair_id not set")
-  }
-
-
-  let time_string = sprintf('%i-%02i-%02i %i:%02i:%02i.%i', event_time.getFullYear(), 
-    event_time.getMonth() + 1, // January is 0
-    event_time.getDate(),
-    event_time.getHours(),
-    event_time.getMinutes(),
-    event_time.getSeconds(),
-    event_time.getMilliseconds())
-
-  // console.log(time_string);
-
-  $.ajax({
-      url: "https://movably.fielden.com.au/api/chair-event",
-      type: 'PUT',  
-      data: JSON.stringify({
-        serialNumber:chairSerial,
-        userId:userEmail,
-        time:time_string,
-        leftLeg:left,
-        rightLeg:right,
-        mode:mode
-      }),      
-      headers: {
-        "Content-Type" : "application/json",
-        "API-KEY":"f3162d2f-e798-4b5e-ae59-9540d69dc56c",
-        "Time-Zone":Intl.DateTimeFormat().resolvedOptions().timeZone
-      },
-      success: function () {
-        console.log("MOS event sent")
-        FlamingoBle.sendEventAck(true);
-      },
-      error: function (e) {
-        console.log("MOS error" + e);
-        FlamingoBle.sendEventAck(false);
-      }
-  })
-}
 
 function handleWiFiEnableCode(value) {
   // Log the raw value to the console
@@ -443,18 +367,6 @@ function handleWiFiCodes(event) {
   }
 
   document.querySelector('#wifistatusString').textContent = wifi_string;
-}
-
-function handleSPIErrors(event){
-  // Assuming event.target.value is a Uint8Array containing the WiFi status code
-  let spi_err_cnt = event.target.value.getUint16(0);
-  spi_err_cnt = ((spi_err_cnt & 0xFF) << 8) | ((spi_err_cnt >> 8) & 0xFF);
-  // Log the raw value to the console
-  console.log("handleSPIErrors() -> Raw Value:", spi_err_cnt);
-
-  let SPI_string = "SPI QoS errors: ";
-
-  document.querySelector('#SPIErrorsString').textContent = SPI_string + spi_err_cnt;
 }
 
 function handleErrorCodes(event){
@@ -510,13 +422,10 @@ function handleAutoModeSelectorRead(modeId){
 document.querySelector('#AutoMode0').addEventListener('click', selectAutoMode);
 document.querySelector('#AutoMode1').addEventListener('click', selectAutoMode);
 document.querySelector('#AutoMode2').addEventListener('click', selectAutoMode);
-document.querySelector('#AutoMode3').addEventListener('click', selectAutoMode);
-document.querySelector('#AutoMode4').addEventListener('click', selectAutoMode);
 
 // document.querySelector('#manualMode').addEventListener('click', changeMode);
 // document.querySelector('#autoMode').addEventListener('click', changeMode);
-document.querySelector('#triggerWiFiConfiguredEnable').addEventListener('click', ChairConfiguredEnable);
-document.querySelector('#triggerByMotionEnable').addEventListener('click', triggerByMotionEnable);
+
 document.querySelector('#setDeviceInfo').addEventListener('click', setDeviceInfo);
 document.querySelector('#setWiFiSettings').addEventListener('click', setDeviceWiFiSettings);
 
@@ -526,20 +435,12 @@ document.querySelector('#DisconnecttWiFiCommand').addEventListener('click', disc
 document.getElementById("auto-switch").addEventListener('click', changeModeToggle);
 document.getElementById("wifi-switch").addEventListener('click', enableWiFiToggle);
 
-document.querySelector('#enableVibroMotor').addEventListener('click', enableVibroMotorClicked);
-
 
 function handleDeviceSerial(info){
 
   document.querySelector('#title2').textContent = "Connected to Flamingo Chair " + info;
   // document.querySelector('#titleDeviceSerial').textContent = "Serial #: " + info;
-  document.querySelector('#inputSerial').value = info;
   chairSerial = info;
-}
-
-function handleDeviceModel(info){
-  // document.querySelector('#titleDeviceModel').textContent = "Model #: " + info;
-  document.querySelector('#inputModel').value = info;
 }
 
 function handleDeviceEmail(info){
@@ -580,33 +481,16 @@ function setDeviceWiFiSettings(){
 
 
 function setDeviceInfo(){
-  model = document.querySelector('#inputModel').value;
-  serial = document.querySelector('#inputSerial').value;
   email = document.querySelector('#inputEmail').value;
 
-  FlamingoBle.setModelNumber(model)
-    .then(FlamingoBle.setSerialNumber(serial)
-    .then(FlamingoBle.setEmailString(email)))
+  FlamingoBle.setEmailString(email)
 
   setTimeout(function(){ 
-      FlamingoBle.getSerialNumber().then(handleDeviceSerial);
-      FlamingoBle.getModelNumber().then(handleDeviceModel);
       FlamingoBle.getEmailString().then(handleDeviceEmail);
     }, 1000);
 
 }
 
-function handleTriggerByMotionEnable(value){
-  console.log("-> Trigger by Motion =")
-  console.log(value)
-  document.querySelector('#triggerByMotionEnable').checked = value;
-}
-
-function triggerByMotionEnable(){
-  FlamingoBle.setTriggerByMotion(document.querySelector('#triggerByMotionEnable').checked)
-    .then(_ => FlamingoBle.getTriggerByMotion())
-    .then((value) => handleTriggerByMotionEnable(value));
-}
 
 function handleChairConfiguredChBox(value){
   console.log("-> ChairConfigured =")
@@ -620,17 +504,6 @@ function ChairConfiguredEnable(){
     .then((value) => handleChairConfiguredChBox(value));
 }
 
-
-function handleEnableVibroMotor(value){
-  console.log(value)
-  document.querySelector('#enableVibroMotor').checked = value;
-}
-
-function enableVibroMotorClicked(){
-  FlamingoBle.enableVibroMotor(document.querySelector('#enableVibroMotor').checked)
-    .then(_ => FlamingoBle.getEnableVibroMotor())
-    .then((value) => handleEnableVibroMotor(value));
-}
 
 function changeMode() {
   var effect = document.querySelector('[name="effectSwitch"]:checked').id;
@@ -694,53 +567,6 @@ function moveLeft(){
   FlamingoBle.setToggle(0);
 }
 
-function download_csv(){
-  let chart_data = document.getElementById('chart').data;
-
-  let csvContent = "data:text/csv;charset=utf-8,";
-
-  let header = "";
-
-  header += "time,";
-
-  for (i = 0; i < chart_data.length; i++) {
-    header += chart_data[i].name;
-    if(i < chart_data.length-1){
-      header += ",";
-    }else{
-      header += "\r\n";
-    }
-  }
-  csvContent += header;
-
-
-  for (j = 0; j < chart_data[0].y.length; j++) {
-
-    let row = "";
-    row += chart_data[0].x[j] + ",";
-
-    for (i = 0; i < chart_data.length; i++) {
-      row += chart_data[i].y[j];
-      if(i < chart_data.length-1){
-        row += ",";
-      }else{
-        row += "\r\n";
-      }
-    }
-    // console.log(row)
-
-    csvContent += row;
-  }
-
-  var encodedUri = encodeURI(csvContent);
-  var link = document.createElement("a");
-  link.setAttribute("href", encodedUri);
-  link.setAttribute("download", "Flamingo_data.csv");
-  document.body.appendChild(link); // Required for FF
-
-  link.click(); // This will download the data file named "my_data.csv".
-
-}
 
 function moveRight(){
   // console.log("moveRight")
@@ -748,7 +574,7 @@ function moveRight(){
 }
 document.querySelector('#left').addEventListener('click', moveLeft);
 document.querySelector('#right').addEventListener('click', moveRight);
-document.querySelector('#download_csv').addEventListener('click', download_csv);
+
 
 
 
@@ -922,9 +748,6 @@ function createNewPlotter() {
 
 }
 
-if(engineering_enabled){
-  createNewPlotter();  
-}
 
 var cnt = 0;
 
@@ -974,230 +797,6 @@ let last_notification_time = 0;
 
 let base_strain = 0;
 
-function handleRealtimeEvents(event){
-  data_count++;
-  let v = event.target.value;
-  let time_in_sec = new Float32Array(v.buffer)[0];
-
-  let left_angle = new Int16Array(v.buffer)[2]/45.5;
-  let right_angle = new Int16Array(v.buffer)[3]/45.5;
-
-  base_strain = new Uint32Array(v.buffer)[2];
-  let base_std = new Float32Array(v.buffer)[3];
-
-  let side_states = new Uint8Array(v.buffer)[16];//[12];
-  let opto_values = new Uint8Array(v.buffer)[17];//[13];
-
-  let left_state = side_states & 0x0F;
-  let right_state = (side_states & 0xF0) >> 4;
-
-  let left_folded = opto_values & 0x1;
-  let left_seated = (opto_values >> 1) & 0x1;
-  let left_unlocked = (opto_values >> 2) & 0x1;
-
-  let right_folded = (opto_values >> 3) & 0x1;
-  let right_seated = (opto_values >> 4) & 0x1;
-  let right_unlocked = (opto_values >> 5) & 0x1;
-
-  // pushNotificationMsg
-  let notify = false;
-
-  if(chairMode == "auto"){
-    if(left_state != state_left_pre){
-      if(left_state == kUnlocking || left_state == kSeating){
-        notify = true;
-      }
-    }
-
-    if(right_state != state_right_pre){
-      if(right_state == kUnlocking || right_state == kSeating){
-        notify = true;
-      }
-    }
-
-    if(notify){
-      let now = new Date;
-      if((now.getTime() - last_notification_time) > 10000){
-        pushNotificationMsg("Time to change postures!");
-        last_notification_time = now.getTime();
-      }
-    }
-  }
-
-
-  // erase plotter if current time is less than the last time in the plotter 
-  // meaning that it's a new session
-
-  chart_data = document.getElementById('chart').data
-  length = chart_data[0].x.length
-
-  if(length>0){
-    last_recorded_time = chart_data[0].x[length-1];
-    if(time_in_sec < last_recorded_time){
-      createNewPlotter();
-      xbuffer = [[], 
-        [], 
-        [], 
-        [], 
-        [], 
-        [], 
-        [], 
-        [], 
-        [], 
-        [],
-        [],
-        []];
-
-    ybuffer = [[], 
-        [], 
-        [], 
-        [], 
-        [], 
-        [], 
-        [], 
-        [], 
-        [], 
-        [],
-        [],
-        []];
-    }
-  }
-
-
-  state_right_pre = right_state;
-  state_left_pre = left_state;
-
-  // xdata = [[time_in_sec], 
-  //   [time_in_sec], 
-  //   [time_in_sec], 
-  //   [time_in_sec], 
-  //   [time_in_sec], 
-  //   [time_in_sec], 
-  //   [time_in_sec], 
-  //   [time_in_sec], 
-  //   [time_in_sec], 
-  //   [time_in_sec],
-  //   [time_in_sec]];
-
-  xbuffer[0].push(time_in_sec) 
-  xbuffer[1].push(time_in_sec) 
-  xbuffer[2].push(time_in_sec) 
-  xbuffer[3].push(time_in_sec) 
-  xbuffer[4].push(time_in_sec) 
-  xbuffer[5].push(time_in_sec) 
-  xbuffer[6].push(time_in_sec) 
-  xbuffer[7].push(time_in_sec) 
-  xbuffer[8].push(time_in_sec) 
-  xbuffer[9].push(time_in_sec) 
-  xbuffer[10].push(time_in_sec)
-  xbuffer[11].push(time_in_sec)
-
-  ybuffer[0].push(left_angle) 
-  ybuffer[1].push(right_angle) 
-  ybuffer[2].push(base_strain) 
-  ybuffer[3].push(left_state) 
-  ybuffer[4].push(right_state) 
-  ybuffer[5].push(left_folded * 60) 
-  ybuffer[6].push(left_seated * 61) 
-  ybuffer[7].push(left_unlocked * 62) 
-  ybuffer[8].push(right_folded * 70) 
-  ybuffer[9].push(right_seated * 71) 
-  ybuffer[10].push(right_unlocked * 72)
-  ybuffer[11].push(base_std)
-
-  // ydata = [[left_angle], 
-  //   [right_angle], 
-  //   [base_strain*100], 
-  //   [left_state], 
-  //   [right_state], 
-  //   [left_folded * 60], 
-  //   [left_seated * 61], 
-  //   [left_unlocked * 62], 
-  //   [right_folded * 70], 
-  //   [right_seated * 71], 
-  //   [right_unlocked * 72]];
-
-  traces = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-
-  // xbuffer.push(xdata)
-  // ybuffer.push(ydata)
-  // tracesbuffer.push(traces)
-
-  if(__lock == false && xbuffer[0].length>5){
-    __lock = true
-
-    // var self = this
-    Plotly.extendTraces('chart', {
-      x: xbuffer,
-      y: ybuffer
-    }, traces).then(function() {
-      __lock = false
-    })
-
-    xbuffer = [[], 
-      [], 
-      [], 
-      [], 
-      [], 
-      [], 
-      [], 
-      [], 
-      [], 
-      [],
-      [],
-      []];
-
-  ybuffer = [[], 
-      [], 
-      [], 
-      [], 
-      [], 
-      [], 
-      [], 
-      [], 
-      [], 
-      [],
-      [],
-      []];
-
-    cnt++;
-    range = 10;
-    if(time_in_sec > range) {
-          Plotly.relayout('chart',{
-              xaxis: {
-                  title: {
-                    text: 'Time (seconds since device power on)',
-                    font: {
-                      family: 'Old Standard TT, serif',
-                      size: 18,
-                      color: '#ffffff'
-                    }
-                  },
-                  range: [time_in_sec-range,time_in_sec],
-                  // showgrid: true,
-                  // zeroline: true,
-                  // showline: true,
-                  // mirror: 'ticks',
-                  gridcolor: '#bdbdbd',
-                  // gridwidth: 2,
-                  // zerolinecolor: '#969696',
-                  // zerolinewidth: 4,
-                  linecolor: '#636363',
-                  // linewidth: 6,
-                  tickfont: {
-                  //   family: 'Old Standard TT, serif',
-                  //   size: 14,
-                    color: 'white'
-                  },
-              }
-          });
-      }
-  }else{
-    // console.log("ignored " + time_in_sec)
-  }
-
-  
-}
 
 
 function addRow(tableID) {
@@ -1447,20 +1046,6 @@ function dateToString(now){
 
 
 
-
-// UsageReporter.request(userEmail, dateToString(yesterday), dateToString(now));
-// document.querySelector('#posture').addEventListener('change', getAutoSequence);
-// document.querySelector('.duration').addEventListener('input', getAutoSequence);
-
-function reportUsage(start, end){
-  UsageReporter.request(userEmail, start, end);
-  UsageReporter.requestTimeUsage(userEmail, start, end);
-}
-
-// var intervalId = setInterval(function() {
-//   alert("Interval reached every 5s")
-// }, 5000);
-
 function playSound(url) {
   const audio = new Audio(url);
   audio.volume = 0.3;
@@ -1511,8 +1096,6 @@ function openCity(evt, cityName) {
   
 // });
 
-
-UsageReporter.getDailyUsages(userEmail);
 
 
 async function autoScan() {
