@@ -67,6 +67,9 @@
   const WiFipasswordUUID        = "73e80004-24f7-464d-8de7-3b1e1bfb5dfa";
   const WiFistatusUUID          = "73e80005-24f7-464d-8de7-3b1e1bfb5dfa";
   const WiFicommandUUID         = "73e80006-24f7-464d-8de7-3b1e1bfb5dfa";
+  const WiFiSSIDSingleUUID      = "73e80007-24f7-464d-8de7-3b1e1bfb5dfa";
+  const WiFiSSIDListCounterUUID = "73e80008-24f7-464d-8de7-3b1e1bfb5dfa";
+  
 
   const TIME_SERVICE_UUID = 0x1805;
   const CURRENT_TIME_UUID = 0x2A2B;
@@ -207,6 +210,8 @@
       this._cacheCharacteristic(service, WiFipasswordUUID);
       this._cacheCharacteristic(service, WiFistatusUUID);
       this._cacheCharacteristic(service, WiFicommandUUID);
+      this._cacheCharacteristic(service, WiFiSSIDSingleUUID);
+      this._cacheCharacteristic(service, WiFiSSIDListCounterUUID);
 
       service = await server.getPrimaryService(TIME_SERVICE_UUID);
       this._cacheCharacteristic(service, CURRENT_TIME_UUID);
@@ -399,6 +404,37 @@
 
     getWiFiEnableStatus(){
       return this._readCharacteristicValue(WiFienableWifiUUID).then((response) => this._decodeUint8(response)) 
+    }
+
+    getWiFiListCount(){
+      return this._readCharacteristicValue(WiFiSSIDListCounterUUID).then((response) => this._decodeUint8(response)) 
+    }
+
+    /*
+    setWiFiListCount(value) {
+      //console.log("setWiFiListCount() = ", value);
+      this._writeCharacteristicValue(WiFiSSIDListCounterUUID, new Uint8Array([value]))
+    }
+    */
+    setWiFiListCount(value) {
+      return new Promise((resolve, reject) => {
+          try {
+              // console.log("setWiFiListCount() = ", value);
+              this._writeCharacteristicValue(WiFiSSIDListCounterUUID, new Uint8Array([value]))
+                  .then(() => {
+                      resolve(); // Resolve the Promise when the write is successful
+                  })
+                  .catch((error) => {
+                      reject(error); // Reject the Promise if there's an error during the write
+                  });
+          } catch (error) {
+              reject(error); // Reject the Promise if there's an error
+          }
+      });
+    }
+
+    getWiFiSingleSSIDString(){
+      return this._readCharacteristicValue(WiFiSSIDSingleUUID).then((response) => this._decodeString(response))  
     }
 
     async startErrorCodeEvents(listener) {
@@ -629,6 +665,10 @@ setBothMotorSoundStrength(value) {
 
     _decodeUint8(data){
       return data.getUint8(0);
+    }
+
+    _decodeUint16(data){
+      return data.getUint16(0);
     }
 
 //------------------------------------STM32 update routine---------------------------------------------

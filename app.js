@@ -113,7 +113,6 @@ function onDisconnect(event){
 
       FlamingoBle.getSerialNumber().then(handleDeviceSerial);
       FlamingoBle.getEmailString().then(handleDeviceEmail);
-      FlamingoBle.getWiFiSSIDString().then(handleWiFiSSID);
       FlamingoBle.getWiFiPWDString().then(handleWiFiPWD);
     }
   })
@@ -181,12 +180,11 @@ function connectDevice(){
 
       FlamingoBle.startWiFiStatusCodeEvents(handleWiFiCodes);
       FlamingoBle.getWiFiStatusCodes();
-      FlamingoBle.getWiFiEnableStatus().then(handleWiFiEnableCode);
-      FlamingoBle.getWiFiSSIDString().then(handleWiFiSSID);
-      FlamingoBle.getWiFiPWDString().then(handleWiFiPWD);
+      //FlamingoBle.getWiFiPWDString().then(handleWiFiPWD);
 
       FlamingoBle.getSerialNumber().then(handleDeviceSerial);
       FlamingoBle.getEmailString().then(handleDeviceEmail);
+      readWiFiSSIDsMultipleTimes();
     }
   })
   .catch(error => {
@@ -320,21 +318,6 @@ function handlePeriodChange(event){
 }
 
 
-function handleWiFiEnableCode(value) {
-  // Log the raw value to the console
-  console.log("handleWiFiEnableCode() -> Raw Value:", value);
-
-  let s = document.getElementById("wifi-switch")
-  if(value == 0)
-  {
-    s.parentElement.MaterialSwitch.off();
-  }else{
-    s.parentElement.MaterialSwitch.on();
-  }
-
-}
-
-
 function handleWiFiCodes(event) {
   console.log("-> WiFi status event");
 
@@ -429,11 +412,7 @@ document.querySelector('#AutoMode2').addEventListener('click', selectAutoMode);
 document.querySelector('#setDeviceInfo').addEventListener('click', setDeviceInfo);
 document.querySelector('#setWiFiSettings').addEventListener('click', setDeviceWiFiSettings);
 
-document.querySelector('#ConnectWiFiCommand').addEventListener('click', connectDeviceWiFiCommand);
-document.querySelector('#DisconnecttWiFiCommand').addEventListener('click', disconnectDeviceWiFiCommand);
-
 document.getElementById("auto-switch").addEventListener('click', changeModeToggle);
-document.getElementById("wifi-switch").addEventListener('click', enableWiFiToggle);
 
 
 function handleDeviceSerial(info){
@@ -447,10 +426,6 @@ function handleDeviceEmail(info){
   document.querySelector('#inputEmail').value = info;
 }
 
-
-function handleWiFiSSID(info){
-  document.querySelector('#inputWiFiSSID').value = info;
-}
 
 function handleWiFiPWD(info){
   document.querySelector('#inputWiFiPWD').value = info;
@@ -466,14 +441,17 @@ function disconnectDeviceWiFiCommand(){
 
 
 function setDeviceWiFiSettings(){
-  ssid = document.querySelector('#inputWiFiSSID').value;
+  // Get the dropdown element
+  let dropdown = document.getElementById("inputWiFiSSID");
+  ssid = dropdown.options[dropdown.selectedIndex].value;
   pwd = document.querySelector('#inputWiFiPWD').value;
 
   FlamingoBle.setWiFiSSIDString(ssid)
   .then(FlamingoBle.setWiFiPWDString(pwd))
+  .then(FlamingoBle.setWiFiEnable(true))
+  
 
   setTimeout(function(){ 
-      FlamingoBle.getWiFiSSIDString().then(handleWiFiSSID);
       handleWiFiPWD("");
     }, 1000);
 
@@ -530,13 +508,6 @@ function selectAutoMode() {
   //     break;
   // }
 }
-
-function enableWiFiToggle() {
-  var effect = document.getElementById("wifi-switch").checked;
-  console.log("WiFi switch state = ", effect);
-  FlamingoBle.setWiFiEnable(effect);
-}
-
 
 function changeModeToggle() {
   var effect = document.getElementById("auto-switch").checked;
@@ -1252,4 +1223,42 @@ function setCircleDasharray(timeLeft) {
     .setAttribute("stroke-dasharray", circleDasharray);
 }
 
+
+
+// Function to add a WiFi SSID to the dropdown
+function addWifiSSIDToDropdown(wifiSSID) {
+  let dropdown = document.getElementById("inputWiFiSSID");
+
+  let option = document.createElement("option");
+  option.text = wifiSSID;
+  dropdown.add(option);
+}
+
+async function readWiFiSSIDsMultipleTimes() {
+  try {
+      const n = await FlamingoBle.getWiFiListCount();
+      console.log("Reading WiFi list =", n);
+
+      for (let i = 0; i < n; i++) {
+          try {
+              const setCountPromise = FlamingoBle.setWiFiListCount(i);
+
+              if (setCountPromise instanceof Promise) {
+                  await setCountPromise;
+              } else {
+                  console.error("Error: setWiFiListCount did not return a Promise");
+                  continue; // Continue to the next iteration if setWiFiListCount doesn't return a Promise
+              }
+
+              const wifiSSID = await FlamingoBle.getWiFiSingleSSIDString();
+              addWifiSSIDToDropdown(wifiSSID);
+          } catch (error) {
+              console.error("Error fetching WiFi SSID:", error);
+          }
+      }
+  } catch (error) {
+      console.error("Error fetching WiFi list count:", error);
+  }
+
+}
 
