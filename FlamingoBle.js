@@ -39,8 +39,6 @@
   const BASE_AWAY_LOWER_THRESHOLD_UUID = "1b25ee09-dadf-11eb-8d19-0242ac130003";
   const BASE_AWAY_UPPER_THRESHOLD_UUID = "1b25ee0a-dadf-11eb-8d19-0242ac130003";
 
-  const USE_VIBRO_UUID = "1b25ee0b-dadf-11eb-8d19-0242ac130003";
-  const VIBRO_STRENGTH_UUID =         "1b25ee0c-dadf-11eb-8d19-0242ac130003";
   const LEFT_SEAT_MOTOR_SOUND_UUID =  "1b25ee0d-dadf-11eb-8d19-0242ac130003";
   const RIGHT_SEAT_MOTOR_SOUND_UUID = "1b25ee0e-dadf-11eb-8d19-0242ac130003";
 
@@ -69,6 +67,9 @@
   const WiFipasswordUUID        = "73e80004-24f7-464d-8de7-3b1e1bfb5dfa";
   const WiFistatusUUID          = "73e80005-24f7-464d-8de7-3b1e1bfb5dfa";
   const WiFicommandUUID         = "73e80006-24f7-464d-8de7-3b1e1bfb5dfa";
+  const WiFiSSIDSingleUUID      = "73e80007-24f7-464d-8de7-3b1e1bfb5dfa";
+  const WiFiSSIDListCounterUUID = "73e80008-24f7-464d-8de7-3b1e1bfb5dfa";
+  
 
   const TIME_SERVICE_UUID = 0x1805;
   const CURRENT_TIME_UUID = 0x2A2B;
@@ -111,15 +112,19 @@
       })
     }
 
-    async scanForDevice(){
+    async scanForDevice()
+    {
       this.device_found = false;
-      let devices = await navigator.bluetooth.getDevices();
-      console.log(devices);
-      for (let device of devices) {
+      //let devices = await navigator.bluetooth.getDevices();
+      //console.log(devices);
+      //for (let device of devices) 
+     // {
         // Start a scan for each device before connecting to check that they're in
         // range.
+        /*
         let abortController = new AbortController();
-        device.addEventListener('advertisementreceived', async (evt) => {
+        device.addEventListener('advertisementreceived', async (evt) => 
+        {
           // Stop the scan to conserve power on mobile devices.
           abortController.abort();
 
@@ -143,10 +148,11 @@
             this.device = evt.device;
           }
         });
+        */
+        
 
-        await device.watchAdvertisements({signal: abortController.signal});
-
-      }
+      //}
+      //await device.watchAdvertisements({signal: abortController.signal});
     }
     
     async connect(engineering_enabled) {
@@ -195,8 +201,6 @@
       this._cacheCharacteristic(service, STREAMING_ENABLE_UUID);
       this._cacheCharacteristic(service, BASE_AWAY_LOWER_THRESHOLD_UUID);
       this._cacheCharacteristic(service, BASE_AWAY_UPPER_THRESHOLD_UUID);
-      this._cacheCharacteristic(service, USE_VIBRO_UUID);
-      this._cacheCharacteristic(service, VIBRO_STRENGTH_UUID);
       this._cacheCharacteristic(service, LEFT_SEAT_MOTOR_SOUND_UUID);
       this._cacheCharacteristic(service, RIGHT_SEAT_MOTOR_SOUND_UUID);
 
@@ -206,6 +210,8 @@
       this._cacheCharacteristic(service, WiFipasswordUUID);
       this._cacheCharacteristic(service, WiFistatusUUID);
       this._cacheCharacteristic(service, WiFicommandUUID);
+      this._cacheCharacteristic(service, WiFiSSIDSingleUUID);
+      this._cacheCharacteristic(service, WiFiSSIDListCounterUUID);
 
       service = await server.getPrimaryService(TIME_SERVICE_UUID);
       this._cacheCharacteristic(service, CURRENT_TIME_UUID);
@@ -400,6 +406,37 @@
       return this._readCharacteristicValue(WiFienableWifiUUID).then((response) => this._decodeUint8(response)) 
     }
 
+    getWiFiListCount(){
+      return this._readCharacteristicValue(WiFiSSIDListCounterUUID).then((response) => this._decodeUint8(response)) 
+    }
+
+    /*
+    setWiFiListCount(value) {
+      //console.log("setWiFiListCount() = ", value);
+      this._writeCharacteristicValue(WiFiSSIDListCounterUUID, new Uint8Array([value]))
+    }
+    */
+    setWiFiListCount(value) {
+      return new Promise((resolve, reject) => {
+          try {
+              // console.log("setWiFiListCount() = ", value);
+              this._writeCharacteristicValue(WiFiSSIDListCounterUUID, new Uint8Array([value]))
+                  .then(() => {
+                      resolve(); // Resolve the Promise when the write is successful
+                  })
+                  .catch((error) => {
+                      reject(error); // Reject the Promise if there's an error during the write
+                  });
+          } catch (error) {
+              reject(error); // Reject the Promise if there's an error
+          }
+      });
+    }
+
+    getWiFiSingleSSIDString(){
+      return this._readCharacteristicValue(WiFiSSIDSingleUUID).then((response) => this._decodeString(response))  
+    }
+
     async startErrorCodeEvents(listener) {
       let characteristic = this._characteristics.get(ERRORCODES_UUID);
       return await characteristic.startNotifications()
@@ -504,23 +541,6 @@
       return this._readCharacteristicValue(BASE_AWAY_UPPER_THRESHOLD_UUID).then((response) => this.handleUint32Reading(response))  
     }
 
-    /// Vibration configuration
-    enableVibroMotor(enable){
-      this._writeCharacteristicValue(USE_VIBRO_UUID, new Uint8Array([enable]))
-    }
-
-    getEnableVibroMotor(){
-      return this._readCharacteristicValue(USE_VIBRO_UUID).then((response) => response.getUint8(0));  
-    }
-
-    setVibroStrength(strength){
-      this._writeCharacteristicValue(VIBRO_STRENGTH_UUID, new Uint8Array([strength]))
-    }
-
-    getVibroStrength(){
-      return this._readCharacteristicValue(VIBRO_STRENGTH_UUID).then((response) => response.getUint8(0));  
-    }
-
     setLeftMotorSoundStrength(strength){
       this._writeCharacteristicValue(LEFT_SEAT_MOTOR_SOUND_UUID, new Uint8Array([strength]))
 
@@ -540,6 +560,11 @@
     }
     //////////////////////////
 
+// Define a function to update both left and right motor sound strength
+setBothMotorSoundStrength(value) {
+  this.setLeftMotorSoundStrength(value);
+  this.setRightMotorSoundStrength(value);
+}
 
     /* Discovery Service */
 
@@ -640,6 +665,10 @@
 
     _decodeUint8(data){
       return data.getUint8(0);
+    }
+
+    _decodeUint16(data){
+      return data.getUint16(0);
     }
 
 //------------------------------------STM32 update routine---------------------------------------------
