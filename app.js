@@ -246,9 +246,9 @@ function handleChairEventRead(event){
   v = event.target.value;
   console.log("-> chair state =", v.getUint8(0), v.getUint8(1), v.getUint8(2))
 
-  rightSide = v.getUint8(0) == 0 ? "up":"down"
+  leftSide = v.getUint8(0) == 0 ? "up":"down"
 
-  leftSide = v.getUint8(1) == 0 ? "up":"down"
+  rightSide = v.getUint8(1) == 0 ? "up":"down"
 
 
   document.querySelector('#left').textContent = "Left: " +leftSide;
