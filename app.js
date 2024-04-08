@@ -39,6 +39,19 @@ rightMotorSoundSlider.registerChanges(FlamingoBle.setRightMotorSoundStrength,
     FlamingoBle.getRightMotorSoundStrength,
     FlamingoBle);
 
+let leftLegDutySetSlider = new Slider("leftLegDutySlider","leftLegLockDutyTitle","leftLegLockDutyValue");
+leftLegDutySetSlider.setProperties("Left lock:","200","500", "ppm")
+leftLegDutySetSlider.registerChanges(FlamingoBle.setLeftLegMotorLockStrength, 
+    FlamingoBle.getLeftLegMotorLockStrength,
+    FlamingoBle);
+
+let rightLegDutySetSlider = new Slider("rightLegDutySlider","rightLegLockDutyTitle","rightLegLockDutyValue");
+rightLegDutySetSlider.setProperties("Right lock:","200","500", "ppm")
+rightLegDutySetSlider.registerChanges(FlamingoBle.setRightLegMotorLockStrength, 
+    FlamingoBle.getRightLegMotorLockStrength,
+    FlamingoBle);
+
+
 let velSlider, accelSlider, deccelSlider, trajVelSlider;
 
 // if(engineering_enabled){
@@ -189,6 +202,9 @@ function connectDevice(){
     FlamingoBle.getVibroStrength().then(vibroSlider.handleRead);
     FlamingoBle.getLeftMotorSoundStrength().then(leftMotorSoundSlider.handleRead);
     FlamingoBle.getRightMotorSoundStrength().then(rightMotorSoundSlider.handleRead);
+
+    FlamingoBle.getLeftLegMotorLockStrength().then(leftLegDutySetSlider.handleRead);
+    FlamingoBle.getRightLegMotorLockStrength().then(rightLegDutySetSlider.handleRead);
 
 
     FlamingoBle.getAutoModeSelector().then(handleAutoModeSelectorRead)

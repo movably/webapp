@@ -44,6 +44,8 @@
   const LEFT_SEAT_MOTOR_SOUND_UUID =  "1b25ee0d-dadf-11eb-8d19-0242ac130003";
   const RIGHT_SEAT_MOTOR_SOUND_UUID = "1b25ee0e-dadf-11eb-8d19-0242ac130003";
 
+  const LEFT_LOCK_MOTOR_DUTY_UUID =  "1b25ee11-dadf-11eb-8d19-0242ac130003";
+  const RIGHT_LOCK_MOTOR_DUTY_UUID =  "1b25ee12-dadf-11eb-8d19-0242ac130003";
 
   const CONFIGURATION_SERVICE_UUID = "7f1a0001-252d-4f8b-baea-6bfc6b255ab6";
 
@@ -199,6 +201,9 @@
       this._cacheCharacteristic(service, VIBRO_STRENGTH_UUID);
       this._cacheCharacteristic(service, LEFT_SEAT_MOTOR_SOUND_UUID);
       this._cacheCharacteristic(service, RIGHT_SEAT_MOTOR_SOUND_UUID);
+      this._cacheCharacteristic(service, LEFT_LOCK_MOTOR_DUTY_UUID);
+      this._cacheCharacteristic(service, RIGHT_LOCK_MOTOR_DUTY_UUID);
+
 
       service = await server.getPrimaryService(WiFiserviceUUID);
       this._cacheCharacteristic(service, WiFienableWifiUUID);
@@ -521,9 +526,25 @@
       return this._readCharacteristicValue(VIBRO_STRENGTH_UUID).then((response) => response.getUint8(0));  
     }
 
+    setLeftLegMotorLockStrength(strength){
+      return this._writeCharacteristicValue(LEFT_LOCK_MOTOR_DUTY_UUID, new Float32Array([strength/1000]))
+    }
+
+    getLeftLegMotorLockStrength() {
+      return this._readCharacteristicValue(LEFT_LOCK_MOTOR_DUTY_UUID).then((response) => this.handleFloatReading(response) * 1000);  
+    }
+
+    setRightLegMotorLockStrength(strength){
+      return this._writeCharacteristicValue(RIGHT_LOCK_MOTOR_DUTY_UUID, new Float32Array([strength/1000]))
+    }
+
+    getRightLegMotorLockStrength() {
+      return this._readCharacteristicValue(RIGHT_LOCK_MOTOR_DUTY_UUID).then((response) => this.handleFloatReading(response) * 1000);  
+    }
+
+
     setLeftMotorSoundStrength(strength){
       this._writeCharacteristicValue(LEFT_SEAT_MOTOR_SOUND_UUID, new Uint8Array([strength]))
-
     }
 
     getLeftMotorSoundStrength(){
@@ -622,9 +643,7 @@
 
     async _writeCharacteristicValue(characteristicUuid, value) {
       let characteristic = this._characteristics.get(characteristicUuid);
-      // if (this._debug) {
-      //   console.debug('WRITE', characteristic.uuid, value);
-      // }
+         //console.debug('WRITE', characteristic.uuid, value);
       return await characteristic.writeValue(value);
     }
     _decodeString(data) {
