@@ -185,6 +185,9 @@ function connectDevice(){
       FlamingoBle.getSerialNumber().then(handleDeviceSerial);
       FlamingoBle.getEmailString().then(handleDeviceEmail);
       readWiFiSSIDsMultipleTimes();
+      addMOSDateToDropdown("Day")
+      addMOSDateToDropdown("Week")
+      addMOSDateToDropdown("Month")
     }
   })
   .catch(error => {
@@ -547,6 +550,97 @@ document.querySelector('#left').addEventListener('click', moveLeft);
 document.querySelector('#right').addEventListener('click', moveRight);
 
 
+
+
+document.getElementById('MOS_request').addEventListener('click', function() {
+  let dropdown = document.getElementById("inputMOSDate");
+    let selectedInterval = dropdown.value.toLowerCase(); // Get the currently selected value from the dropdown and ensure it's lowercase
+
+    let fromDate = null, toDate = null;
+    const today = new Date();
+
+    if (selectedInterval === "day") {
+        fromDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1); // Set to the day before today
+        toDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1); // Set to the day after today
+    } else if (selectedInterval === "month") {
+        fromDate = new Date(today.getFullYear(), today.getMonth(), 1); // Set to the first day of the current month
+        toDate = new Date(today.getFullYear(), today.getMonth() + 1, 1); // Set to the first day of the next month
+    } else if (selectedInterval === "week") {
+        let day = today.getDay(); // Get current day of the week (0 for Sunday, 1 for Monday, etc.)
+        fromDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() - day); // Set to the first day of this week (Sunday)
+        toDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() - day + 7); // Set to the first day of the next week (next Sunday)
+    }
+
+    // Ensure that fromDate and toDate are defined before proceeding
+    if (fromDate && toDate) {
+        // Format dates to YYYY-MM-DD
+        let formattedFromDate = fromDate.toISOString().split('T')[0];
+        let formattedToDate = toDate.toISOString().split('T')[0];
+
+  const query = `
+  {
+    chairUsageByLegPosition {
+        key {email(like: "volvocarferlight@gmail.com")}
+        leftLegPos {name}
+        rightLegPos {name}
+        count
+        stateDuration
+        eventTimeFrom(from: "${formattedFromDate}") @skip(if: ${selectedInterval !== 'day' && selectedInterval !== 'month' && selectedInterval !== 'week'})
+        eventTimeTo(from: "${formattedToDate}") @skip(if: ${selectedInterval !== 'day' && selectedInterval !== 'month' && selectedInterval !== 'week'})
+    }
+  }
+  `;
+
+  const url = "https://movably.fielden.com.au/api/graphql";
+  const options = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=UTF-8',
+        'API-KEY': 'f3162d2f-e798-4b5e-ae59-9540d69dc56c',
+        'Context-Type': 'application/json;charset=UTF-8',
+      },
+      body: JSON.stringify({ query: query })
+  };
+
+  fetch(url, options)
+      .then(response => response.json())
+      .then(data => {
+        const counts = { "Stand": 0, "Sit": 0, "Flamingo": 0 }; // Initialize counts for each label
+
+        // Process data and accumulate counts
+        data.data.chairUsageByLegPosition.forEach(entry => {
+            let label;
+            if (entry.leftLegPos.name === "Up" && entry.rightLegPos.name === "Up") {
+                label = "Stand";
+            } else if (entry.leftLegPos.name === "Down" && entry.rightLegPos.name === "Down") {
+                label = "Sit";
+            } else {
+                label = "Flamingo";
+            }
+
+            counts[label] += entry.count;
+        });
+
+        // Calculate total count for percentage calculation
+        const totalCount = Object.values(counts).reduce((sum, current) => sum + current, 0);
+
+        // Build the output string with percentage representation
+        let formattedData = Object.keys(counts).map(label => {
+            const percentage = (counts[label] / totalCount * 100).toFixed(2); // Calculate percentage
+            return `Position: ${label}, Percentage: ${percentage}%`;
+        }).join('<br>');
+
+        // Display the formatted data
+        document.getElementById('MOS_out_String').innerHTML = formattedData;
+    })
+      .catch(error => {
+          console.error('Error fetching data: ', error);
+          document.getElementById('MOS_out_String').innerText = 'Failed to fetch data.';
+      });
+    } else {
+      console.error('Date values are not set. No request made.');
+  }
+});
 
 
 function getData() {
@@ -1223,6 +1317,14 @@ function setCircleDasharray(timeLeft) {
     .setAttribute("stroke-dasharray", circleDasharray);
 }
 
+// Function to add a MOS Date to the dropdown
+function addMOSDateToDropdown(dateString) {
+  let dropdown = document.getElementById("inputMOSDate");
+
+  let option = document.createElement("option");
+  option.text = dateString;
+  dropdown.add(option);
+}
 
 
 // Function to add a WiFi SSID to the dropdown
