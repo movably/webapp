@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GraphQL Query App</title>
+</head>
+<body>
+  <h1>GraphQL Query App</h1>
+
+  <script>
+    // GraphQL Endpoint URL
+    const graphqlEndpoint = 'https://movably.fielden.com.au/api/graphql';
+
+    // GraphQL Query
+    const graphqlQuery = `
+    {
+      chairUsageByLegPosition {
+          key {email(like: "volvocarferlight@gmail.com")}
+          leftLegPos {name}
+          rightLegPos {name}
+          count
+          stateDuration
+          eventTimeFrom(from: "2024-04-13") @skip(if:true)
+          eventTimeTo(from: "2024-04-15") @skip(if:true)
+      }
+    }`;
+
+    // Function to send GraphQL query
+    const sendGraphQLQuery = async () => {
+      try {
+        const response = await fetch(graphqlEndpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
+            'API-KEY': 'f3162d2f-e798-4b5e-ae59-9540d69dc56c',
+            'Context-Type': 'application/json;charset=UTF-8',
+            // Add any additional headers if needed
+          },
+          body: JSON.stringify({ query: graphqlQuery }),
+        });
+
+        const data = await response.json();
+
+        // Display the JSON response in the console
+        console.log('GraphQL Response:', data);
+
+        // You can process the 'data' object as needed
+        // For simplicity, we'll just display it in the body
+        document.body.innerHTML += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+      } catch (error) {
+        console.error('Error:', error.message);
+      }
+    };
+
+    // Call the function to send the GraphQL query
+    sendGraphQLQuery();
+  </script>
+</body>
+</html>
