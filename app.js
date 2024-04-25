@@ -576,11 +576,12 @@ document.getElementById('MOS_request').addEventListener('click', function() {
         // Format dates to YYYY-MM-DD
         let formattedFromDate = fromDate.toISOString().split('T')[0];
         let formattedToDate = toDate.toISOString().split('T')[0];
+        let useremail = document.getElementById('inputEmail').value;
 
   const query = `
   {
     chairUsageByLegPosition {
-        key {email(like: "volvocarferlight@gmail.com")}
+        key {email(like: "${useremail}")}
         leftLegPos {name}
         rightLegPos {name}
         count
@@ -597,7 +598,6 @@ document.getElementById('MOS_request').addEventListener('click', function() {
       headers: {
         'Content-Type': 'application/json;charset=UTF-8',
         'API-KEY': 'f3162d2f-e798-4b5e-ae59-9540d69dc56c',
-        'Context-Type': 'application/json;charset=UTF-8',
       },
       body: JSON.stringify({ query: query })
   };
