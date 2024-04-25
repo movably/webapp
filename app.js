@@ -576,11 +576,12 @@ document.getElementById('MOS_request').addEventListener('click', function() {
         // Format dates to YYYY-MM-DD
         let formattedFromDate = fromDate.toISOString().split('T')[0];
         let formattedToDate = toDate.toISOString().split('T')[0];
+        let useremail = document.getElementById('inputEmail').value;
 
   const query = `
   {
     chairUsageByLegPosition {
-        key {email(like: "volvocarferlight@gmail.com")}
+        key {email(like: "${useremail}")}
         leftLegPos {name}
         rightLegPos {name}
         count
