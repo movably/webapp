@@ -591,6 +591,7 @@
 
 
     setSerialNumber(str){
+      console.log(str)
       return this._writeCharacteristicValue(SERIAL_NUMBER_UUID,this._encodeString(str))  
     }
     /* Battery Service */

@@ -343,7 +343,7 @@ function handleChairEvents(event){
 
   // handleChairEventRead(event.target.value);
   console.log("-> chair event =", v.getUint8(0), v.getUint8(1), v.getUint8(2))
-  sendChairEventToCloud(leftSide, rightSide, chairMode, event_time);
+  //sendChairEventToCloud(leftSide, rightSide, chairMode, event_time);
 }
 
 let chair_period = 0;
@@ -583,6 +583,8 @@ function setDeviceInfo(){
   model = document.querySelector('#inputModel').value;
   serial = document.querySelector('#inputSerial').value;
   email = document.querySelector('#inputEmail').value;
+
+  console.log(serial)
 
   FlamingoBle.setModelNumber(model)
     .then(FlamingoBle.setSerialNumber(serial)
