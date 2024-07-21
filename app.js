@@ -45,6 +45,12 @@ leftLegDutySetSlider.registerChanges(FlamingoBle.setLeftLegMotorLockStrength,
     FlamingoBle.getLeftLegMotorLockStrength,
     FlamingoBle);
 
+let clockUPDSlider = new Slider("clockUpdatebyMOS","clockUpdateMOSTitle","leftLegLockDutyValue");
+clockUPDSlider.setProperties("Left lock:","2","144", "min")
+clockUPDSlider.registerChanges(FlamingoBle.setClockUpdateValue, 
+    FlamingoBle.getclockUpdateValue,
+    FlamingoBle);
+    
 let rightLegDutySetSlider = new Slider("rightLegDutySlider","rightLegLockDutyTitle","rightLegLockDutyValue");
 rightLegDutySetSlider.setProperties("Right lock:","200","500", "ppm")
 rightLegDutySetSlider.registerChanges(FlamingoBle.setRightLegMotorLockStrength, 
@@ -206,6 +212,8 @@ function connectDevice(){
 
     FlamingoBle.getLeftLegMotorLockStrength().then(leftLegDutySetSlider.handleRead);
     FlamingoBle.getRightLegMotorLockStrength().then(rightLegDutySetSlider.handleRead);
+
+    FlamingoBle.getclockUpdateValue().then(clockUPDSlider.handleRead);
 
 
     FlamingoBle.getAutoModeSelector().then(handleAutoModeSelectorRead)
@@ -625,7 +633,7 @@ function readTZStringFromDevice()
 function setTZInfoAutomatically()
 {
   FlamingoBle.setTZInfoDeviceString(Intl.DateTimeFormat().resolvedOptions().timeZone);
-  
+
   setTimeout(function(){ 
     FlamingoBle.getTZInfoDeviceString().then(handleTZInfoString);
   }, 1000);

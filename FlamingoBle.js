@@ -38,6 +38,7 @@
   const STREAMING_ENABLE_UUID = "1b25ee08-dadf-11eb-8d19-0242ac130003";
   const BASE_AWAY_LOWER_THRESHOLD_UUID = "1b25ee09-dadf-11eb-8d19-0242ac130003";
   const BASE_AWAY_UPPER_THRESHOLD_UUID = "1b25ee0a-dadf-11eb-8d19-0242ac130003";
+  const MOS_CLOCK_UPDATE_TIMEOUT_UUID = "1b25ee13-dadf-11eb-8d19-0242ac130003";
 
   const USE_VIBRO_UUID = "1b25ee0b-dadf-11eb-8d19-0242ac130003";
   const VIBRO_STRENGTH_UUID =         "1b25ee0c-dadf-11eb-8d19-0242ac130003";
@@ -199,6 +200,7 @@
       this._cacheCharacteristic(service, STREAMING_ENABLE_UUID);
       this._cacheCharacteristic(service, BASE_AWAY_LOWER_THRESHOLD_UUID);
       this._cacheCharacteristic(service, BASE_AWAY_UPPER_THRESHOLD_UUID);
+      this._cacheCharacteristic(service, MOS_CLOCK_UPDATE_TIMEOUT_UUID);
       this._cacheCharacteristic(service, USE_VIBRO_UUID);
       this._cacheCharacteristic(service, VIBRO_STRENGTH_UUID);
       this._cacheCharacteristic(service, LEFT_SEAT_MOTOR_SOUND_UUID);
@@ -528,6 +530,14 @@
 
     getVibroStrength(){
       return this._readCharacteristicValue(VIBRO_STRENGTH_UUID).then((response) => response.getUint8(0));  
+    }
+
+    getclockUpdateValue(){
+      return this._readCharacteristicValue(MOS_CLOCK_UPDATE_TIMEOUT_UUID).then((response) => this.handleUint32Reading(response))  
+    }
+
+    setClockUpdateValue(value) {
+      return this._writeCharacteristicValue(MOS_CLOCK_UPDATE_TIMEOUT_UUID, new Uint32Array([value]))
     }
 
     setLeftLegMotorLockStrength(strength){

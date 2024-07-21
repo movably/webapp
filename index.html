@@ -320,7 +320,18 @@
                       <br>
                       <br>
                       <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" id="setBrowserTZInfoStringSettings">Set Browser TZ</button>
+
                       <hr>
+
+                      <div class="card-info" id="clock_update_MOS_id">
+                        <small>Internal clock update from MOS:</small>
+                      </div>
+                      <div class = "mdl-tooltip" for = "clock_update_MOS_id">The timeout for periodical clock update from MOS.</div>
+
+                      <div id="clockUpdateMOSTitle" class="sliderTitle"></div>
+                      <input type="range" min="2" max="24*60" value="30"  step="2" class="slider" id="clockUpdatebyMOS">
+                      <div id="leftLegLockDutyValue" class="sliderValue">?</div>
+
                     </div>
                   </div>
 
