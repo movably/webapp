@@ -47,6 +47,8 @@
   const LEFT_LOCK_MOTOR_DUTY_UUID =  "1b25ee11-dadf-11eb-8d19-0242ac130003";
   const RIGHT_LOCK_MOTOR_DUTY_UUID =  "1b25ee12-dadf-11eb-8d19-0242ac130003";
 
+  const TZInfoFieldUUID         = "1b25ee14-dadf-11eb-8d19-0242ac130003";
+
   const CONFIGURATION_SERVICE_UUID = "7f1a0001-252d-4f8b-baea-6bfc6b255ab6";
 
   const MODEL_NUMBER_UUID =     "7f1a0002-252d-4f8b-baea-6bfc6b255ab6";
@@ -203,6 +205,8 @@
       this._cacheCharacteristic(service, RIGHT_SEAT_MOTOR_SOUND_UUID);
       this._cacheCharacteristic(service, LEFT_LOCK_MOTOR_DUTY_UUID);
       this._cacheCharacteristic(service, RIGHT_LOCK_MOTOR_DUTY_UUID);
+      this._cacheCharacteristic(service, TZInfoFieldUUID);
+      
 
 
       service = await server.getPrimaryService(WiFiserviceUUID);
@@ -590,6 +594,14 @@
 
     setWiFiSSIDString(str){
       return this._writeCharacteristicValue(WiFissidUUID,this._encodeString(str))
+    }
+
+    getTZInfoDeviceString(){
+      return this._readCharacteristicValue(TZInfoFieldUUID).then((response) => this._decodeString(response))  
+    }
+
+    setTZInfoDeviceString(str){
+      return this._writeCharacteristicValue(TZInfoFieldUUID,this._encodeString(str))
     }
 
     getWiFiPWDString(){

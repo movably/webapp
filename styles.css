@@ -183,7 +183,7 @@ body.connected #sw_update {
 #statusString::before {
   content: '';
 }
-#connect, #left, #right, #setWiFiSettings, #DisconnecttWiFiCommand, #ConnectWiFiCommand, #setDeviceInfo, #AddPosture, #DeletePosture, #SetPosture, #inputFile  {
+#connect, #left, #right, #setBrowserTZInfoStringSettings, #setTZInfoStringSettings_read, #setTZInfoStringSettings, #setWiFiSettings, #DisconnecttWiFiCommand, #ConnectWiFiCommand, #setDeviceInfo, #AddPosture, #DeletePosture, #SetPosture, #inputFile  {
   color: white;
   background-color: #4CAF50;
   width: 50%;
@@ -270,7 +270,7 @@ body.connected #sw_update {
   /*width: 100%;*/
 }
 
-#left, #middle, #right, #setWiFiSettings, #DisconnecttWiFiCommand, #ConnectWiFiCommand, #setDeviceInfo, #AddPosture, #DeletePosture, #SetPosture, #inputFile {display: inline-block; *display: inline; zoom: 1; vertical-align: top; font-size: 10px;}
+#left, #middle, #right, #setBrowserTZInfoStringSettings, #setTZInfoStringSettings_read, #setTZInfoStringSettings, #setWiFiSettings, #DisconnecttWiFiCommand, #ConnectWiFiCommand, #setDeviceInfo, #AddPosture, #DeletePosture, #SetPosture, #inputFile {display: inline-block; *display: inline; zoom: 1; vertical-align: top; font-size: 10px;}
 /*#left {width: 40%;}
 #middle {width: 10%;}
 #right {width: 40%;}*/
@@ -287,7 +287,7 @@ pre {
 
 #middle {width: 10%;}
 
-#left, #right, #setWiFiSettings, #DisconnecttWiFiCommand, #ConnectWiFiCommand, #setDeviceInfo, #AddPosture, #DeletePosture, #SetPosture {
+#left, #right, #setBrowserTZInfoStringSettings, #setTZInfoStringSettings_read, #setTZInfoStringSettings, #setWiFiSettings, #DisconnecttWiFiCommand, #ConnectWiFiCommand, #setDeviceInfo, #AddPosture, #DeletePosture, #SetPosture {
   color: white;
   background-color: #4CAF50;
   width: 43%;*/

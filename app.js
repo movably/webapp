@@ -134,6 +134,7 @@ function onDisconnect(event){
       FlamingoBle.getModelNumber().then(handleDeviceModel);
       FlamingoBle.getEmailString().then(handleDeviceEmail);
       FlamingoBle.getWiFiSSIDString().then(handleWiFiSSID);
+      FlamingoBle.getTZInfoDeviceString().then(handleTZInfoString);
       FlamingoBle.getWiFiPWDString().then(handleWiFiPWD);
       FlamingoBle.getEnableVibroMotor().then(handleEnableVibroMotor);
     }
@@ -228,6 +229,7 @@ function connectDevice(){
       FlamingoBle.getWiFiStatusCodes();
       FlamingoBle.getWiFiEnableStatus().then(handleWiFiEnableCode);
       FlamingoBle.getWiFiSSIDString().then(handleWiFiSSID);
+      FlamingoBle.getTZInfoDeviceString().then(handleTZInfoString);
       FlamingoBle.getWiFiPWDString().then(handleWiFiPWD);
 
       FlamingoBle.getChairConfiguredFlag().then(handleChairConfiguredChBox);
@@ -535,6 +537,12 @@ document.querySelector('#triggerWiFiConfiguredEnable').addEventListener('click',
 document.querySelector('#triggerByMotionEnable').addEventListener('click', triggerByMotionEnable);
 document.querySelector('#setDeviceInfo').addEventListener('click', setDeviceInfo);
 document.querySelector('#setWiFiSettings').addEventListener('click', setDeviceWiFiSettings);
+document.querySelector('#setTZInfoStringSettings').addEventListener('click', setDeviceTZInfoString);
+document.querySelector('#setTZInfoStringSettings_read').addEventListener('click', readTZStringFromDevice);
+document.querySelector('#setBrowserTZInfoStringSettings').addEventListener('click', setTZInfoAutomatically);
+
+
+
 
 document.querySelector('#ConnectWiFiCommand').addEventListener('click', connectDeviceWiFiCommand);
 document.querySelector('#DisconnecttWiFiCommand').addEventListener('click', disconnectDeviceWiFiCommand);
@@ -594,6 +602,34 @@ function setDeviceWiFiSettings(){
 
 }
 
+function handleTZInfoString(info){
+  document.querySelector('#inputTZInfoString_id').value = info;
+}
+
+function setDeviceTZInfoString(){
+  tz_info = document.querySelector('#inputTZInfoString_id').value;
+
+  FlamingoBle.setTZInfoDeviceString(tz_info)
+  
+  setTimeout(function(){ 
+      FlamingoBle.getTZInfoDeviceString().then(handleTZInfoString);
+    }, 1000);
+
+}
+
+function readTZStringFromDevice()
+{
+  FlamingoBle.getTZInfoDeviceString().then(handleTZInfoString);
+}
+
+function setTZInfoAutomatically()
+{
+  FlamingoBle.setTZInfoDeviceString(Intl.DateTimeFormat().resolvedOptions().timeZone);
+  
+  setTimeout(function(){ 
+    FlamingoBle.getTZInfoDeviceString().then(handleTZInfoString);
+  }, 1000);
+}
 
 function setDeviceInfo(){
   model = document.querySelector('#inputModel').value;
@@ -627,6 +663,8 @@ function triggerByMotionEnable(){
 }
 
 function handleChairConfiguredChBox(value){
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  console.log(timezone);
   console.log("-> ChairConfigured =")
   console.log(value)
   document.querySelector('#triggerWiFiConfiguredEnable').checked = value;
