@@ -555,7 +555,7 @@ document.querySelector('#right').addEventListener('click', moveRight);
 
 
 
-document.getElementById('MOS_request').addEventListener('click', function() {
+document.getElementById('MOS_request_btn').addEventListener('click', function() {
   let dropdown = document.getElementById("inputMOSDate");
     let selectedInterval = dropdown.value.toLowerCase(); // Get the currently selected value from the dropdown and ensure it's lowercase
 
@@ -579,11 +579,12 @@ document.getElementById('MOS_request').addEventListener('click', function() {
         // Format dates to YYYY-MM-DD
         let formattedFromDate = fromDate.toISOString().split('T')[0];
         let formattedToDate = toDate.toISOString().split('T')[0];
+        let useremail = document.getElementById('inputEmail').value;
 
   const query = `
   {
     chairUsageByLegPosition {
-        key {email(like: "volvocarferlight@gmail.com")}
+        key {email(like: "${useremail}")}
         leftLegPos {name}
         rightLegPos {name}
         count
@@ -626,13 +627,9 @@ document.getElementById('MOS_request').addEventListener('click', function() {
             counts[label] += entry.count;
         });
 
-        // Calculate total count for percentage calculation
-        const totalCount = Object.values(counts).reduce((sum, current) => sum + current, 0);
-
         // Build the output string with percentage representation
         let formattedData = Object.keys(counts).map(label => {
-            const percentage = (counts[label] / totalCount * 100).toFixed(2); // Calculate percentage
-            return `Position: ${label}, Percentage: ${percentage}%`;
+          return `Position: ${label}, Movements: ${counts[label]}`;
         }).join('<br>');
 
         // Display the formatted data
