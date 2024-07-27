@@ -629,7 +629,7 @@ document.getElementById('MOS_request_btn').addEventListener('click', function() 
 
         // Build the output string with percentage representation
         let formattedData = Object.keys(counts).map(label => {
-          return `Position: ${label}, Movements: ${counts[label]}`;
+        return `Position: ${label}, Movements: ${counts[label]}`;
         }).join('<br>');
 
         // Display the formatted data
