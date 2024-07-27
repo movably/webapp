@@ -39,8 +39,9 @@
   const BASE_AWAY_LOWER_THRESHOLD_UUID = "1b25ee09-dadf-11eb-8d19-0242ac130003";
   const BASE_AWAY_UPPER_THRESHOLD_UUID = "1b25ee0a-dadf-11eb-8d19-0242ac130003";
 
-  const LEFT_SEAT_MOTOR_SOUND_UUID =  "1b25ee0d-dadf-11eb-8d19-0242ac130003";
+  const LEFT_SEAT_MOTOR_SOUND_UUID  =  "1b25ee0d-dadf-11eb-8d19-0242ac130003";
   const RIGHT_SEAT_MOTOR_SOUND_UUID = "1b25ee0e-dadf-11eb-8d19-0242ac130003";
+  const TZInfoFieldUUID             = "1b25ee14-dadf-11eb-8d19-0242ac130003";
 
 
   const CONFIGURATION_SERVICE_UUID = "7f1a0001-252d-4f8b-baea-6bfc6b255ab6";
@@ -203,6 +204,7 @@
       this._cacheCharacteristic(service, BASE_AWAY_UPPER_THRESHOLD_UUID);
       this._cacheCharacteristic(service, LEFT_SEAT_MOTOR_SOUND_UUID);
       this._cacheCharacteristic(service, RIGHT_SEAT_MOTOR_SOUND_UUID);
+      this._cacheCharacteristic(service, TZInfoFieldUUID);
 
       service = await server.getPrimaryService(WiFiserviceUUID);
       this._cacheCharacteristic(service, WiFienableWifiUUID);
@@ -557,6 +559,14 @@
 
     getRightMotorSoundStrength(){
       return this._readCharacteristicValue(RIGHT_SEAT_MOTOR_SOUND_UUID).then((response) => response.getUint8(0));  
+    }
+
+    setTZInfoDeviceString(str){
+      return this._writeCharacteristicValue(TZInfoFieldUUID,this._encodeString(str))
+    }
+
+    getTZInfoDeviceString(){
+      return this._readCharacteristicValue(TZInfoFieldUUID).then((response) => this._decodeString(response))  
     }
     //////////////////////////
 

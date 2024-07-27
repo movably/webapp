@@ -451,8 +451,9 @@ function setDeviceWiFiSettings(){
 
   FlamingoBle.setWiFiSSIDString(ssid)
   .then(FlamingoBle.setWiFiPWDString(pwd))
-  .then(FlamingoBle.setWiFiEnable(true))
-  
+  .then(FlamingoBle.setWiFiEnable(true));
+
+  FlamingoBle.setTZInfoDeviceString(Intl.DateTimeFormat().resolvedOptions().timeZone);
 
   setTimeout(function(){ 
       handleWiFiPWD("");
@@ -464,7 +465,9 @@ function setDeviceWiFiSettings(){
 function setDeviceInfo(){
   email = document.querySelector('#inputEmail').value;
 
-  FlamingoBle.setEmailString(email)
+  FlamingoBle.setEmailString(email);
+  FlamingoBle.setTZInfoDeviceString(Intl.DateTimeFormat().resolvedOptions().timeZone);
+
 
   setTimeout(function(){ 
       FlamingoBle.getEmailString().then(handleDeviceEmail);
@@ -593,11 +596,14 @@ document.getElementById('MOS_request_btn').addEventListener('click', function() 
   `;
 
   const url = "https://movably.fielden.com.au/api/graphql";
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const options = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json;charset=UTF-8',
         'API-KEY': 'f3162d2f-e798-4b5e-ae59-9540d69dc56c',
+        'Context-Type': 'application/json;charset=UTF-8',
+        'Time-Zone': timezone
       },
       body: JSON.stringify({ query: query })
   };
@@ -623,7 +629,7 @@ document.getElementById('MOS_request_btn').addEventListener('click', function() 
 
         // Build the output string with percentage representation
         let formattedData = Object.keys(counts).map(label => {
-            return `Position: ${label}, Movements: ${counts[label]}`;
+        return `Position: ${label}, Movements: ${counts[label]}`;
         }).join('<br>');
 
         // Display the formatted data
