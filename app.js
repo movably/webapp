@@ -602,7 +602,6 @@ document.getElementById('MOS_request_btn').addEventListener('click', function() 
       headers: {
         'Content-Type': 'application/json;charset=UTF-8',
         'API-KEY': 'f3162d2f-e798-4b5e-ae59-9540d69dc56c',
-        'Context-Type': 'application/json;charset=UTF-8',
         'Time-Zone': timezone
       },
       body: JSON.stringify({ query: query })
