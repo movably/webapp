@@ -188,6 +188,7 @@ function connectDevice(){
       addMOSDateToDropdown("Day")
       addMOSDateToDropdown("Week")
       addMOSDateToDropdown("Month")
+      addMOSDateToDropdown("Year")
     }
   })
   .catch(error => {
@@ -572,7 +573,10 @@ document.getElementById('MOS_request_btn').addEventListener('click', function() 
         let day = today.getDay(); // Get current day of the week (0 for Sunday, 1 for Monday, etc.)
         fromDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() - day); // Set to the first day of this week (Sunday)
         toDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() - day + 7); // Set to the first day of the next week (next Sunday)
-    }
+    } else if (selectedInterval === "year") { // New block for handling "year" interval
+      fromDate = new Date(today.getFullYear(), 0, 1); // Set to the first day of the current year (January 1st)
+      toDate = new Date(today.getFullYear() + 1, 0, 1); // Set to the first day of the next year (January 1st)
+  }
 
     // Ensure that fromDate and toDate are defined before proceeding
     if (fromDate && toDate) {
@@ -602,7 +606,6 @@ document.getElementById('MOS_request_btn').addEventListener('click', function() 
       headers: {
         'Content-Type': 'application/json;charset=UTF-8',
         'API-KEY': 'f3162d2f-e798-4b5e-ae59-9540d69dc56c',
-        'Context-Type': 'application/json;charset=UTF-8',
         'Time-Zone': timezone
       },
       body: JSON.stringify({ query: query })
