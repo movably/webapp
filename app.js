@@ -615,6 +615,7 @@ document.getElementById('MOS_request_btn').addEventListener('click', function() 
       .then(response => response.json())
       .then(data => {
         const counts = { "Stand": 0, "Sit": 0, "Flamingo": 0 }; // Initialize counts for each label
+        let totalMovements = 0; // Initialize total movements count
 
         // Process data and accumulate counts
         data.data.chairUsageByLegPosition.forEach(entry => {
@@ -628,13 +629,16 @@ document.getElementById('MOS_request_btn').addEventListener('click', function() 
             }
 
             counts[label] += entry.count;
+            totalMovements += entry.count;
         });
 
         // Build the output string with percentage representation
-        let formattedData = Object.keys(counts).map(label => {
-        return `Position: ${label}, Movements: ${counts[label]}`;
-        }).join('<br>');
+        //let formattedData = Object.keys(counts).map(label => {
+        //return `Position: ${label}, Movements: ${counts[label]}`;
+        //}).join('<br>');
 
+        // Build the output string for total movements
+        let formattedData = `Posture changes: ${totalMovements}`;
         // Display the formatted data
         document.getElementById('MOS_out_String').innerHTML = formattedData;
     })
