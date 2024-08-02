@@ -45,7 +45,49 @@ leftLegDutySetSlider.registerChanges(FlamingoBle.setLeftLegMotorLockStrength,
     FlamingoBle.getLeftLegMotorLockStrength,
     FlamingoBle);
 
-let clockUPDSlider = new Slider("clockUpdatebyMOS","clockUpdateMOSTitle","leftLegLockDutyValue");
+let chairNegativeSaturationSlider = new Slider("chairNegativeSatSlider","chairNegativeSaturationTitle","chairNegativeSatDutyValue");
+chairNegativeSaturationSlider.setProperties("Negative saturation:","-990","-10", "ppm")
+chairNegativeSaturationSlider.registerChanges(FlamingoBle.setNegativeSaturationStrength, 
+        FlamingoBle.getNegativeSaturationStrength,
+        FlamingoBle);
+
+let leftLegPtermSetSlider = new Slider("leftLegPtermSlider","leftLegPtermDutyTitle","leftLegPtermDutyValue");
+leftLegPtermSetSlider.setProperties("Left leg P term:","10","990", "ppm")
+leftLegPtermSetSlider.registerChanges(FlamingoBle.setLeftLegMotorPtermStrength, 
+    FlamingoBle.getLeftLegMotorPtermStrength,
+    FlamingoBle);
+
+let leftLegItermSetSlider = new Slider("leftLegItermSlider","leftLegItermDutyTitle","leftLegItermDutyValue");
+leftLegItermSetSlider.setProperties("Left leg I term:","10","990", "ppm")
+leftLegItermSetSlider.registerChanges(FlamingoBle.setLeftLegMotorItermStrength, 
+    FlamingoBle.getLeftLegMotorItermStrength,
+    FlamingoBle);
+
+let leftLegDtermSetSlider = new Slider("leftLegDtermSlider","leftLegDtermDutyTitle","leftLegDtermDutyValue");
+leftLegDtermSetSlider.setProperties("Left leg D term:","10","990", "ppm")
+leftLegDtermSetSlider.registerChanges(FlamingoBle.setLeftLegMotorDtermStrength, 
+    FlamingoBle.getLeftLegMotorDtermStrength,
+    FlamingoBle);
+
+let rightLegPtermSetSlider = new Slider("rightLegPtermSlider","rightLegPtermDutyTitle","rightLegPtermDutyValue");
+rightLegPtermSetSlider.setProperties("Right leg P term:","10","990", "ppm")
+rightLegPtermSetSlider.registerChanges(FlamingoBle.setRightLegMotorPtermStrength, 
+    FlamingoBle.getRightLegMotorPtermStrength,
+    FlamingoBle);
+
+let rightLegItermSetSlider = new Slider("rightLegItermSlider","rightLegItermDutyTitle","rightLegItermDutyValue");
+rightLegItermSetSlider.setProperties("Right leg I term:","10","990", "ppm")
+rightLegItermSetSlider.registerChanges(FlamingoBle.setRightLegMotorItermStrength, 
+    FlamingoBle.getRightLegMotorItermStrength,
+    FlamingoBle);
+
+let rightLegDtermSetSlider = new Slider("rightLegDtermSlider","rightLegDtermDutyTitle","rightLegDtermDutyValue");
+rightLegDtermSetSlider.setProperties("Right leg D term:","10","990", "ppm")
+rightLegDtermSetSlider.registerChanges(FlamingoBle.setRightLegMotorDtermStrength, 
+    FlamingoBle.getRightLegMotorDtermStrength,
+    FlamingoBle);
+
+let clockUPDSlider = new Slider("clockUpdatebyMOS","clockUpdateMOSTitle","clockMOSUPDValue");
 clockUPDSlider.setProperties("Left lock:","2","144", "min")
 clockUPDSlider.registerChanges(FlamingoBle.setClockUpdateValue, 
     FlamingoBle.getclockUpdateValue,
@@ -214,7 +256,13 @@ function connectDevice(){
     FlamingoBle.getRightLegMotorLockStrength().then(rightLegDutySetSlider.handleRead);
 
     FlamingoBle.getclockUpdateValue().then(clockUPDSlider.handleRead);
-
+    FlamingoBle.getNegativeSaturationStrength().then(chairNegativeSaturationSlider.handleRead);
+    FlamingoBle.getLeftLegMotorPtermStrength().then(leftLegPtermSetSlider.handleRead);
+    FlamingoBle.getLeftLegMotorItermStrength().then(leftLegItermSetSlider.handleRead);
+    FlamingoBle.getLeftLegMotorDtermStrength().then(leftLegDtermSetSlider.handleRead);
+    FlamingoBle.getRightLegMotorPtermStrength().then(rightLegPtermSetSlider.handleRead);
+    FlamingoBle.getRightLegMotorItermStrength().then(rightLegItermSetSlider.handleRead);
+    FlamingoBle.getRightLegMotorDtermStrength().then(rightLegDtermSetSlider.handleRead);
 
     FlamingoBle.getAutoModeSelector().then(handleAutoModeSelectorRead)
 
