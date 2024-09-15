@@ -409,6 +409,7 @@ function handleAutoModeSelectorRead(modeId){
 document.querySelector('#AutoMode0').addEventListener('click', selectAutoMode);
 document.querySelector('#AutoMode1').addEventListener('click', selectAutoMode);
 document.querySelector('#AutoMode2').addEventListener('click', selectAutoMode);
+document.querySelector('#AutoMode5').addEventListener('click', selectAutoMode);
 
 // document.querySelector('#manualMode').addEventListener('click', changeMode);
 // document.querySelector('#autoMode').addEventListener('click', changeMode);
