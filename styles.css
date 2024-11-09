@@ -285,7 +285,7 @@ pre {
     word-wrap: break-word;       /* Internet Explorer 5.5+ */
 }
 
-#middle {width: 10%;}
+#middle {width: 1%;}
 
 #left, #right, #setWiFiSettings, #MOS_request_btn, #DisconnecttWiFiCommand, #ConnectWiFiCommand, #setDeviceInfo, #AddPosture, #DeletePosture, #SetPosture {
   color: white;
