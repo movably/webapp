@@ -683,7 +683,7 @@ setBothMotorSoundStrength(value) {
 
 //------------------------------------STM32 update routine---------------------------------------------
 
-async performUpdate_OTA_v2(buffer){
+async performUpdate_STM_OTA(buffer){
 
   try {
     // start the process
@@ -693,17 +693,15 @@ async performUpdate_OTA_v2(buffer){
       console.log('Setting Characteristic User Description...');
       await this._writeCharacteristicValue(Begin_OTA_v2_UUID,new Uint32Array([lengthAsBytes]));
 
-      var outputString = "Successfully wrote OTA Begin";
-      document.getElementById('output').textContent = outputString;
+      var outputString = "[CPU1]: Successfully wrote OTA Begin";
+      document.getElementById('OTA_STM_status').textContent = outputString;
       console.log(outputString);
 
     } catch(error) {
-      var outputString = "FAILED: OTA did not start"  + error;
-      document.getElementById('output').textContent = outputString;
+      var outputString = "[CPU1]: FAILED: OTA did not start"  + error;
+      document.getElementById('OTA_STM_status').textContent = outputString;
       console.log(outputString);
     }
-
-
 
     // read it back
     var readResult = await this._readCharacteristicValue(Begin_OTA_v2_UUID);
@@ -712,18 +710,17 @@ async performUpdate_OTA_v2(buffer){
     console.log(res)
     if (res == OTA_BEGIN)
     {
-        var outputString = "Entered OTA Begin successfully";
-        document.getElementById('output').textContent = outputString;
+        var outputString = "[CPU1]: Entered OTA Begin successfully";
+        document.getElementById('OTA_STM_status').textContent = outputString;
         console.log(outputString);
     }
     else
     {
-        var outputString = "FAILED: OTA failed to read or nvalid OTA state {state}" + readResult;
-        document.getElementById('output').textContent = outputString;
+        var outputString = "[CPU1]: FAILED: OTA failed to read or nvalid OTA state {state}" + readResult;
+        document.getElementById('OTA_STM_status').textContent = outputString;
         console.log(outputString);
         return false;
     }
-
 
     var bytesSent = 0;
     var interval = 1;
@@ -741,8 +738,8 @@ async performUpdate_OTA_v2(buffer){
             if(bytesSent < maxWrite){
               var mins = (Date.now() - startTime)/1000.0 / 60.0;
 
-              var outputString = sprintf("#1Done! - %i bytes sent in %7.2f mins" ,bytesSent, mins);
-              document.getElementById('output').textContent = outputString;
+              var outputString = sprintf("[CPU1]: #1Done! - %i bytes sent in %7.2f mins" ,bytesSent, mins);
+              document.getElementById('OTA_STM_status').textContent = outputString;
               console.log(outputString);
             }
         }
@@ -755,9 +752,9 @@ async performUpdate_OTA_v2(buffer){
                 // the last call will abort because the system will restart
                 // need to start the reconnect process
                 // FlashProgressChanged?.Invoke( null, new FlashProgressEventArgs( ) { Progress = $"Done - {bytesSent} bytes sent in {mins:F2} mins" } );
-                var outputString = sprintf("#2Done!! - %i bytes sent in %7.2f mins" ,bytesSent, mins);
+                var outputString = sprintf("[CPU1]: #2Done!! - %i bytes sent in %7.2f mins" ,bytesSent, mins);
 
-                document.getElementById('output').textContent = outputString;
+                document.getElementById('OTA_STM_status').textContent = outputString;
                 console.log(outputString);
                 return true;
             }else{
@@ -776,9 +773,9 @@ async performUpdate_OTA_v2(buffer){
             var minsRemaining = bytesRemaining / bytesPerSecond / 60.0;
             // FlashProgressChanged?.Invoke( null, new FlashProgressEventArgs( ) { Progress=$"{percentComplete}% sent - {bytesRemaining} bytes remaining, {minsRemaining:F2} mins remaining" } );
 
-            var outputString = sprintf("%%%i sent, %3.2f mins remaining" ,percentComplete, minsRemaining);
+            var outputString = sprintf("[CPU1]: %%%i sent, %3.2f mins remaining" ,percentComplete, minsRemaining);
 
-            document.getElementById('output').textContent = outputString;
+            document.getElementById('OTA_STM_status').textContent = outputString;
             // console.log(outputString);
         }
     }
@@ -811,25 +808,25 @@ async performUpdate_OTA_v2(buffer){
         switch(updateStatus)
         {
           case 9:
-            var outputString = sprintf("Transmiting to CORE0 PAGE %i / %i " ,pagesUpdated, pagesToUpdate);
+            var outputString = sprintf("[CPU1]: Transmiting to CORE0 PAGE %i / %i " ,pagesUpdated, pagesToUpdate);
           break;
           case 11:
           case 13: 
-            var outputString = sprintf("Writing to CORE0 Flash PAGE %i / %i " ,pagesUpdated, pagesToUpdate);
+            var outputString = sprintf("[CPU1]: Writing to CORE0 Flash PAGE %i / %i " ,pagesUpdated, pagesToUpdate);
           break;
           case 4: 
             if(pagesUpdated == 0)
             {
-              var outputString = sprintf("Transmiting to CORE0 PAGE %i / %i " ,pagesUpdated, pagesToUpdate);
+              var outputString = sprintf("[CPU1]: Transmiting to CORE0 PAGE %i / %i " ,pagesUpdated, pagesToUpdate);
             }else{
-              var outputString = sprintf("!Update COMPLETED!");
+              var outputString = sprintf("[CPU1]: !Update COMPLETED!");
               core0UpdateInProgress = 0;
             }
 
           break;
         }
 
-        document.getElementById('output').textContent = outputString;
+        document.getElementById('OTA_STM_status').textContent = outputString;
     }
 
     // finished sending data
@@ -837,52 +834,66 @@ async performUpdate_OTA_v2(buffer){
   }
   catch (ex)
   {
-    var outputString = "Flash exception" + ex ;
-    document.getElementById('output').textContent = outputString;
+    var outputString = "[CPU1]: Error during CPU1 OTA update. Please power on/off the chair and repeat update process after 20 minutes." + ex ;
+    document.getElementById('OTA_STM_status').textContent = outputString;
     console.log(outputString);
   }
   return false;
 
 }
 
-handleZipFile(zipBlob) {
+handleZipFile = function(zipBlob) {
   return new Promise((resolve, reject) => {
     var zip = new JSZip();
 
     zip.loadAsync(zipBlob)
       .then(function (zip) {
-        // Check if "FlamingoB1.bin" exists in the zip
+        let filePromises = [];
+
+        // First, check if "FlamingoB1.bin" exists in the zip
         if (zip.file("FlamingoB1.bin")) {
-          // Get the content of "FlamingoB1.bin"
-          return zip.file("FlamingoB1.bin").async('uint8array');
+          filePromises.push(
+            zip.file("FlamingoB1.bin").async('uint8array')
+              .then(fileData => ({ fileData, functionName: 'OTA_v2_Update' }))
+          );
         }
-        // Check if "Flamingo-Firmware.bin" exists in the zip
-        else if (zip.file("Flamingo-Firmware.bin")) {
-          // Get the content of "Flamingo-Firmware.bin"
-          return zip.file("Flamingo-Firmware.bin").async('uint8array');
-        } else {
+
+        // Then check if "Flamingo-Firmware.bin" exists in the zip
+        if (zip.file("Flamingo-Firmware.bin")) {
+          filePromises.push(
+            zip.file("Flamingo-Firmware.bin").async('uint8array')
+              .then(fileData => ({ fileData, functionName: 'OTA_Update' }))
+          );
+        }
+
+        if (filePromises.length === 0) {
           // Neither "FlamingoB1.bin" nor "Flamingo-Firmware.bin" exists in the zip
           console.log("Firmware not found in the ZIP file.");
           reject(new Error("Firmware not found in the ZIP file."));
+        } else {
+          // Ensure "FlamingoB1.bin" is always handled first
+          return Promise.all(filePromises).then(fileResults => {
+            // Sort the results so that "OTA_v2_Update" (FlamingoB1.bin) is processed first
+            return fileResults.sort((a, b) => {
+              if (a.functionName === 'OTA_v2_Update') return -1;
+              if (b.functionName === 'OTA_v2_Update') return 1;
+              return 0;
+            });
+          });
         }
       })
-      .then(function (fileData) {
-        // If "FlamingoB1.bin" exists, run MyFunction1; if "file2.bin" exists, run MyFunction2
-        if (zip.file("FlamingoB1.bin")) {
-          resolve({ fileData, functionName: 'OTA_v2_Update' });
-        } else if (zip.file("Flamingo-Firmware.bin")) {
-          resolve({ fileData, functionName: 'OTA_Update' });
-        }
+      .then(function (fileResults) {
+        resolve(fileResults);
       })
       .catch(function (error) {
         reject(error);
       });
   });
-}
+};
 //------------------------------------STM32 update routine END---------------------------------------------
 
 
-    async performUpdate(buffer){
+    async performUpdate_ESP_OTA(buffer){
 
     try {
       // start the process
@@ -892,13 +903,13 @@ handleZipFile(zipBlob) {
         console.log('Setting Characteristic User Description...');
         await this._writeCharacteristicValue(BeginUUID,new Uint32Array([lengthAsBytes]));
 
-        var outputString = "Successfully wrote OTA Begin";
-        document.getElementById('output').textContent = outputString;
+        var outputString = "[CPU2]: Successfully wrote OTA Begin";
+        document.getElementById('OTA_ESP_status').textContent = outputString;
         console.log(outputString);
 
       } catch(error) {
-        var outputString = "FAILED: OTA did not start"  + error;
-        document.getElementById('output').textContent = outputString;
+        var outputString = "[CPU2]: FAILED: OTA did not start"  + error;
+        document.getElementById('OTA_ESP_status').textContent = outputString;
         console.log(outputString);
       }
 
@@ -911,14 +922,14 @@ handleZipFile(zipBlob) {
       console.log(res)
       if (res == OTA_BEGIN)
       {
-          var outputString = "Entered OTA Begin successfully";
-          document.getElementById('output').textContent = outputString;
+          var outputString = "[CPU2]: Entered OTA Begin successfully";
+          document.getElementById('OTA_ESP_status').textContent = outputString;
           console.log(outputString);
       }
       else
       {
-          var outputString = "FAILED: OTA failed to read or nvalid OTA state {state}" + readResult;
-          document.getElementById('output').textContent = outputString;
+          var outputString = "[CPU2]: FAILED: OTA failed to read or nvalid OTA state {state}" + readResult;
+          document.getElementById('OTA_ESP_status').textContent = outputString;
           console.log(outputString);
           return false;
       }
@@ -939,8 +950,8 @@ handleZipFile(zipBlob) {
               if(bytesSent < maxWrite){
                 var mins = (Date.now() - startTime)/1000.0 / 60.0;
 
-                var outputString = sprintf("Done! - %i bytes sent in %7.2f mins" ,bytesSent, mins);
-                document.getElementById('output').textContent = outputString;
+                var outputString = sprintf("[CPU2]: Done! - %i bytes sent in %7.2f mins" ,bytesSent, mins);
+                document.getElementById('OTA_ESP_status').textContent = outputString;
                 console.log(outputString);
               }
           }
@@ -953,13 +964,13 @@ handleZipFile(zipBlob) {
                   // the last call will abort because the system will restart
                   // need to start the reconnect process
                   // FlashProgressChanged?.Invoke( null, new FlashProgressEventArgs( ) { Progress = $"Done - {bytesSent} bytes sent in {mins:F2} mins" } );
-                  var outputString = sprintf("Done!! - %i bytes sent in %7.2f mins" ,bytesSent, mins);
+                  var outputString = sprintf("[CPU2]: Done!! - %i bytes sent in %7.2f mins" ,bytesSent, mins);
 
-                  document.getElementById('output').textContent = outputString;
+                  document.getElementById('OTA_ESP_status').textContent = outputString;
                   console.log(outputString);
                   return true;
               }else{
-                console.log("FAILED: to send OTA data" );
+                console.log("[CPU2]: FAILED: to send OTA data" );
                 return false;
               }
           }
@@ -974,9 +985,9 @@ handleZipFile(zipBlob) {
               var minsRemaining = bytesRemaining / bytesPerSecond / 60.0;
               // FlashProgressChanged?.Invoke( null, new FlashProgressEventArgs( ) { Progress=$"{percentComplete}% sent - {bytesRemaining} bytes remaining, {minsRemaining:F2} mins remaining" } );
               
-              var outputString = sprintf("%%%i sent, %3.2f mins remaining" ,percentComplete, minsRemaining);
+              var outputString = sprintf("[CPU2]: %%%i sent, %3.2f mins remaining" ,percentComplete, minsRemaining);
               
-              document.getElementById('output').textContent = outputString;
+              document.getElementById('OTA_ESP_status').textContent = outputString;
               // console.log(outputString);
           }
       }
@@ -986,8 +997,8 @@ handleZipFile(zipBlob) {
   }
   catch (ex)
   {
-    var outputString = "Flash exception" + ex ;
-    document.getElementById('output').textContent = outputString;
+    var outputString = "[CPU2]: Error during CPU2 OTA update. Please power on/off the chair and repeat update process after 20 minutes." + ex ;
+    document.getElementById('OTA_ESP_status').textContent = outputString;
     console.log(outputString);
   }
   return false;

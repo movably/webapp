@@ -1082,29 +1082,32 @@ document.getElementById('file')
 
     let fileExtension = filenameSplit[filenameSplit.length - 1];
 
-    if(fileExtension != 'zip'){
-      document.getElementById('output').textContent = 'wrong file format';
+    if (fileExtension != 'zip') {
+      document.getElementById('OTA_STM_status').textContent = 'wrong file format';
       return;
-    }else{
+    } else {
 
       var zipFile = document.getElementById('file').files[0];
       FlamingoBle.handleZipFile(zipFile)
-        .then(function ({ fileData, functionName }) {
-          if (functionName === 'OTA_v2_Update') {
-            console.log("Executing STM32 OTA update.");
-            FlamingoBle.performUpdate_OTA_v2(fileData);
-          } else if (functionName === 'OTA_Update') {
-            console.log("Executing ESP32 OTA update.");
-            FlamingoBle.performUpdate(fileData);
-          }
+        .then(function (fileResults) {
+          // Execute updates based on fileResults
+          fileResults.forEach(({ fileData, functionName }) => {
+            if (functionName === 'OTA_v2_Update') {
+              console.log("Executing STM32 OTA update.");
+              FlamingoBle.performUpdate_STM_OTA(fileData);
+            } else if (functionName === 'OTA_Update') {
+              console.log("Executing ESP32 OTA update.");
+              FlamingoBle.performUpdate_ESP_OTA(fileData);
+            }
+          });
         })
         .catch(function (error) {
-          document.getElementById('output').textContent = 'Wrong OTA file!';
+          document.getElementById('OTA_STM_status').textContent = 'Wrong OTA file!';
           console.error('Error handling ZIP file:', error);
         });
     }
 
-})
+});
 
 
 
