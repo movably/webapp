@@ -183,10 +183,10 @@ body.connected #sw_update {
 #statusString::before {
   content: '';
 }
-#connect, #left, #right, #setWiFiSettings, #MOS_request_btn, #DisconnecttWiFiCommand, #ConnectWiFiCommand, #setDeviceInfo, #AddPosture, #DeletePosture, #SetPosture, #inputFile  {
+#connect, #connect_wifi, #wifi_controls, #left, #right, #setWiFiSettings, #MOS_request_btn, #DisconnecttWiFiCommand, #ConnectWiFiCommand, #setDeviceInfo, #AddPosture, #DeletePosture, #SetPosture, #inputFile  {
   color: white;
   background-color: #4CAF50;
-  width: 50%;
+  width: 40%;
   font-weight: bold;
   /*display: none;*/
   align-items: center;
@@ -290,7 +290,7 @@ pre {
 #left, #right, #setWiFiSettings, #MOS_request_btn, #DisconnecttWiFiCommand, #ConnectWiFiCommand, #setDeviceInfo, #AddPosture, #DeletePosture, #SetPosture {
   color: white;
   background-color: #4CAF50;
-  width: 43%;*/
+  width: 40%;*/
   /*height: 30%;*/
   /*font-weight: bold;*/
   /*display: none;*/
@@ -551,4 +551,18 @@ input[type="range"]:after {
   font-size: 15px;
 }
 
+.disabled-style {
+  background-color: #d3d3d3; /* Light gray */
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.disabled-section {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.hidden {
+  display: none !important;
+}
 

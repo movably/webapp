@@ -1,13 +1,14 @@
 <!doctype html>
 <html>
   <head>
+    <script src="FlamingoWiFi.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <title>Flamingo Web App</title>
     <meta name="description" content="Control the Flamingo Chair with a Web Bluetooth app.">
     <meta name="theme-color" content="#333333" />
     <link rel="icon" sizes="192x192" href="../favicon.png">
     <link rel="manifest" href="manifest.json">
-
+    
     <link rel="stylesheet" href="code.getmdl.io/1.0.4/material.green-light_green.min.css">
     <script src="code.getmdl.io/1.0.4/material.min.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
@@ -55,7 +56,24 @@
           <div id="step1">
             <div id="title">Flamingo Web App</div>
 
-            <button id="connect" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">CONNECT</button>
+            <button id="connect" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+              CONNECT WITH BLUETOOTH
+            </button>
+            <br> <!-- Added extra spacing for better visual separation -->
+            
+            <!-- New Button for WiFi Connection -->
+            <button id="connect_wifi" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--primary" onclick="location.href='wsetup.html';">
+              SETUP WIFI credentials
+            </button>
+            <br><br> <!-- Added extra spacing for better visual separation -->
+            
+            <!-- New Button for WiFi Controls -->
+            <button id="wifi_controls" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--primary" onclick="connectDevice_wifi();">
+              CONNECT USING WIFI
+            </button>
+            
+            
+            
 
             <div id="no-bluetooth" class="no-bluetooth-card-square mdl-card mdl-shadow--2dp">
               <div class="mdl-card__title mdl-card--expand">
@@ -186,6 +204,18 @@
                         </datalist> -->
                         <div id="slider1Value" class="sliderValue">?</div>
 
+
+                        <!-- Motor Sound Config -->
+                        <div class="card-info" id="motors_sound_title">
+                          <small>Vibration motor strength</small>
+                        </div>
+                        <div class = "mdl-tooltip" for = "motors_sound_title">For A3s, or when vibro motors are disabled on A4s.</div>
+                        <!-- Left Motor Sound Slider -->
+                        <div id="leftSoundSliderTitle" class="sliderTitle"></div>
+                        <input type="range" min="0" max="100" value="1"  step="1" class="slider" id="leftSoundSlider">
+                        <div id="leftSoundSliderValue" class="sliderValue">?</div>
+                        <!-- <div id="leftSoundSliderTitle" class="sliderTitle"></div> -->
+
                         
                     <!-- </div> -->
                     <hr>
@@ -205,9 +235,9 @@
                     <br>
                     <!-- <div id="container"> -->
                         <!-- <div id="left">Left Side:</div> -->
-                        <button id="left" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">Left Side</button>
+                        <button id="left" style="width: 100%;" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">Left Side</button>
                         <div id="middle"></div>
-                        <button id="right" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">Right Side</button>
+                        <button id="right" style="width: 100%;" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">Right Side</button>
                         <!-- <div id="right">Right Side:</div> -->
                     <!-- </div> -->
                 </div>
@@ -216,7 +246,7 @@
             </div>
 
             <!-- TABS -->
-            <div class="w3-container" style="padding: 2rem 1rem;">
+            <div id="AuxTabs_id" class="w3-container" style="padding: 2rem 1rem;">
 
               <div class="w3-bar w3-text-white">
                 <button class="w3-bar-item w3-button tablink w3-amber" onclick="openCity(event,'Hide Tabs')">Hide Tabs</button>
@@ -315,26 +345,6 @@
                           <!-- </div> -->
                         </div>
 
-                        <div class="card">
-                          <div class="card-info">
-                                <small>Vibration Settings</small>
-                            </div>
-
-                          <hr>
-
-                          <!-- Motor Sound Config -->
-                          <div class="card-info" id="motors_sound_title">
-                            <small>Main motor strength</small>
-                          </div>
-                          <div class = "mdl-tooltip" for = "motors_sound_title">For A3s, or when vibro motors are disabled on A4s.</div>
-                          <!-- Left Motor Sound Slider -->
-                          <div id="leftSoundSliderTitle" class="sliderTitle"></div>
-                          <input type="range" min="0" max="100" value="1"  step="1" class="slider" id="leftSoundSlider">
-                          <div id="leftSoundSliderValue" class="sliderValue">?</div>
-                          <!-- <div id="leftSoundSliderTitle" class="sliderTitle"></div> -->
-
-
-                        </div>
 
                   </div>                  
 

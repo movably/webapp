@@ -1,5 +1,19 @@
 var r = g = b = 255; // White by default.
 
+// Global flag to track button press
+let isWiFiControlsPressed = false;
+
+
+
+/**
+ * Function to check if the "WIFI CONTROLS" button was pressed.
+ * 
+ * @returns {boolean} True if the button was pressed, otherwise false.
+ */
+function wasWiFiControlsPressed() {
+  return isWiFiControlsPressed;
+}
+
 // Run chrome://bluetooth-internals to see if available
 
 let url_string = window.location.href
@@ -24,6 +38,9 @@ autoSlider.setProperties("Auto Period (min):","1","10", "min")
 autoSlider.registerChanges(FlamingoBle.setAutoPeriod, 
     FlamingoBle.getAutoPeriod,
     FlamingoBle);
+//autoSlider.registerChanges(FlamingoWiFi.setAutoPeriod, 
+//  FlamingoWiFi.getAutoPeriod,
+//  FlamingoWiFi);
 
 
 
@@ -33,6 +50,9 @@ leftMotorSoundSlider.setProperties("Motor sound:","0","50", "%")
 leftMotorSoundSlider.registerChanges(FlamingoBle.setBothMotorSoundStrength, 
     FlamingoBle.getLeftMotorSoundStrength,
     FlamingoBle);
+//leftMotorSoundSlider.registerChanges(FlamingoWiFi.setVibroLevel, 
+//  FlamingoWiFi.getVibroLevel,
+//    FlamingoWiFi);
 
 
 
@@ -139,6 +159,47 @@ document.querySelector('#connect').addEventListener('click', function() {
 
   });
 });
+
+async function readAutoStatus()
+{
+  //FlamingoWiFi.getAutoMode().then(handleAutoModeCFG);
+  FlamingoWiFi.getChairUpdates().then(handleChairUpdates);
+}
+
+function connectDevice_wifi(){
+
+    isWiFiControlsPressed = true; // Update the flag
+    console.log("WiFi Controls button pressed.");
+
+    //Redirect sliders controls to WiFi
+    autoSlider.registerChanges(FlamingoWiFi.setAutoPeriod, 
+      FlamingoWiFi.getAutoPeriod,
+      FlamingoWiFi);
+
+    //Redirect sliders controls to WiFi
+    leftMotorSoundSlider.registerChanges(FlamingoWiFi.setVibroLevel, 
+      FlamingoWiFi.getVibroLevel,
+      FlamingoWiFi);
+
+
+    disableElements_in_WIFI();
+    hideElements_in_WIFI();
+
+    document.querySelector('#state').classList.remove('engineering');
+    document.querySelector('#state').classList.remove('connected');
+    document.querySelector('#state').classList.add('connecting');
+    document.querySelector('#state').classList.remove('connecting');
+    document.querySelector('#state').classList.add('connected');
+    document.querySelector('#blow').textContent = '';
+
+    FlamingoWiFi.getAutoModeSelector().then(handleAutoModeSelectorRead);
+    FlamingoWiFi.getAutoMode().then(handleAutoModeCFG);
+    FlamingoWiFi.getAutoPeriod().then(autoSlider.handleRead);
+    FlamingoWiFi.getVibroLevel().then(leftMotorSoundSlider.handleRead);
+    
+    setInterval(readAutoStatus, 3000);
+}
+
 
 function connectDevice(){
     FlamingoBle.request(onDisconnect)
@@ -405,6 +466,97 @@ function handleAutoModeSelectorRead(modeId){
   document.querySelector('#AutoMode' + modeId).checked = true;
 }
 
+function handleAutoModeCFG(mode){
+  console.log("AutoMode CFG = " + mode);
+  let s = document.getElementById("auto-switch")
+  if(mode == 0){
+    s.parentElement.MaterialSwitch.off();
+  }else if(mode == 1){
+    s.parentElement.MaterialSwitch.on();
+  }
+}
+
+function handleChairUpdates(input_array) {
+  console.log("Input received:", input_array);
+
+  // Validate input as an array with exactly 3 elements
+  if (!Array.isArray(input_array) || input_array.length !== 3) {
+      console.error("Invalid input: Expected an array with 3 elements");
+      return;
+  }
+
+  // Extract values from the array
+  const leftState = input_array[0];
+  const rightState = input_array[1];
+  const wautomode = input_array[2];
+
+  console.log("WIFI -> Chair state =", leftState, rightState, wautomode);
+
+  // Determine states
+  const wleftSide = leftState === 0 ? "up" : "down";
+  const wrightSide = rightState === 0 ? "up" : "down";
+
+  // Update DOM elements
+  document.querySelector('#left').textContent = "LEFT: " + wleftSide;
+  document.querySelector('#right').textContent = "RIGHT: " + wrightSide;
+
+  console.log("WIFI -> Display:", wleftSide, wrightSide);
+  // Handle auto-switch mode
+  const sw = document.getElementById("auto-switch");
+  if (sw && sw.parentElement?.MaterialSwitch) {
+      if (wautomode === 0) {
+          sw.parentElement.MaterialSwitch.off();
+      } else if (wautomode === 1) {
+          sw.parentElement.MaterialSwitch.on();
+      } else {
+          console.warn("Unexpected wautomode value:", mode);
+      }
+  } else {
+      console.error("Switch or MaterialSwitch not found");
+  }
+}
+
+// Function to disable specific elements
+function disableElements_in_WIFI() {
+  // Disable buttons
+  document.getElementById('MOS_request_btn').disabled = true;
+  document.getElementById('setWiFiSettings').disabled = true;
+  document.getElementById('setDeviceInfo').disabled = true;
+
+  // Disable inputs
+  document.getElementById('inputWiFiPWD').disabled = true;
+  document.getElementById('inputEmail').disabled = true;
+
+  // Disable file input
+  document.getElementById('file').disabled = true;
+
+  // Add a "disabled" style for visual feedback (optional)
+  //const buttons = document.querySelectorAll('button');
+  //buttons.forEach(button => button.classList.add('disabled-style')); // Assuming "disabled-style" is a CSS class
+}
+
+// Function to hide specific elements
+function hideElements_in_WIFI() {
+  // Hide individual elements
+  document.getElementById('MOS_request_btn').style.display = 'none';
+  document.getElementById('setWiFiSettings').style.display = 'none';
+  document.getElementById('setDeviceInfo').style.display = 'none';
+  document.getElementById('file').style.display = 'none';
+
+  // Hide entire sections
+  document.getElementById('WiFi setup').style.display = 'none';
+  document.getElementById('Diagnostics Tab').style.display = 'none';
+  document.getElementById('MOS_request').style.display = 'none';
+
+  document.getElementById('MOS_request_btn').classList.add('hidden');
+  document.getElementById('setWiFiSettings').classList.add('hidden');
+  document.getElementById('setDeviceInfo').classList.add('hidden');
+  document.getElementById('file').classList.add('hidden');
+
+  document.getElementById('AuxTabs_id').classList.add('hidden');
+  document.getElementById('AuxTabs_id').style.display = 'none';
+  
+}
 
 document.querySelector('#AutoMode0').addEventListener('click', selectAutoMode);
 document.querySelector('#AutoMode1').addEventListener('click', selectAutoMode);
@@ -495,10 +647,18 @@ function changeMode() {
   var effect = document.querySelector('[name="effectSwitch"]:checked').id;
   switch(effect) {
     case 'manualMode':
-      FlamingoBle.setMode(0);
+      if (wasWiFiControlsPressed()) {
+        FlamingoWiFi.setAutoMode(0);
+      }else{
+        FlamingoBle.setMode(0);
+      }
       break;
     case 'autoMode':
-      FlamingoBle.setMode(1);;
+      if (wasWiFiControlsPressed()) {
+        FlamingoWiFi.setAutoMode(1);
+      }else{
+        FlamingoBle.setMode(1);
+      }
       break;
   }
 }
@@ -506,7 +666,14 @@ function changeMode() {
 function selectAutoMode() {
   var modeType = document.querySelector('[name="effectSwitch"]:checked').value;
   console.log("selecting mode type: " + modeType)
-  FlamingoBle.setAutoModeSelector(modeType);
+  if (wasWiFiControlsPressed()) {
+    console.log("The WiFi Controls button has been pressed.");
+    // Perform additional logic here
+    FlamingoWiFi.setAutoModeSelector(modeType);
+  } else {
+    FlamingoBle.setAutoModeSelector(modeType);
+  }
+  
   // switch(effect) {
   //   case 'manualMode':
   //     FlamingoBle.setMode(0);
@@ -519,7 +686,12 @@ function selectAutoMode() {
 
 function changeModeToggle() {
   var effect = document.getElementById("auto-switch").checked;
-  FlamingoBle.setMode(effect);
+  if (wasWiFiControlsPressed()) {
+    FlamingoWiFi.setAutoMode(effect ? 1 : 0);
+  }else{
+    FlamingoBle.setMode(effect);
+  }
+  
 }
 
 window.addEventListener('unhandledrejection', function() {
@@ -543,13 +715,28 @@ window.onload = function() {
 
 function moveLeft(){
   // console.log("moveLeft")
-  FlamingoBle.setToggle(0);
+ 
+  if (wasWiFiControlsPressed()) {
+    console.log("The WiFi Controls button has been pressed.");
+    // Perform additional logic here
+    FlamingoWiFi.setToggle(0);
+  } else {
+      FlamingoBle.setToggle(0);
+      console.log("The WiFi Controls button has not been pressed yet.");
+  }
 }
 
 
 function moveRight(){
   // console.log("moveRight")
-  FlamingoBle.setToggle(1);
+  //FlamingoBle.setToggle(1);
+  if (wasWiFiControlsPressed()) {
+    console.log("The WiFi Controls button has been pressed.");
+    // Perform additional logic here
+    FlamingoWiFi.setToggle(1);
+  } else {
+    FlamingoBle.setToggle(1);
+  }
 }
 document.querySelector('#left').addEventListener('click', moveLeft);
 document.querySelector('#right').addEventListener('click', moveRight);
