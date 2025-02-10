@@ -1,4 +1,47 @@
-const esp32IP = "http://192.168.64.189"; // Replace with your ESP32's IP address
+
+  
+async function getChairIpFromMos(seriallNum) {
+    console.log(`Requesting IP for ${seriallNum}`);
+
+    const query = `
+    {
+        product(eq: "${seriallNum}") {
+            lastEvent {
+                ipAddress
+            }
+        }
+    }
+    `;
+
+    const url = "https://movably.fielden.com.au/api/graphql";
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const options = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
+            'API-KEY': 'f3162d2f-e798-4b5e-ae59-9540d69dc56c',
+            'Time-Zone': timezone
+        },
+        body: JSON.stringify({ query: query })
+    };
+
+    try {
+        const response = await fetch(url, options);
+        const data = await response.json();
+
+        if (data && data.data && data.data.product && data.data.product.length > 0) {
+            const lastEvent = data.data.product[0].lastEvent;
+            return lastEvent ? lastEvent.ipAddress : null;
+        } else {
+            console.log('No IP address found for the product in MOS.');
+            return null;
+        }
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        return null;
+    }
+}
+
 
 const FlamingoWiFi = {
     /**
@@ -12,7 +55,7 @@ const FlamingoWiFi = {
         console.log(`Sending ${value} to ${endpoint}`);
 
         try {
-            const response = await fetch(`${esp32IP}${endpoint}`, {
+            const response = await fetch(`${local_IP}${endpoint}`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "text/plain"
@@ -41,7 +84,7 @@ const FlamingoWiFi = {
         console.log(`Fetching value from ${endpoint}`);
 
         try {
-            const response = await fetch(`${esp32IP}${endpoint}`, {
+            const response = await fetch(`${local_IP}${endpoint}`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "text/plain"

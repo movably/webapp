@@ -1296,7 +1296,46 @@ document.getElementById('file')
 
 });
 
+document.addEventListener("DOMContentLoaded", async function () {
+  const inputSN = document.getElementById("inputSN");
+  const theMOSIp = document.getElementById("chairIpAddr");
 
+  if (inputSN) {
+      // Retrieve stored value from localStorage
+      const savedSerial = localStorage.getItem("chairSerial");
+      if (savedSerial) {
+          inputSN.value = savedSerial;
+
+          // Wait for the IP to be retrieved
+          const chairIp = await getChairIpFromMos(savedSerial);
+          if (chairIp) {
+              console.log(`Chair IP Address: ${chairIp}`);
+              theMOSIp.value = "http://" + chairIp; // Update the input field
+              local_IP = theMOSIp.value;
+          } else {
+              console.log("Failed to retrieve chair IP.");
+          }
+      }
+
+      // Save input to localStorage and fetch new IP when input changes
+      inputSN.addEventListener("input", async function () {
+          const serialNumber = this.value;
+          localStorage.setItem("chairSerial", serialNumber);
+
+          // Fetch new IP dynamically
+          const chairIp = await getChairIpFromMos(serialNumber);
+          if (chairIp) {
+              console.log(`Updated Chair IP Address: ${chairIp}`);
+              theMOSIp.value = "http://" + chairIp;
+              local_IP = theMOSIp.value;
+          } else {
+              console.log("Failed to retrieve chair IP on input change.");
+              theMOSIp.value = ""; // Clear if no IP is found
+              local_IP = "";
+          }
+      });
+  }
+});
 
 function dateToString(now){
   let today_time_string = sprintf('%i-%02i-%02i %i:%02i:%02i', now.getFullYear(), 
