@@ -581,6 +581,45 @@
 
                         </div>
 
+                        <div class="card">
+                          <div class="card-info">
+                                <small>Odometers</small>
+                            </div>
+                          <hr>
+
+                          <!-- Left leg odometer -->
+                          <div class="card-info" id="left_leg_odometer">
+                            <small>Left leg odometer</small>
+                          </div>
+                          <div class = "mdl-tooltip" for = "left_leg_odometer">Left leg movement count (read-only).</div>
+                          <div style="display: flex; align-items: center; gap: 10px; margin: 10px 0;">
+                            <input type="text" id="leftLegOdometerValue" class="sliderValue" readonly style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px; background-color: #f9f9f9;" value="0">
+                            <button id="readLeftOdometer" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" style="min-width: 80px;">Read</button>
+                          </div>
+
+                          <!-- Right leg odometer -->
+                          <div class="card-info" id="right_leg_odometer">
+                            <small>Right leg odometer</small>
+                          </div>
+                          <div class = "mdl-tooltip" for = "right_leg_odometer">Right leg movement count (read-only).</div>
+                          <div style="display: flex; align-items: center; gap: 10px; margin: 10px 0;">
+                            <input type="text" id="rightLegOdometerValue" class="sliderValue" readonly style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px; background-color: #f9f9f9;" value="0">
+                            <button id="readRightOdometer" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" style="min-width: 80px;">Read</button>
+                          </div>
+
+                          <hr>
+                          
+                          <!-- Auto update controls -->
+                          <div style="display: flex; align-items: center; gap: 10px; margin: 10px 0;">
+                            <button id="startAutoUpdate" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" style="flex: 1;">Start Auto Update</button>
+                            <button id="stopAutoUpdate" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" style="flex: 1;">Stop Auto Update</button>
+                          </div>
+                          <div style="text-align: center; font-size: 12px; color: #666;">
+                            Auto updates every 15 seconds
+                          </div>
+
+                        </div>
+
                   </div>                  
 
                   <!-- <div id="bar-example" style="height: 350px;"></div> -->

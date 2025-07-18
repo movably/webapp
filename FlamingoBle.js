@@ -58,6 +58,9 @@
   const RIGHT_ITERM_MOTOR_DUTY_UUID =  "1b25ee1a-dadf-11eb-8d19-0242ac130003";
   const RIGHT_DTERM_MOTOR_DUTY_UUID =  "1b25ee1b-dadf-11eb-8d19-0242ac130003";
 
+  const LEFT_LEG_MOVE_CNT_UUID =  "1b25ee1c-dadf-11eb-8d19-0242ac130003";
+  const RIGHT_LEG_MOVE_CNT_UUID = "1b25ee1d-dadf-11eb-8d19-0242ac130003";
+
 
   const TZInfoFieldUUID         = "1b25ee14-dadf-11eb-8d19-0242ac130003";
 
@@ -226,6 +229,8 @@
       this._cacheCharacteristic(service, RIGHT_PTERM_MOTOR_DUTY_UUID);
       this._cacheCharacteristic(service, RIGHT_ITERM_MOTOR_DUTY_UUID);
       this._cacheCharacteristic(service, RIGHT_DTERM_MOTOR_DUTY_UUID);
+      await this._cacheCharacteristic(service, LEFT_LEG_MOVE_CNT_UUID);
+      await this._cacheCharacteristic(service, RIGHT_LEG_MOVE_CNT_UUID);
 
 
       service = await server.getPrimaryService(WiFiserviceUUID);
@@ -627,6 +632,40 @@
 
     getRightLegMotorLockStrength() {
       return this._readCharacteristicValue(RIGHT_LOCK_MOTOR_DUTY_UUID).then((response) => this.handleFloatReading(response) * 1000);  
+    }
+
+    getLeftLegOdometer() {
+      // Check if characteristic is cached
+      let characteristic = this._characteristics.get(LEFT_LEG_MOVE_CNT_UUID);
+      if (!characteristic) {
+        console.error("Left leg odometer characteristic not found in cache");
+        return Promise.reject(new Error("Characteristic not cached"));
+      }
+      
+      return this._readCharacteristicValue(LEFT_LEG_MOVE_CNT_UUID).then((response) => {
+        const value = this.handleUint32Reading(response);
+        return value;
+      }).catch(error => {
+        console.error("Error reading left leg odometer:", error);
+        throw error;
+      });  
+    }
+
+    getRightLegOdometer() {
+      // Check if characteristic is cached
+      let characteristic = this._characteristics.get(RIGHT_LEG_MOVE_CNT_UUID);
+      if (!characteristic) {
+        console.error("Right leg odometer characteristic not found in cache");
+        return Promise.reject(new Error("Characteristic not cached"));
+      }
+      
+      return this._readCharacteristicValue(RIGHT_LEG_MOVE_CNT_UUID).then((response) => {
+        const value = this.handleUint32Reading(response);
+        return value;
+      }).catch(error => {
+        console.error("Error reading right leg odometer:", error);
+        throw error;
+      });  
     }
 
 

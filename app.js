@@ -185,6 +185,17 @@ function onDisconnect(event){
       FlamingoBle.getTZInfoDeviceString().then(handleTZInfoString);
       FlamingoBle.getWiFiPWDString().then(handleWiFiPWD);
       FlamingoBle.getEnableVibroMotor().then(handleEnableVibroMotor);
+      
+      console.log("Connection setup completed, scheduling odometer updates...");
+      
+      // Update odometers initially with a delay to avoid GATT conflicts
+      setTimeout(() => {
+        console.log("Starting automatic odometer updates...");
+        updateOdometersSimple();
+        
+        // Set up periodic odometer updates every 15 seconds (increased interval)
+        setInterval(updateOdometersSimple, 15000);
+      }, 3000);
     }
   })
   .catch(error => {
@@ -531,6 +542,131 @@ function handleSPIErrors(event){
   document.querySelector('#SPIErrorsString').textContent = SPI_string + spi_err_cnt;
 }
 
+function updateOdometers() {
+  console.log("Updating odometers...");
+  
+  // Update left leg odometer first
+  FlamingoBle.getLeftLegOdometer().then(value => {
+    console.log("Left leg odometer value:", value);
+    document.querySelector('#leftLegOdometerValue').value = value;
+    
+    // Update right leg odometer after a short delay
+    setTimeout(() => {
+      FlamingoBle.getRightLegOdometer().then(value => {
+        console.log("Right leg odometer value:", value);
+        document.querySelector('#rightLegOdometerValue').value = value;
+      }).catch(error => {
+        console.log("Error reading right leg odometer:", error);
+        document.querySelector('#rightLegOdometerValue').value = "Error";
+      });
+    }, 500);
+    
+  }).catch(error => {
+    console.log("Error reading left leg odometer:", error);
+    document.querySelector('#leftLegOdometerValue').value = "Error";
+    
+    // Still try to read the right leg odometer even if left fails
+    setTimeout(() => {
+      FlamingoBle.getRightLegOdometer().then(value => {
+        console.log("Right leg odometer value:", value);
+        document.querySelector('#rightLegOdometerValue').value = value;
+      }).catch(error => {
+        console.log("Error reading right leg odometer:", error);
+        document.querySelector('#rightLegOdometerValue').value = "Error";
+      });
+    }, 500);
+  });
+}
+
+function updateOdometersSimple() {
+  console.log("Updating odometers automatically...");
+  
+  // Update left leg odometer with simpler error handling
+  FlamingoBle.getLeftLegOdometer().then(value => {
+    console.log("Auto-update left leg odometer value:", value);
+    document.querySelector('#leftLegOdometerValue').value = value;
+  }).catch(error => {
+    console.log("Auto-update error reading left leg odometer:", error.message);
+    // Don't change the display value on error, keep the last known value
+  });
+
+  // Update right leg odometer with a delay to avoid conflicts
+  setTimeout(() => {
+    FlamingoBle.getRightLegOdometer().then(value => {
+      console.log("Auto-update right leg odometer value:", value);
+      document.querySelector('#rightLegOdometerValue').value = value;
+    }).catch(error => {
+      console.log("Auto-update error reading right leg odometer:", error.message);
+      // Don't change the display value on error, keep the last known value
+    });
+  }, 1000);
+}
+
+function readLeftOdometerClicked() {
+  console.log("Left odometer button clicked");
+  document.querySelector('#leftLegOdometerValue').value = "Reading...";
+  
+  FlamingoBle.getLeftLegOdometer().then(value => {
+    console.log("Left leg odometer button read value:", value);
+    document.querySelector('#leftLegOdometerValue').value = value;
+  }).catch(error => {
+    console.log("Error reading left leg odometer via button:", error);
+    document.querySelector('#leftLegOdometerValue').value = "Error";
+  });
+}
+
+function readRightOdometerClicked() {
+  console.log("Right odometer button clicked");
+  document.querySelector('#rightLegOdometerValue').value = "Reading...";
+  
+  FlamingoBle.getRightLegOdometer().then(value => {
+    console.log("Right leg odometer button read value:", value);
+    document.querySelector('#rightLegOdometerValue').value = value;
+  }).catch(error => {
+    console.log("Error reading right leg odometer via button:", error);
+    document.querySelector('#rightLegOdometerValue').value = "Error";
+  });
+}
+
+// Global variable to store the auto-update interval
+let odometerAutoUpdateInterval = null;
+
+function startAutoUpdateClicked() {
+  console.log("Starting manual auto-update for odometers");
+  
+  // Stop any existing interval
+  if (odometerAutoUpdateInterval) {
+    clearInterval(odometerAutoUpdateInterval);
+  }
+  
+  // Start immediate update
+  updateOdometersSimple();
+  
+  // Set up periodic updates
+  odometerAutoUpdateInterval = setInterval(updateOdometersSimple, 15000);
+  
+  // Update button states
+  document.querySelector('#startAutoUpdate').disabled = true;
+  document.querySelector('#stopAutoUpdate').disabled = false;
+  
+  console.log("Auto-update started - updates every 15 seconds");
+}
+
+function stopAutoUpdateClicked() {
+  console.log("Stopping auto-update for odometers");
+  
+  if (odometerAutoUpdateInterval) {
+    clearInterval(odometerAutoUpdateInterval);
+    odometerAutoUpdateInterval = null;
+  }
+  
+  // Update button states
+  document.querySelector('#startAutoUpdate').disabled = false;
+  document.querySelector('#stopAutoUpdate').disabled = true;
+  
+  console.log("Auto-update stopped");
+}
+
 function handleErrorCodes(event){
   console.log("-> error event");
   let error_code = event.target.value.getUint16(0);
@@ -608,6 +744,16 @@ document.getElementById("auto-switch").addEventListener('click', changeModeToggl
 document.getElementById("wifi-switch").addEventListener('click', enableWiFiToggle);
 
 document.querySelector('#enableVibroMotor').addEventListener('click', enableVibroMotorClicked);
+
+// Odometer button event listeners
+document.querySelector('#readLeftOdometer').addEventListener('click', readLeftOdometerClicked);
+document.querySelector('#readRightOdometer').addEventListener('click', readRightOdometerClicked);
+document.querySelector('#startAutoUpdate').addEventListener('click', startAutoUpdateClicked);
+document.querySelector('#stopAutoUpdate').addEventListener('click', stopAutoUpdateClicked);
+
+// Initialize auto-update button states
+document.querySelector('#startAutoUpdate').disabled = false;
+document.querySelector('#stopAutoUpdate').disabled = true;
 
 
 function handleDeviceSerial(info){
