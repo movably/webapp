@@ -569,63 +569,7 @@
     getLeftLegMotorLockStrength() {
       return this._readCharacteristicValue(LEFT_LOCK_MOTOR_DUTY_UUID).then((response) => this.handleFloatReading(response) * 1000);  
     }
-
-    setNegativeSaturationStrength(strength){
-      return this._writeCharacteristicValue(CHAIR_NEGATIVE_SATURATION_MOTOR_DUTY_UUID, new Float32Array([strength/1000]))
-    }
-
-    getNegativeSaturationStrength() {
-      return this._readCharacteristicValue(CHAIR_NEGATIVE_SATURATION_MOTOR_DUTY_UUID).then((response) => this.handleFloatReading(response) * 1000);  
-    }
-
-    setLeftLegMotorPtermStrength(strength){
-      return this._writeCharacteristicValue(LEFT_PTERM_MOTOR_DUTY_UUID, new Float32Array([strength/1000]))
-    }
-
-    getLeftLegMotorPtermStrength() {
-      return this._readCharacteristicValue(LEFT_PTERM_MOTOR_DUTY_UUID).then((response) => this.handleFloatReading(response) * 1000);  
-    }
-
-    setLeftLegMotorItermStrength(strength){
-      return this._writeCharacteristicValue(LEFT_ITERM_MOTOR_DUTY_UUID, new Float32Array([strength/1000]))
-    }
-
-    getLeftLegMotorItermStrength() {
-      return this._readCharacteristicValue(LEFT_ITERM_MOTOR_DUTY_UUID).then((response) => this.handleFloatReading(response) * 1000);  
-    }
-
-    setLeftLegMotorDtermStrength(strength){
-      return this._writeCharacteristicValue(LEFT_DTERM_MOTOR_DUTY_UUID, new Float32Array([strength/1000]))
-    }
-
-    getLeftLegMotorDtermStrength() {
-      return this._readCharacteristicValue(LEFT_DTERM_MOTOR_DUTY_UUID).then((response) => this.handleFloatReading(response) * 1000);  
-    }
-
-    setRightLegMotorPtermStrength(strength){
-      return this._writeCharacteristicValue(RIGHT_PTERM_MOTOR_DUTY_UUID, new Float32Array([strength/1000]))
-    }
-
-    getRightLegMotorPtermStrength() {
-      return this._readCharacteristicValue(RIGHT_PTERM_MOTOR_DUTY_UUID).then((response) => this.handleFloatReading(response) * 1000);  
-    }
-
-    setRightLegMotorItermStrength(strength){
-      return this._writeCharacteristicValue(RIGHT_ITERM_MOTOR_DUTY_UUID, new Float32Array([strength/1000]))
-    }
-
-    getRightLegMotorItermStrength() {
-      return this._readCharacteristicValue(RIGHT_ITERM_MOTOR_DUTY_UUID).then((response) => this.handleFloatReading(response) * 1000);  
-    }
-
-    setRightLegMotorDtermStrength(strength){
-      return this._writeCharacteristicValue(RIGHT_DTERM_MOTOR_DUTY_UUID, new Float32Array([strength/1000]))
-    }
-
-    getRightLegMotorDtermStrength() {
-      return this._readCharacteristicValue(RIGHT_DTERM_MOTOR_DUTY_UUID).then((response) => this.handleFloatReading(response) * 1000);  
-    }
-
+    
     setRightLegMotorLockStrength(strength){
       return this._writeCharacteristicValue(RIGHT_LOCK_MOTOR_DUTY_UUID, new Float32Array([strength/1000]))
     }
