@@ -1629,28 +1629,28 @@ UsageReporter.getDailyUsages(userEmail);
 
 
 async function autoScan() {
-  if(FlamingoBle.device){
-    if(FlamingoBle.device.gatt.connected){
-      return;
-    }
+  // If we already have a connected device, don't scan again
+  if(FlamingoBle.device && FlamingoBle.device.gatt.connected){
+    return;
   }
 
-  await FlamingoBle.scanForDevice();
+  // Our new scanForDevice function now handles the device selection and returns the device
+  const device = await FlamingoBle.scanForDevice();
   
-  // console.log("connect now..")
-  setTimeout(connectIfFound, 1000);
-
-    function connectIfFound(){
-      if(FlamingoBle.device_found){
-        connectDevice();
-      }
-    }
+  // If a device was selected, connect to it
+  if(device) {
+    connectDevice();
+  }
 }
 
 
 try{
+  // Initial scan when the page loads
   autoScan();
-  var autoScanId = setInterval(autoScan, 5000);
+  
+  // Don't automatically scan repeatedly - this would prompt the user too often
+  // Instead, let the user initiate the scan manually
+  // var autoScanId = setInterval(autoScan, 5000);
 
 }catch (ex)
 {

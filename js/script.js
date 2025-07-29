@@ -44,6 +44,8 @@ $(document).ready(function(){
   });
 });
 
+// Charts are commented out because the HTML elements don't exist
+/*
 new Morris.Line({
     // ID of the element in which to draw the chart.
     element: 'myfirstchart',
@@ -95,6 +97,7 @@ new Morris.Line({
     ykeys: ['a'],
     labels: ['Series A']
   });
+*/
 
   $('inscription-link ').click(function(){
     $('.statistique').removeClass("active");

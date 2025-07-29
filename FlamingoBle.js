@@ -113,46 +113,42 @@
 
     async scanForDevice(){
       this.device_found = false;
-      let devices = await navigator.bluetooth.getDevices();
-      console.log(devices);
-      for (let device of devices) {
-        // Start a scan for each device before connecting to check that they're in
-        // range.
-        let abortController = new AbortController();
-        device.addEventListener('advertisementreceived', async (evt) => {
-          // Stop the scan to conserve power on mobile devices.
-          abortController.abort();
-
-     
-          // Advertisement data can be read from |evt|.
-          let deviceName = evt.name;
-          let uuids = evt.uuids;
-          let appearance = evt.appearance;
-          let pathloss = evt.txPower - evt.rssi;
-          let manufacturerData = evt.manufacturerData;
-          let serviceData = evt.serviceData;
-     
-          console.log(deviceName);
-          console.log(manufacturerData);
-
-          // At this point, we know that the device is in range, and we can attempt
-          // to connect to it.
-          // await evt.device.gatt.connect();
-          if(deviceName=="Flamingo"){
-            this.device_found = true;
-            this.device = evt.device;
-          }
+      
+      try {
+        // Use the standard requestDevice method which is widely supported
+        // This will prompt the user to select a device
+        const device = await navigator.bluetooth.requestDevice({
+          filters: [
+            { services: [FLAMINGO_SERVICE_UUID] },
+            { namePrefix: 'Flamingo' }
+          ],
+          optionalServices: [
+            FLAMINGO_SERVICE_UUID, 
+            DEVICE_INFORMATION_SERVICE_UUID, 
+            ENGINEERING_SERVICE_UUID,
+            WiFiserviceUUID,
+            TIME_SERVICE_UUID
+          ]
         });
-
-        await device.watchAdvertisements({signal: abortController.signal});
-
+        
+        console.log('Device selected:', device.name);
+        this.device_found = true;
+        return device;
+      } catch (error) {
+        console.error('Error scanning for device:', error);
+        return null;
       }
     }
     
     async connect(engineering_enabled) {
-      console.log("connect()")
+      console.log("connect()");
+      
+      // If we don't have a device yet, try to scan for one
       if (!this.device) {
-        return Promise.reject('Device is not connected.');
+        this.device = await this.scanForDevice();
+        if (!this.device) {
+          return Promise.reject('No device selected.');
+        }
       }
       const server = await this.device.gatt.connect()
 
