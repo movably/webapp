@@ -159,66 +159,126 @@
           return Promise.reject('No device selected.');
         }
       }
-      const server = await this.device.gatt.connect()
+      
+      try {
+        // Check if we're already connected
+        if (this.server && this.device.gatt.connected) {
+          console.log("Already connected to GATT server");
+          return this.server;
+        }
+        
+        console.log("Connecting to GATT server...");
+        const server = await this.device.gatt.connect();
 
-      this.server = server;
-
-      let service = await server.getPrimaryService(CHAIR_SERVICE_UUID);
-
-      this._cacheCharacteristic(service, AUTO_MODE_UUID);
-      this._cacheCharacteristic(service, AUTO_PERIOD_UUID);
-      this._cacheCharacteristic(service, CHAIR_STATE_EVENT_UUID);
-      this._cacheCharacteristic(service, CHAIR_TOGGLE_UUID);
-      this._cacheCharacteristic(service, SEND_EVENTS_UUID);
-      this._cacheCharacteristic(service, EVENT_ACK_UUID);
-      this._cacheCharacteristic(service, CHAIR_STATE_UUID);
-      this._cacheCharacteristic(service, AUTO_MODE_SELECTOR_UUID);
-      this._cacheCharacteristic(service, TIME_TO_NEXT_TRANSITION_UUID);
-
-      service = await server.getPrimaryService(DISCOVERY_SERVICE_UUID);
-      this._cacheCharacteristic(service, FIRMWARE_REVISION_UUID);
-      this._cacheCharacteristic(service, SOFTWARE_REVISION_UUID);
-
-
-      service = await server.getPrimaryService(CONFIGURATION_SERVICE_UUID);
-
-      this._cacheCharacteristic(service, MODEL_NUMBER_UUID);
-      this._cacheCharacteristic(service, USER_NAME_UUID);
-      this._cacheCharacteristic(service, SERIAL_NUMBER_UUID);
-
-
-      service = await server.getPrimaryService(ENGINEERING_SERVICE_UUID);
-      this._cacheCharacteristic(service, REALTIME_UUID);
-      this._cacheCharacteristic(service, ERRORCODES_UUID);
-      this._cacheCharacteristic(service, ERRORCODES_SPI_UUID);
-      this._cacheCharacteristic(service, CHAIR_CONFIGURED_FLAG_UUID);
-      this._cacheCharacteristic(service, MOS_CLOCK_UPDATE_TIMEOUT_UUID);
-      this._cacheCharacteristic(service, LEFT_SEAT_MOTOR_SOUND_UUID);
-      this._cacheCharacteristic(service, RIGHT_SEAT_MOTOR_SOUND_UUID);
-      this._cacheCharacteristic(service, LEFT_LOCK_MOTOR_DUTY_UUID);
-      this._cacheCharacteristic(service, RIGHT_LOCK_MOTOR_DUTY_UUID);
-      this._cacheCharacteristic(service, TZInfoFieldUUID);
-      await this._cacheCharacteristic(service, LEFT_LEG_MOVE_CNT_UUID);
-      await this._cacheCharacteristic(service, RIGHT_LEG_MOVE_CNT_UUID);
-
-
-      service = await server.getPrimaryService(WiFiserviceUUID);
-      this._cacheCharacteristic(service, WiFienableWifiUUID);
-      this._cacheCharacteristic(service, WiFissidUUID);
-      this._cacheCharacteristic(service, WiFipasswordUUID);
-      this._cacheCharacteristic(service, WiFistatusUUID);
-      this._cacheCharacteristic(service, WiFicommandUUID);
-
-      service = await server.getPrimaryService(TIME_SERVICE_UUID);
-      this._cacheCharacteristic(service, CURRENT_TIME_UUID);
-
-
-      service = await server.getPrimaryService(OTAServiceUUID);
-      this._cacheCharacteristic(service, BeginUUID);
-      this._cacheCharacteristic(service, DataUUID);
-      this._cacheCharacteristic(service, Begin_OTA_v2_UUID);
-      this._cacheCharacteristic(service, Data_OTA_v2_UUID);
-      this._cacheCharacteristic(service, Status_OTA_v2_UUID);
+        this.server = server;
+        
+        try {
+          console.log("Getting CHAIR_SERVICE_UUID...");
+          let service = await server.getPrimaryService(CHAIR_SERVICE_UUID);
+          
+          console.log("Caching CHAIR service characteristics...");
+          await this._cacheCharacteristic(service, AUTO_MODE_UUID);
+          await this._cacheCharacteristic(service, AUTO_PERIOD_UUID);
+          await this._cacheCharacteristic(service, CHAIR_STATE_EVENT_UUID);
+          await this._cacheCharacteristic(service, CHAIR_TOGGLE_UUID);
+          await this._cacheCharacteristic(service, SEND_EVENTS_UUID);
+          await this._cacheCharacteristic(service, EVENT_ACK_UUID);
+          await this._cacheCharacteristic(service, CHAIR_STATE_UUID);
+          await this._cacheCharacteristic(service, AUTO_MODE_SELECTOR_UUID);
+          await this._cacheCharacteristic(service, TIME_TO_NEXT_TRANSITION_UUID);
+          
+          try {
+            console.log("Getting DISCOVERY_SERVICE_UUID...");
+            service = await server.getPrimaryService(DISCOVERY_SERVICE_UUID);
+            
+            console.log("Caching DISCOVERY service characteristics...");
+            await this._cacheCharacteristic(service, FIRMWARE_REVISION_UUID);
+            await this._cacheCharacteristic(service, SOFTWARE_REVISION_UUID);
+          } catch (error) {
+            console.warn("Error accessing DISCOVERY service:", error);
+          }
+          
+          try {
+            console.log("Getting CONFIGURATION_SERVICE_UUID...");
+            service = await server.getPrimaryService(CONFIGURATION_SERVICE_UUID);
+            
+            console.log("Caching CONFIGURATION service characteristics...");
+            await this._cacheCharacteristic(service, MODEL_NUMBER_UUID);
+            await this._cacheCharacteristic(service, USER_NAME_UUID);
+            await this._cacheCharacteristic(service, SERIAL_NUMBER_UUID);
+          } catch (error) {
+            console.warn("Error accessing CONFIGURATION service:", error);
+          }
+          
+          try {
+            console.log("Getting ENGINEERING_SERVICE_UUID...");
+            service = await server.getPrimaryService(ENGINEERING_SERVICE_UUID);
+            
+            console.log("Caching ENGINEERING service characteristics...");
+            await this._cacheCharacteristic(service, REALTIME_UUID);
+            await this._cacheCharacteristic(service, ERRORCODES_UUID);
+            await this._cacheCharacteristic(service, ERRORCODES_SPI_UUID);
+            await this._cacheCharacteristic(service, CHAIR_CONFIGURED_FLAG_UUID);
+            await this._cacheCharacteristic(service, MOS_CLOCK_UPDATE_TIMEOUT_UUID);
+            await this._cacheCharacteristic(service, LEFT_SEAT_MOTOR_SOUND_UUID);
+            await this._cacheCharacteristic(service, RIGHT_SEAT_MOTOR_SOUND_UUID);
+            await this._cacheCharacteristic(service, LEFT_LOCK_MOTOR_DUTY_UUID);
+            await this._cacheCharacteristic(service, RIGHT_LOCK_MOTOR_DUTY_UUID);
+            await this._cacheCharacteristic(service, TZInfoFieldUUID);
+            await this._cacheCharacteristic(service, LEFT_LEG_MOVE_CNT_UUID);
+            await this._cacheCharacteristic(service, RIGHT_LEG_MOVE_CNT_UUID);
+          } catch (error) {
+            console.warn("Error accessing ENGINEERING service:", error);
+          }
+          
+          try {
+            console.log("Getting WiFiserviceUUID...");
+            service = await server.getPrimaryService(WiFiserviceUUID);
+            
+            console.log("Caching WiFi service characteristics...");
+            await this._cacheCharacteristic(service, WiFienableWifiUUID);
+            await this._cacheCharacteristic(service, WiFissidUUID);
+            await this._cacheCharacteristic(service, WiFipasswordUUID);
+            await this._cacheCharacteristic(service, WiFistatusUUID);
+            await this._cacheCharacteristic(service, WiFicommandUUID);
+          } catch (error) {
+            console.warn("Error accessing WiFi service:", error);
+          }
+          
+          try {
+            console.log("Getting TIME_SERVICE_UUID...");
+            service = await server.getPrimaryService(TIME_SERVICE_UUID);
+            
+            console.log("Caching TIME service characteristics...");
+            await this._cacheCharacteristic(service, CURRENT_TIME_UUID);
+          } catch (error) {
+            console.warn("Error accessing TIME service:", error);
+          }
+          
+          try {
+            console.log("Getting OTAServiceUUID...");
+            service = await server.getPrimaryService(OTAServiceUUID);
+            
+            console.log("Caching OTA service characteristics...");
+            await this._cacheCharacteristic(service, BeginUUID);
+            await this._cacheCharacteristic(service, DataUUID);
+            await this._cacheCharacteristic(service, Begin_OTA_v2_UUID);
+            await this._cacheCharacteristic(service, Data_OTA_v2_UUID);
+            await this._cacheCharacteristic(service, Status_OTA_v2_UUID);
+          } catch (error) {
+            console.warn("Error accessing OTA service:", error);
+          }
+          
+          console.log("Connection and service discovery completed successfully");
+          return server;
+        } catch (error) {
+          console.error("Error during service discovery:", error);
+          throw error;
+        }
+      } catch (error) {
+        console.error("Error connecting to device:", error);
+        throw error;
+      }
 
       
              
@@ -293,9 +353,15 @@
 
     }
 
-    getTimeToNextTransition(){
-      // console.log("reading accel limit")
-      return this._readCharacteristicValue(TIME_TO_NEXT_TRANSITION_UUID).then((response) => this.handleFloatReading(response))  
+    async getTimeToNextTransition(){
+      try {
+        // console.log("reading time to next transition")
+        const response = await this._readCharacteristicValue(TIME_TO_NEXT_TRANSITION_UUID);
+        return this.handleFloatReading(response);
+      } catch (error) {
+        console.warn("Error getting time to next transition:", error);
+        return 0; // Return a default value
+      }
     }
     
     async startListenChairStateRead(listener) {
@@ -374,8 +440,18 @@
       });
     }
 
-    getWiFiStatusCodes(){
-      return this._readCharacteristicValue(WiFistatusUUID)
+    async getWiFiStatusCodes(){
+      try {
+        return await this._readCharacteristicValue(WiFistatusUUID);
+      } catch (error) {
+        // This characteristic might cause "GATT operation not permitted" errors
+        // Only log this once per session to reduce console spam
+        if (!this._wifiStatusErrorLogged) {
+          console.warn("Error reading WiFi status codes, this is expected on some devices:", error);
+          this._wifiStatusErrorLogged = true;
+        }
+        return null; // Return null on error
+      }
     }
 
     async startSPIErrorsCodeEvents(listener) {
@@ -398,8 +474,20 @@
       });
     }
 
-    getWiFiEnableStatus(){
-      return this._readCharacteristicValue(WiFienableWifiUUID).then((response) => this._decodeUint8(response)) 
+    async getWiFiEnableStatus(){
+      try {
+        const response = await this._readCharacteristicValue(WiFienableWifiUUID);
+        if (!response) return 0; // Return 0 (disabled) if no response
+        return this._decodeUint8(response);
+      } catch (error) {
+        // This characteristic might cause "GATT operation not permitted" errors
+        // Only log this once per session to reduce console spam
+        if (!this._wifiEnableErrorLogged) {
+          console.warn("Error reading WiFi enable status, this is expected on some devices:", error);
+          this._wifiEnableErrorLogged = true;
+        }
+        return 0; // Return 0 (disabled) on error
+      }
     }
 
     async startErrorCodeEvents(listener) {
@@ -415,10 +503,42 @@
     }
 
     handleFloatReading(data){
-      // console.log(data)
-      let val = new Float32Array(data.buffer)[0]
-      // console.log(val)
-      return val;
+      // Check if data is null or undefined
+      if (!data) {
+        // Only log this once per minute to reduce console spam
+        const now = Date.now();
+        if (!this._lastFloatReadingErrorLog || now - this._lastFloatReadingErrorLog > 60000) {
+          console.warn("handleFloatReading received null or undefined data");
+          this._lastFloatReadingErrorLog = now;
+        }
+        return 0; // Return a default value
+      }
+      
+      try {
+        // Check if data has a buffer property
+        if (!data.buffer) {
+          return 0; // Return a default value if no buffer
+        }
+        
+        // console.log(data)
+        let val = new Float32Array(data.buffer)[0];
+        
+        // Check if the value is a valid number
+        if (isNaN(val) || !isFinite(val)) {
+          return 0; // Return a default value if not a valid number
+        }
+        
+        // console.log(val)
+        return val;
+      } catch (error) {
+        // Only log this once per minute to reduce console spam
+        const now = Date.now();
+        if (!this._lastFloatReadingErrorLog || now - this._lastFloatReadingErrorLog > 60000) {
+          console.error("Error in handleFloatReading:", error);
+          this._lastFloatReadingErrorLog = now;
+        }
+        return 0; // Return a default value
+      }
     }
 
     handleUint32Reading(data){
@@ -548,24 +668,51 @@
       return this._readCharacteristicValue(SERIAL_NUMBER_UUID).then((response) => this._decodeString(response))  
     }
 
-    getWiFiSSIDString(){
-      return this._readCharacteristicValue(WiFissidUUID).then((response) => this._decodeString(response))  
+    async getWiFiSSIDString(){
+      try {
+        const response = await this._readCharacteristicValue(WiFissidUUID);
+        if (!response) return ""; // Return empty string if no response
+        return this._decodeString(response);
+      } catch (error) {
+        // This characteristic might cause "GATT operation not permitted" errors
+        // Only log this once per session to reduce console spam
+        if (!this._wifiSsidErrorLogged) {
+          console.warn("Error reading WiFi SSID, this is expected on some devices:", error);
+          this._wifiSsidErrorLogged = true;
+        }
+        return ""; // Return empty string on error
+      }
     }
 
     setWiFiSSIDString(str){
       return this._writeCharacteristicValue(WiFissidUUID,this._encodeString(str))
     }
 
-    getTZInfoDeviceString(){
-      return this._readCharacteristicValue(TZInfoFieldUUID).then((response) => this._decodeString(response))  
+    async getTZInfoDeviceString(){
+      try {
+        const response = await this._readCharacteristicValue(TZInfoFieldUUID);
+        if (!response) return ""; // Return empty string if no response
+        return this._decodeString(response);
+      } catch (error) {
+        // This characteristic might cause "GATT operation not permitted" errors
+        // Only log this once per session to reduce console spam
+        if (!this._tzInfoErrorLogged) {
+          console.warn("Error reading timezone info, this is expected on some devices:", error);
+          this._tzInfoErrorLogged = true;
+        }
+        return ""; // Return empty string on error
+      }
     }
 
     setTZInfoDeviceString(str){
       return this._writeCharacteristicValue(TZInfoFieldUUID,this._encodeString(str))
     }
 
-    getWiFiPWDString(){
-      return this._readCharacteristicValue(WiFipasswordUUID).then((response) => this._decodeString(response))  
+    // WiFi password should only be written to, not read from
+    // This method is kept for compatibility but always returns an empty string
+    async getWiFiPWDString(){
+      console.log("Note: WiFi password is write-only, returning empty string");
+      return ""; // Always return empty string
     }
 
     setWiFiPWDString(str){
@@ -597,27 +744,112 @@
     /* Utils */
 
     async _cacheCharacteristic(service, characteristicUuid) {
-      // return service.getCharacteristic(characteristicUuid)
-      // .then(characteristic => {
-      //   this._characteristics.set(characteristicUuid, characteristic);
-      // });
-      try{
+      try {
+        // Try to get the characteristic
         let characteristic = await service.getCharacteristics(characteristicUuid);
-        this._characteristics.set(characteristicUuid, characteristic[0]);
+        
+        // Check if we got a valid characteristic
+        if (characteristic && characteristic.length > 0) {
+          this._characteristics.set(characteristicUuid, characteristic[0]);
+          return characteristic[0];
+        } else {
+          console.warn(`Characteristic ${characteristicUuid} not found`);
+          return null;
+        }
       } catch(error) {
-        console.log(error);
+        console.warn(`Error caching characteristic ${characteristicUuid}:`, error);
+        return null;
       }
     }
     async _readCharacteristicValue(characteristicUuid) {
-      let characteristic = this._characteristics.get(characteristicUuid);
-      let value = await characteristic.readValue();
-      return value;
+      try {
+        let characteristic = this._characteristics.get(characteristicUuid);
+        
+        if (!characteristic) {
+          // Only log this once per minute for each characteristic to reduce console spam
+          const now = Date.now();
+          const errorKey = `read_${characteristicUuid}`;
+          if (!this._lastCharacteristicErrors || !this._lastCharacteristicErrors[errorKey] || 
+              now - this._lastCharacteristicErrors[errorKey] > 60000) {
+            console.warn(`Characteristic ${characteristicUuid} not found in cache`);
+            if (!this._lastCharacteristicErrors) this._lastCharacteristicErrors = {};
+            this._lastCharacteristicErrors[errorKey] = now;
+          }
+          return null;
+        }
+        
+        // Use a timeout to prevent hanging if the operation takes too long
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Timeout')), 2000)
+        );
+        
+        // Race the timeout against the actual operation
+        const value = await Promise.race([
+          characteristic.readValue(),
+          timeoutPromise
+        ]);
+        
+        return value;
+      } catch (error) {
+        // Only log this once per minute for each characteristic to reduce console spam
+        const now = Date.now();
+        const errorKey = `read_error_${characteristicUuid}`;
+        if (!this._lastCharacteristicErrors || !this._lastCharacteristicErrors[errorKey] || 
+            now - this._lastCharacteristicErrors[errorKey] > 60000) {
+          // Don't log timeout errors (to reduce console spam)
+          if (error.message !== 'Timeout') {
+            console.error(`Error reading characteristic ${characteristicUuid}:`, error);
+          }
+          if (!this._lastCharacteristicErrors) this._lastCharacteristicErrors = {};
+          this._lastCharacteristicErrors[errorKey] = now;
+        }
+        throw error;
+      }
     }
 
     async _writeCharacteristicValue(characteristicUuid, value) {
-      let characteristic = this._characteristics.get(characteristicUuid);
-         //console.debug('WRITE', characteristic.uuid, value);
-      return await characteristic.writeValue(value);
+      try {
+        let characteristic = this._characteristics.get(characteristicUuid);
+        
+        if (!characteristic) {
+          // Only log this once per minute for each characteristic to reduce console spam
+          const now = Date.now();
+          const errorKey = `write_${characteristicUuid}`;
+          if (!this._lastCharacteristicErrors || !this._lastCharacteristicErrors[errorKey] || 
+              now - this._lastCharacteristicErrors[errorKey] > 60000) {
+            console.warn(`Characteristic ${characteristicUuid} not found in cache for writing`);
+            if (!this._lastCharacteristicErrors) this._lastCharacteristicErrors = {};
+            this._lastCharacteristicErrors[errorKey] = now;
+          }
+          return null;
+        }
+        
+        // Use a timeout to prevent hanging if the operation takes too long
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Timeout')), 2000)
+        );
+        
+        // Race the timeout against the actual operation
+        //console.debug('WRITE', characteristic.uuid, value);
+        return await Promise.race([
+          characteristic.writeValue(value),
+          timeoutPromise
+        ]);
+      } catch (error) {
+        // Only log this once per minute for each characteristic to reduce console spam
+        const now = Date.now();
+        const errorKey = `write_error_${characteristicUuid}`;
+        if (!this._lastCharacteristicErrors || !this._lastCharacteristicErrors[errorKey] || 
+            now - this._lastCharacteristicErrors[errorKey] > 60000) {
+          // Don't log timeout errors (to reduce console spam)
+          if (error.message !== 'Timeout') {
+            console.error(`Error writing to characteristic ${characteristicUuid}:`, error);
+          }
+          if (!this._lastCharacteristicErrors) this._lastCharacteristicErrors = {};
+          this._lastCharacteristicErrors[errorKey] = now;
+        }
+        throw error;
+      }
     }
     _decodeString(data) {
       return decoder.decode(data);

@@ -118,7 +118,8 @@ function onDisconnect(event){
       FlamingoBle.getEmailString().then(handleDeviceEmail);
       FlamingoBle.getWiFiSSIDString().then(handleWiFiSSID);
       FlamingoBle.getTZInfoDeviceString().then(handleTZInfoString);
-      FlamingoBle.getWiFiPWDString().then(handleWiFiPWD);
+      // WiFi password is write-only, so we just clear the input field
+      handleWiFiPWD("");
       
       console.log("Connection setup completed, scheduling odometer updates...");
       
@@ -174,66 +175,137 @@ async function connectDevice(){
     document.querySelector('#state').classList.remove('connected');
     document.querySelector('#state').classList.add('connecting');
 
-    return FlamingoBle.connect(engineering_enabled)
-    .then(_ => {
-    document.querySelector('#state').classList.remove('connecting');
-    document.querySelector('#state').classList.add('connected');
-    document.querySelector('#blow').textContent = '';
-    FlamingoBle.getAutoMode();
-    FlamingoBle.getAutoPeriod().then(autoSlider.handleRead);
-    FlamingoBle.setCurrentTime();
-    FlamingoBle.enableChairEvents();
-    // FlamingoBle.getChairEvent().then((response) => handleChairEventRead(response));
-    FlamingoBle.startListenChairEvents(handleChairEvents);
-    FlamingoBle.startListenChairStateRead(handleChairEventRead);
-    FlamingoBle.startListenAutoPeriod(handlePeriodChange)
-    FlamingoBle.getChairEvent()
-    FlamingoBle.getSwVersion().then(
-      FlamingoBle.getFwVersion().then(
-        _ => document.querySelector('#currentVersionTitle').textContent = "Current version: " + FlamingoBle.data.getVersion()
-      )
-    )
-    FlamingoBle.getLeftMotorSoundStrength().then(leftMotorSoundSlider.handleRead);
-    FlamingoBle.getRightMotorSoundStrength().then(rightMotorSoundSlider.handleRead);
+    try {
+        await FlamingoBle.connect(engineering_enabled);
+        
+        document.querySelector('#state').classList.remove('connecting');
+        document.querySelector('#state').classList.add('connected');
+        document.querySelector('#blow').textContent = '';
+        
+        // Core functionality - try each operation separately and log errors without failing
+        try { await FlamingoBle.getAutoMode(); } catch (e) { console.warn("Error getting auto mode:", e); }
+        
+        try { 
+            const period = await FlamingoBle.getAutoPeriod();
+            if (period) autoSlider.handleRead(period);
+        } catch (e) { console.warn("Error getting auto period:", e); }
+        
+        try { await FlamingoBle.setCurrentTime(); } catch (e) { console.warn("Error setting current time:", e); }
+        try { await FlamingoBle.enableChairEvents(); } catch (e) { console.warn("Error enabling chair events:", e); }
+        
+        // Event listeners
+        try { await FlamingoBle.startListenChairEvents(handleChairEvents); } catch (e) { console.warn("Error starting chair events listener:", e); }
+        try { await FlamingoBle.startListenChairStateRead(handleChairEventRead); } catch (e) { console.warn("Error starting chair state listener:", e); }
+        try { await FlamingoBle.startListenAutoPeriod(handlePeriodChange); } catch (e) { console.warn("Error starting auto period listener:", e); }
+        
+        try { await FlamingoBle.getChairEvent(); } catch (e) { console.warn("Error getting chair event:", e); }
+        
+        // Version information
+        try {
+            await FlamingoBle.getSwVersion();
+            await FlamingoBle.getFwVersion();
+            document.querySelector('#currentVersionTitle').textContent = "Current version: " + FlamingoBle.data.getVersion();
+        } catch (e) { console.warn("Error getting version info:", e); }
+        
+        // Motor settings
+        try {
+            const leftMotorStrength = await FlamingoBle.getLeftMotorSoundStrength();
+            if (leftMotorStrength) leftMotorSoundSlider.handleRead(leftMotorStrength);
+        } catch (e) { console.warn("Error getting left motor sound strength:", e); }
+        
+        try {
+            const rightMotorStrength = await FlamingoBle.getRightMotorSoundStrength();
+            if (rightMotorStrength) rightMotorSoundSlider.handleRead(rightMotorStrength);
+        } catch (e) { console.warn("Error getting right motor sound strength:", e); }
+        
+        try {
+            const leftLegStrength = await FlamingoBle.getLeftLegMotorLockStrength();
+            if (leftLegStrength) leftLegDutySetSlider.handleRead(leftLegStrength);
+        } catch (e) { console.warn("Error getting left leg motor lock strength:", e); }
+        
+        try {
+            const rightLegStrength = await FlamingoBle.getRightLegMotorLockStrength();
+            if (rightLegStrength) rightLegDutySetSlider.handleRead(rightLegStrength);
+        } catch (e) { console.warn("Error getting right leg motor lock strength:", e); }
+        
+        try {
+            const clockValue = await FlamingoBle.getclockUpdateValue();
+            if (clockValue) clockUPDSlider.handleRead(clockValue);
+        } catch (e) { console.warn("Error getting clock update value:", e); }
+        
+        try {
+            const autoModeSelector = await FlamingoBle.getAutoModeSelector();
+            if (autoModeSelector !== null && autoModeSelector !== undefined) handleAutoModeSelectorRead(autoModeSelector);
+        } catch (e) { console.warn("Error getting auto mode selector:", e); }
 
-    FlamingoBle.getLeftLegMotorLockStrength().then(leftLegDutySetSlider.handleRead);
-    FlamingoBle.getRightLegMotorLockStrength().then(rightLegDutySetSlider.handleRead);
-
-    FlamingoBle.getclockUpdateValue().then(clockUPDSlider.handleRead);
-
-    FlamingoBle.getAutoModeSelector().then(handleAutoModeSelectorRead)
-
-    if(engineering_enabled){
-      document.querySelector('#state').classList.add('engineering');
-      FlamingoBle.startRealtimeEvents(handleRealtimeEvents);
-
-
-      FlamingoBle.startErrorCodeEvents(handleErrorCodes);
-      FlamingoBle.getErrorCodes();
-
-      FlamingoBle.startSPIErrorsCodeEvents(handleSPIErrors);
-      FlamingoBle.getSPIErrorsCodes();
-
-      FlamingoBle.startWiFiStatusCodeEvents(handleWiFiCodes);
-      FlamingoBle.getWiFiStatusCodes();
-      FlamingoBle.getWiFiEnableStatus().then(handleWiFiEnableCode);
-      FlamingoBle.getWiFiSSIDString().then(handleWiFiSSID);
-      FlamingoBle.getTZInfoDeviceString().then(handleTZInfoString);
-      FlamingoBle.getWiFiPWDString().then(handleWiFiPWD);
-
-      FlamingoBle.getChairConfiguredFlag().then(handleChairConfiguredChBox);
-      FlamingoBle.getSerialNumber().then(handleDeviceSerial);
-      FlamingoBle.getModelNumber().then(handleDeviceModel);
-      FlamingoBle.getEmailString().then(handleDeviceEmail);
+        // Handle engineering mode if enabled
+        if(engineering_enabled){
+            document.querySelector('#state').classList.add('engineering');
+            
+            try { await FlamingoBle.startRealtimeEvents(handleRealtimeEvents); } 
+            catch (e) { console.warn("Error starting realtime events:", e); }
+            
+            try { 
+                await FlamingoBle.startErrorCodeEvents(handleErrorCodes);
+                await FlamingoBle.getErrorCodes();
+            } catch (e) { console.warn("Error handling error codes:", e); }
+            
+            try {
+                await FlamingoBle.startSPIErrorsCodeEvents(handleSPIErrors);
+                await FlamingoBle.getSPIErrorsCodes();
+            } catch (e) { console.warn("Error handling SPI error codes:", e); }
+        }
+        
+        // WiFi and device information
+        try {
+            await FlamingoBle.startWiFiStatusCodeEvents(handleWiFiCodes);
+            await FlamingoBle.getWiFiStatusCodes();
+        } catch (e) { console.warn("Error handling WiFi status:", e); }
+        
+        try {
+            const wifiStatus = await FlamingoBle.getWiFiEnableStatus();
+            if (wifiStatus !== null && wifiStatus !== undefined) handleWiFiEnableCode(wifiStatus);
+        } catch (e) { console.warn("Error getting WiFi enable status:", e); }
+        
+        try {
+            const ssid = await FlamingoBle.getWiFiSSIDString();
+            if (ssid) handleWiFiSSID(ssid);
+        } catch (e) { console.warn("Error getting WiFi SSID:", e); }
+        
+        try {
+            const tzInfo = await FlamingoBle.getTZInfoDeviceString();
+            if (tzInfo) handleTZInfoString(tzInfo);
+        } catch (e) { console.warn("Error getting timezone info:", e); }
+        
+        // WiFi password is write-only, so we just clear the input field
+        handleWiFiPWD("");
+        
+        try {
+            const flag = await FlamingoBle.getChairConfiguredFlag();
+            if (flag !== null && flag !== undefined) handleChairConfiguredChBox(flag);
+        } catch (e) { console.warn("Error getting chair configured flag:", e); }
+        
+        try {
+            const serial = await FlamingoBle.getSerialNumber();
+            if (serial) handleDeviceSerial(serial);
+        } catch (e) { console.warn("Error getting serial number:", e); }
+        
+        try {
+            const model = await FlamingoBle.getModelNumber();
+            if (model) handleDeviceModel(model);
+        } catch (e) { console.warn("Error getting model number:", e); }
+        
+        try {
+            const email = await FlamingoBle.getEmailString();
+            if (email) handleDeviceEmail(email);
+        } catch (e) { console.warn("Error getting email string:", e); }
+        
+        console.log("Device connected and initialized successfully");
+    } catch (error) {
+        console.error("Error connecting to device:", error);
+        document.querySelector('#state').classList.remove('connecting');
+        document.querySelector('#blow').textContent = 'Connection error: ' + error.message;
     }
-  })
-  .catch(error => {
-    document.querySelector('#state').classList.remove('connecting');
-    // TODO: Replace with toast when snackbar lands.
-    console.error('Argh!', error);
-    console.log(error.messsage);
-
-  });
 }
 
 
@@ -1723,15 +1795,40 @@ function startTimer() {
     }
   }, 1000);
 
-  updateTimerInterval = setInterval(() => {
-    if(!FlamingoBle.device || FlamingoBle.device.gatt.connected == false){
+  // Use a longer interval to reduce the number of Bluetooth operations
+  updateTimerInterval = setInterval(async () => {
+    // Check if we have a connected device
+    if(!FlamingoBle.device || !FlamingoBle.device.gatt.connected){
       return;
     }
-
-    // FlamingoBle.getAutoPeriod().then((response) => TIME_LIMIT = Math.floor(response*60) );
-    FlamingoBle.getTimeToNextTransition().then((response) => timeLeft = Math.floor(response) );
     
-  }, 3000);
+    // Only try to get the time if we're in auto mode
+    if (chairMode === "auto") {
+      try {
+        // Use a timeout to prevent hanging if the operation takes too long
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Timeout')), 2000)
+        );
+        
+        // Race the timeout against the actual operation
+        const response = await Promise.race([
+          FlamingoBle.getTimeToNextTransition(),
+          timeoutPromise
+        ]);
+        
+        if (response !== null && response !== undefined) {
+          timeLeft = Math.floor(response);
+        }
+      } catch (error) {
+        // Only log the error if it's not a timeout (to reduce console spam)
+        if (error.message !== 'Timeout') {
+          console.warn("Error getting time to next transition in timer:", error);
+        }
+        // Don't update timeLeft if there's an error
+      }
+    }
+    
+  }, 5000); // Use a longer interval to reduce Bluetooth operations
 }
 
 function formatTime(time) {
