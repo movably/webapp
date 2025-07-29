@@ -26,37 +26,18 @@
 
   const ENGINEERING_SERVICE_UUID = "1b25ee00-dadf-11eb-8d19-0242ac130003";
 
-  const VEL_UUID = "1b25ee01-dadf-11eb-8d19-0242ac130003";
-  const ACCEL_UUID = "1b25ee02-dadf-11eb-8d19-0242ac130003";
-  const DECCEL_UUID = "1b25ee03-dadf-11eb-8d19-0242ac130003";
-  const TRAJ_VEL_UUID = "1b25ee04-dadf-11eb-8d19-0242ac130003";
   const REALTIME_UUID = "1b25ee05-dadf-11eb-8d19-0242ac130003";
   const ERRORCODES_UUID = "1b25ee06-dadf-11eb-8d19-0242ac130003";
   const ERRORCODES_SPI_UUID = "1b25ee0f-dadf-11eb-8d19-0242ac130003";
   const CHAIR_CONFIGURED_FLAG_UUID = "1b25ee10-dadf-11eb-8d19-0242ac130003";
-  const TRIGGER_BY_MOTION_UUID = "1b25ee07-dadf-11eb-8d19-0242ac130003";
-  const STREAMING_ENABLE_UUID = "1b25ee08-dadf-11eb-8d19-0242ac130003";
-  const BASE_AWAY_LOWER_THRESHOLD_UUID = "1b25ee09-dadf-11eb-8d19-0242ac130003";
-  const BASE_AWAY_UPPER_THRESHOLD_UUID = "1b25ee0a-dadf-11eb-8d19-0242ac130003";
   const MOS_CLOCK_UPDATE_TIMEOUT_UUID = "1b25ee13-dadf-11eb-8d19-0242ac130003";
-
-  const USE_VIBRO_UUID = "1b25ee0b-dadf-11eb-8d19-0242ac130003";
-  const VIBRO_STRENGTH_UUID =         "1b25ee0c-dadf-11eb-8d19-0242ac130003";
   const LEFT_SEAT_MOTOR_SOUND_UUID =  "1b25ee0d-dadf-11eb-8d19-0242ac130003";
   const RIGHT_SEAT_MOTOR_SOUND_UUID = "1b25ee0e-dadf-11eb-8d19-0242ac130003";
 
   const LEFT_LOCK_MOTOR_DUTY_UUID =  "1b25ee11-dadf-11eb-8d19-0242ac130003";
   const RIGHT_LOCK_MOTOR_DUTY_UUID =  "1b25ee12-dadf-11eb-8d19-0242ac130003";
 
-  const CHAIR_NEGATIVE_SATURATION_MOTOR_DUTY_UUID =  "1b25ee15-dadf-11eb-8d19-0242ac130003";
 
-  const LEFT_PTERM_MOTOR_DUTY_UUID =  "1b25ee16-dadf-11eb-8d19-0242ac130003";
-  const LEFT_ITERM_MOTOR_DUTY_UUID =  "1b25ee17-dadf-11eb-8d19-0242ac130003";
-  const LEFT_DTERM_MOTOR_DUTY_UUID =  "1b25ee18-dadf-11eb-8d19-0242ac130003";
-
-  const RIGHT_PTERM_MOTOR_DUTY_UUID =  "1b25ee19-dadf-11eb-8d19-0242ac130003";
-  const RIGHT_ITERM_MOTOR_DUTY_UUID =  "1b25ee1a-dadf-11eb-8d19-0242ac130003";
-  const RIGHT_DTERM_MOTOR_DUTY_UUID =  "1b25ee1b-dadf-11eb-8d19-0242ac130003";
 
   const LEFT_LEG_MOVE_CNT_UUID =  "1b25ee1c-dadf-11eb-8d19-0242ac130003";
   const RIGHT_LEG_MOVE_CNT_UUID = "1b25ee1d-dadf-11eb-8d19-0242ac130003";
@@ -202,33 +183,16 @@
 
 
       service = await server.getPrimaryService(ENGINEERING_SERVICE_UUID);
-      this._cacheCharacteristic(service, VEL_UUID);
-      this._cacheCharacteristic(service, ACCEL_UUID);
-      this._cacheCharacteristic(service, DECCEL_UUID);
-      this._cacheCharacteristic(service, TRAJ_VEL_UUID);
       this._cacheCharacteristic(service, REALTIME_UUID);
       this._cacheCharacteristic(service, ERRORCODES_UUID);
       this._cacheCharacteristic(service, ERRORCODES_SPI_UUID);
       this._cacheCharacteristic(service, CHAIR_CONFIGURED_FLAG_UUID);
-      this._cacheCharacteristic(service, TRIGGER_BY_MOTION_UUID);
-      this._cacheCharacteristic(service, STREAMING_ENABLE_UUID);
-      this._cacheCharacteristic(service, BASE_AWAY_LOWER_THRESHOLD_UUID);
-      this._cacheCharacteristic(service, BASE_AWAY_UPPER_THRESHOLD_UUID);
       this._cacheCharacteristic(service, MOS_CLOCK_UPDATE_TIMEOUT_UUID);
-      this._cacheCharacteristic(service, USE_VIBRO_UUID);
-      this._cacheCharacteristic(service, VIBRO_STRENGTH_UUID);
       this._cacheCharacteristic(service, LEFT_SEAT_MOTOR_SOUND_UUID);
       this._cacheCharacteristic(service, RIGHT_SEAT_MOTOR_SOUND_UUID);
       this._cacheCharacteristic(service, LEFT_LOCK_MOTOR_DUTY_UUID);
       this._cacheCharacteristic(service, RIGHT_LOCK_MOTOR_DUTY_UUID);
       this._cacheCharacteristic(service, TZInfoFieldUUID);
-      this._cacheCharacteristic(service, CHAIR_NEGATIVE_SATURATION_MOTOR_DUTY_UUID);
-      this._cacheCharacteristic(service, LEFT_PTERM_MOTOR_DUTY_UUID);
-      this._cacheCharacteristic(service, LEFT_ITERM_MOTOR_DUTY_UUID);
-      this._cacheCharacteristic(service, LEFT_DTERM_MOTOR_DUTY_UUID);
-      this._cacheCharacteristic(service, RIGHT_PTERM_MOTOR_DUTY_UUID);
-      this._cacheCharacteristic(service, RIGHT_ITERM_MOTOR_DUTY_UUID);
-      this._cacheCharacteristic(service, RIGHT_DTERM_MOTOR_DUTY_UUID);
       await this._cacheCharacteristic(service, LEFT_LEG_MOVE_CNT_UUID);
       await this._cacheCharacteristic(service, RIGHT_LEG_MOVE_CNT_UUID);
 
@@ -459,50 +423,13 @@
       return val;
     }
 
-    getVelLimit(){
-      // console.log("reading vel limit")
-      return this._readCharacteristicValue(VEL_UUID).then((response) => this.handleFloatReading(response))  
-    }
 
-    setVelLimit(value) {
-      return this._writeCharacteristicValue(VEL_UUID, new Float32Array([value]))
-    }
 
-    getAccelLimit(){
-      // console.log("reading accel limit")
-      return this._readCharacteristicValue(ACCEL_UUID).then((response) => this.handleFloatReading(response))  
-    }
 
-    setAccelLimit(value) {
-      return this._writeCharacteristicValue(ACCEL_UUID, new Float32Array([value]))
-    }
 
-    getDeccelLimit(){
-      // console.log("reading deccel limit")
-      return this._readCharacteristicValue(DECCEL_UUID).then((response) => this.handleFloatReading(response))  
-    }
 
-    setDeccelLimit(value) {
-      return this._writeCharacteristicValue(DECCEL_UUID, new Float32Array([value]))
-    }
 
-    getTrajVelLimit(){
-      // console.log("reading traj vel limit")
-      return this._readCharacteristicValue(TRAJ_VEL_UUID).then((response) => this.handleFloatReading(response))  
-    }
 
-    setTrajVelLimit(value) {
-      return this._writeCharacteristicValue(TRAJ_VEL_UUID, new Float32Array([value]))
-    }
-
-    setTriggerByMotion(enable) {
-      return this._writeCharacteristicValue(TRIGGER_BY_MOTION_UUID, new Uint8Array([enable]))
-    }
-
-    getTriggerByMotion(){
-      // console.log("reading automode")
-      return this._readCharacteristicValue(TRIGGER_BY_MOTION_UUID).then((response) => this._decodeUint8(response))  
-    }
 
     setChairConfiguredFlag(enable) {
       return this._writeCharacteristicValue(CHAIR_CONFIGURED_FLAG_UUID, new Uint8Array([enable]))
@@ -512,47 +439,9 @@
       return this._readCharacteristicValue(CHAIR_CONFIGURED_FLAG_UUID).then((response) => this._decodeUint8(response))  
     }
 
-    enableStreaming(enable) {
-      return this._writeCharacteristicValue(STREAMING_ENABLE_UUID, new Uint8Array([enable]))
-    }
 
-    getStreamingEnable(){
-      // console.log("reading automode")
-      return this._readCharacteristicValue(STREAMING_ENABLE_UUID).then((response) => this._decodeUint8(response))  
-    }
 
-    setAwayLowerThreshold(value) {
-      return this._writeCharacteristicValue(BASE_AWAY_LOWER_THRESHOLD_UUID, new Uint32Array([value]))
-    }
 
-    getAwayLowerThreshold(){
-      return this._readCharacteristicValue(BASE_AWAY_LOWER_THRESHOLD_UUID).then((response) => this.handleUint32Reading(response))  
-    }
-
-    setAwayUpperThreshold(value) {
-      return this._writeCharacteristicValue(BASE_AWAY_UPPER_THRESHOLD_UUID, new Uint32Array([value]))
-    }
-
-    getAwayUpperThreshold(){
-      return this._readCharacteristicValue(BASE_AWAY_UPPER_THRESHOLD_UUID).then((response) => this.handleUint32Reading(response))  
-    }
-
-    /// Vibration configuration
-    enableVibroMotor(enable){
-      this._writeCharacteristicValue(USE_VIBRO_UUID, new Uint8Array([enable]))
-    }
-
-    getEnableVibroMotor(){
-      return this._readCharacteristicValue(USE_VIBRO_UUID).then((response) => response.getUint8(0));  
-    }
-
-    setVibroStrength(strength){
-      this._writeCharacteristicValue(VIBRO_STRENGTH_UUID, new Uint8Array([strength]))
-    }
-
-    getVibroStrength(){
-      return this._readCharacteristicValue(VIBRO_STRENGTH_UUID).then((response) => response.getUint8(0));  
-    }
 
     getclockUpdateValue(){
       return this._readCharacteristicValue(MOS_CLOCK_UPDATE_TIMEOUT_UUID).then((response) => this.handleUint32Reading(response))  

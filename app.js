@@ -21,11 +21,7 @@ autoSlider.registerChanges(FlamingoBle.setAutoPeriod,
     FlamingoBle.getAutoPeriod,
     FlamingoBle);
 
-let vibroSlider = new Slider("vibroSlider","vibroSliderTitle","vibroSliderValue");
-vibroSlider.setProperties("Vibration:","0","50", "%")
-vibroSlider.registerChanges(FlamingoBle.setVibroStrength, 
-    FlamingoBle.getVibroStrength,
-    FlamingoBle);
+
 
 let leftMotorSoundSlider = new Slider("leftSoundSlider","leftSoundSliderTitle","leftSoundSliderValue");
 leftMotorSoundSlider.setProperties("Left sound:","0","50", "%")
@@ -58,32 +54,18 @@ rightLegDutySetSlider.registerChanges(FlamingoBle.setRightLegMotorLockStrength,
     FlamingoBle);
 
 
-let velSlider, accelSlider, deccelSlider, trajVelSlider;
+
 
 // if(engineering_enabled){
-//   velSlider = new Slider("slider2","slider2Title","slider2Value");
-//   velSlider.setProperties("Vel Limit:","1","25","")
-//   velSlider.registerChanges(FlamingoBle.setVelLimit, 
-//       FlamingoBle.getVelLimit,
-//       FlamingoBle);
-
 //   accelSlider = new Slider("slider3","slider3Title","slider3Value");
 //   accelSlider.setProperties("Accel Limit:","1","25","")
-//   accelSlider.registerChanges(FlamingoBle.setAccelLimit, 
-//       FlamingoBle.getAccelLimit,
 //       FlamingoBle);
 
 //   deccelSlider = new Slider("slider4","slider4Title","slider4Value");
 //   deccelSlider.setProperties("Deccel Limit:","1","25","")
-//   deccelSlider.registerChanges(FlamingoBle.setDeccelLimit, 
-//       FlamingoBle.getDeccelLimit,
 //       FlamingoBle);
 
-//   trajVelSlider = new Slider("slider5","slider5Title","slider5Value");
-//   trajVelSlider.setProperties("Traj Vel Limit:","1","25","")
-//   trajVelSlider.registerChanges(FlamingoBle.setTrajVelLimit, 
-//       FlamingoBle.getTrajVelLimit,
-//       FlamingoBle);
+
 // }
 
 
@@ -126,23 +108,17 @@ function onDisconnect(event){
       document.querySelector('#state').classList.add('engineering');
       FlamingoBle.startRealtimeEvents(handleRealtimeEvents);
 
-      // FlamingoBle.getVelLimit().then(velSlider.handleRead);
-      // FlamingoBle.getAccelLimit().then(accelSlider.handleRead);
-      // FlamingoBle.getDeccelLimit().then(deccelSlider.handleRead);
-      // FlamingoBle.getTrajVelLimit().then(trajVelSlider.handleRead);
 
       FlamingoBle.startErrorCodeEvents(handleErrorCodes);
       FlamingoBle.getErrorCodes();
 
       FlamingoBle.getChairConfiguredFlag().then(handleChairConfiguredChBox);
-      FlamingoBle.getTriggerByMotion().then(handleTriggerByMotionEnable);
       FlamingoBle.getSerialNumber().then(handleDeviceSerial);
       FlamingoBle.getModelNumber().then(handleDeviceModel);
       FlamingoBle.getEmailString().then(handleDeviceEmail);
       FlamingoBle.getWiFiSSIDString().then(handleWiFiSSID);
       FlamingoBle.getTZInfoDeviceString().then(handleTZInfoString);
       FlamingoBle.getWiFiPWDString().then(handleWiFiPWD);
-      FlamingoBle.getEnableVibroMotor().then(handleEnableVibroMotor);
       
       console.log("Connection setup completed, scheduling odometer updates...");
       
@@ -217,7 +193,6 @@ function connectDevice(){
         _ => document.querySelector('#currentVersionTitle').textContent = "Current version: " + FlamingoBle.data.getVersion()
       )
     )
-    FlamingoBle.getVibroStrength().then(vibroSlider.handleRead);
     FlamingoBle.getLeftMotorSoundStrength().then(leftMotorSoundSlider.handleRead);
     FlamingoBle.getRightMotorSoundStrength().then(rightMotorSoundSlider.handleRead);
 
@@ -232,10 +207,6 @@ function connectDevice(){
       document.querySelector('#state').classList.add('engineering');
       FlamingoBle.startRealtimeEvents(handleRealtimeEvents);
 
-      // FlamingoBle.getVelLimit().then(velSlider.handleRead);
-      // FlamingoBle.getAccelLimit().then(accelSlider.handleRead);
-      // FlamingoBle.getDeccelLimit().then(deccelSlider.handleRead);
-      // FlamingoBle.getTrajVelLimit().then(trajVelSlider.handleRead);
 
       FlamingoBle.startErrorCodeEvents(handleErrorCodes);
       FlamingoBle.getErrorCodes();
@@ -251,11 +222,9 @@ function connectDevice(){
       FlamingoBle.getWiFiPWDString().then(handleWiFiPWD);
 
       FlamingoBle.getChairConfiguredFlag().then(handleChairConfiguredChBox);
-      FlamingoBle.getTriggerByMotion().then(handleTriggerByMotionEnable);
       FlamingoBle.getSerialNumber().then(handleDeviceSerial);
       FlamingoBle.getModelNumber().then(handleDeviceModel);
       FlamingoBle.getEmailString().then(handleDeviceEmail);
-      FlamingoBle.getEnableVibroMotor().then(handleEnableVibroMotor);
     }
   })
   .catch(error => {
@@ -678,7 +647,6 @@ document.querySelector('#AutoMode5').addEventListener('click', selectAutoMode);
 // document.querySelector('#manualMode').addEventListener('click', changeMode);
 // document.querySelector('#autoMode').addEventListener('click', changeMode);
 document.querySelector('#triggerWiFiConfiguredEnable').addEventListener('click', ChairConfiguredEnable);
-document.querySelector('#triggerByMotionEnable').addEventListener('click', triggerByMotionEnable);
 document.querySelector('#setDeviceInfo').addEventListener('click', setDeviceInfo);
 document.querySelector('#setWiFiSettings').addEventListener('click', setDeviceWiFiSettings);
 document.querySelector('#setTZInfoStringSettings').addEventListener('click', setDeviceTZInfoString);
@@ -693,8 +661,6 @@ document.querySelector('#DisconnecttWiFiCommand').addEventListener('click', disc
 
 document.getElementById("auto-switch").addEventListener('click', changeModeToggle);
 document.getElementById("wifi-switch").addEventListener('click', enableWiFiToggle);
-
-document.querySelector('#enableVibroMotor').addEventListener('click', enableVibroMotorClicked);
 
 // Odometer button event listeners
 document.querySelector('#readLeftOdometer').addEventListener('click', readLeftOdometerClicked);
@@ -804,18 +770,6 @@ function setDeviceInfo(){
 
 }
 
-function handleTriggerByMotionEnable(value){
-  console.log("-> Trigger by Motion =")
-  console.log(value)
-  document.querySelector('#triggerByMotionEnable').checked = value;
-}
-
-function triggerByMotionEnable(){
-  FlamingoBle.setTriggerByMotion(document.querySelector('#triggerByMotionEnable').checked)
-    .then(_ => FlamingoBle.getTriggerByMotion())
-    .then((value) => handleTriggerByMotionEnable(value));
-}
-
 function handleChairConfiguredChBox(value){
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   console.log(timezone);
@@ -831,16 +785,9 @@ function ChairConfiguredEnable(){
 }
 
 
-function handleEnableVibroMotor(value){
-  console.log(value)
-  document.querySelector('#enableVibroMotor').checked = value;
-}
 
-function enableVibroMotorClicked(){
-  FlamingoBle.enableVibroMotor(document.querySelector('#enableVibroMotor').checked)
-    .then(_ => FlamingoBle.getEnableVibroMotor())
-    .then((value) => handleEnableVibroMotor(value));
-}
+
+
 
 function changeMode() {
   var effect = document.querySelector('[name="effectSwitch"]:checked').id;
@@ -1562,51 +1509,7 @@ function getAutoSequence(){
 
 
 function calibrate() {
-  var txt;
-
-  FlamingoBle.enableStreaming(true).then(value => {
-    // fulfillment
-
-    if (window.confirm("Please step off the chair, then press OK.")) {
-      
-      setTimeout(function(){ 
-        let off_value = base_strain;
-
-        if (window.confirm("Off value was "+off_value.toString()+"\n please step on the chair, then press OK.")) {
-          
-          setTimeout(function(){ 
-            let on_value = base_strain;
-
-            let upper_threshold = off_value + (on_value - off_value)*0.1;
-            let lower_threshold = 0;
-
-            FlamingoBle.setAwayUpperThreshold(upper_threshold).then(
-              FlamingoBle.enableStreaming(false)).then(
-                window.alert("Away value was     = " + off_value.toString() + "\n" + 
-                             "Presence value was = " + on_value.toString() + "\n" + 
-                             "--------------------------------------\n" +
-                             "Upper threshold    = " + upper_threshold.toString() + "\n" + 
-                             "Lower threshold    = " + lower_threshold.toString() )
-              )
-
-          }, 500);
-
-        }else{
-          FlamingoBle.enableStreaming(false)
-        }
-
-      }, 500);
-
-    }else{
-      FlamingoBle.enableStreaming(false)
-    }
-
-
-  }, reason => {
-    // rejection
-    alert("Something went wrong. Try again later.");
-  });
-
+  alert("Calibration feature has been removed.");
 }
 
 document.getElementById('file')
