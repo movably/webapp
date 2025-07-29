@@ -111,7 +111,7 @@
       })
     }
 
-    async scanForDevice(){
+    async scanForDevice(onDisconnect){
       this.device_found = false;
       
       try {
@@ -119,20 +119,29 @@
         // This will prompt the user to select a device
         const device = await navigator.bluetooth.requestDevice({
           filters: [
-            { services: [FLAMINGO_SERVICE_UUID] },
-            { namePrefix: 'Flamingo' }
+            { namePrefix: 'Flamingo' },
+            { namePrefix: 'Movably Chair' }
           ],
           optionalServices: [
-            FLAMINGO_SERVICE_UUID, 
-            DEVICE_INFORMATION_SERVICE_UUID, 
+            CHAIR_SERVICE_UUID, 
+            DISCOVERY_SERVICE_UUID, 
             ENGINEERING_SERVICE_UUID,
             WiFiserviceUUID,
-            TIME_SERVICE_UUID
+            TIME_SERVICE_UUID,
+            CONFIGURATION_SERVICE_UUID,
+            OTAServiceUUID
           ]
         });
         
         console.log('Device selected:', device.name);
+        this.device = device;
         this.device_found = true;
+        
+        // Add disconnect event listener if provided
+        if (onDisconnect) {
+          this.device.addEventListener('gattserverdisconnected', onDisconnect);
+        }
+        
         return device;
       } catch (error) {
         console.error('Error scanning for device:', error);

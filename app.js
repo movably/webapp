@@ -150,25 +150,25 @@ document.querySelector('#inputUserEmail')
 
 
 document.querySelector('#connect').addEventListener('click', function() {
+  // Save user email if provided
+  if (document.querySelector('#inputUserEmail')) {
+    localStorage.setItem("flamingoUserEmail", document.querySelector('#inputUserEmail').value);
+    userEmail = localStorage.getItem("flamingoUserEmail");
+  }
 
-
-  localStorage.setItem("flamingoUserEmail", document.querySelector('#inputUserEmail').value);
-  userEmail = localStorage.getItem("flamingoUserEmail");
-
-
-  FlamingoBle.request(onDisconnect)
-  .then(_ => connectDevice())
-  .catch(error => {
+  // Use our autoScan function which will handle the device selection and connection
+  autoScan().catch(error => {
     document.querySelector('#state').classList.remove('connecting');
     // TODO: Replace with toast when snackbar lands.
-    console.error('Argh!', error);
-    console.log(error.messsage);
+    console.error('Error connecting to device:', error);
+    console.log(error.message);
 
   });
 });
 
-function connectDevice(){
-    FlamingoBle.request(onDisconnect)
+async function connectDevice(){
+    // We don't need to call FlamingoBle.request here because scanForDevice already does that
+    // and sets the device property in FlamingoBle
 
     document.querySelector('#state').classList.remove('engineering');
     document.querySelector('#state').classList.remove('connected');
@@ -1634,19 +1634,25 @@ async function autoScan() {
     return;
   }
 
-  // Our new scanForDevice function now handles the device selection and returns the device
-  const device = await FlamingoBle.scanForDevice();
-  
-  // If a device was selected, connect to it
-  if(device) {
-    connectDevice();
+  try {
+    // Our new scanForDevice function now handles the device selection and returns the device
+    // Pass the onDisconnect handler to handle disconnection events
+    const device = await FlamingoBle.scanForDevice(onDisconnect);
+    
+    // If a device was selected, connect to it
+    if(device) {
+      connectDevice();
+    }
+  } catch (error) {
+    console.error('Error in autoScan:', error);
+    // User likely canceled the device selection, no need to show an error
   }
 }
 
 
 try{
-  // Initial scan when the page loads
-  autoScan();
+  // Don't scan automatically on page load - this will cause a SecurityError
+  // because requestDevice() must be called in response to a user gesture
   
   // Don't automatically scan repeatedly - this would prompt the user too often
   // Instead, let the user initiate the scan manually
