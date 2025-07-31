@@ -114,7 +114,6 @@ function onDisconnect(event){
 
       FlamingoBle.getChairConfiguredFlag().then(handleChairConfiguredChBox);
       FlamingoBle.getSerialNumber().then(handleDeviceSerial);
-      FlamingoBle.getModelNumber().then(handleDeviceModel);
       FlamingoBle.getEmailString().then(handleDeviceEmail);
       FlamingoBle.getWiFiSSIDString().then(handleWiFiSSID);
       FlamingoBle.getTZInfoDeviceString().then(handleTZInfoString);
@@ -290,10 +289,7 @@ async function connectDevice(){
             if (serial) handleDeviceSerial(serial);
         } catch (e) { console.warn("Error getting serial number:", e); }
         
-        try {
-            const model = await FlamingoBle.getModelNumber();
-            if (model) handleDeviceModel(model);
-        } catch (e) { console.warn("Error getting model number:", e); }
+
         
         try {
             const email = await FlamingoBle.getEmailString();
@@ -753,10 +749,7 @@ function handleDeviceSerial(info){
   chairSerial = info;
 }
 
-function handleDeviceModel(info){
-  // document.querySelector('#titleDeviceModel').textContent = "Model #: " + info;
-  document.querySelector('#inputModel').value = info;
-}
+
 
 function handleDeviceEmail(info){
   document.querySelector('#inputEmail').value = info;
@@ -824,19 +817,16 @@ function setTZInfoAutomatically()
 }
 
 function setDeviceInfo(){
-  model = document.querySelector('#inputModel').value;
   serial = document.querySelector('#inputSerial').value;
   email = document.querySelector('#inputEmail').value;
 
   console.log(serial)
 
-  FlamingoBle.setModelNumber(model)
-    .then(FlamingoBle.setSerialNumber(serial)
-    .then(FlamingoBle.setEmailString(email)))
+  FlamingoBle.setSerialNumber(serial)
+    .then(FlamingoBle.setEmailString(email))
 
   setTimeout(function(){ 
       FlamingoBle.getSerialNumber().then(handleDeviceSerial);
-      FlamingoBle.getModelNumber().then(handleDeviceModel);
       FlamingoBle.getEmailString().then(handleDeviceEmail);
     }, 1000);
 

@@ -5,7 +5,7 @@
   let decoder = new TextDecoder('utf-8');
 
   const DISCOVERY_SERVICE_UUID = 0x180A
-  // const MODEL_NUMBER_UUID = 0x2A24
+
   // const SERIAL_NUMBER_UUID = 0x2A25
   const FIRMWARE_REVISION_UUID = 0x2A26
   const HARDWARE_REVISION_UUID = 0x2A27
@@ -47,7 +47,7 @@
 
   const CONFIGURATION_SERVICE_UUID = "7f1a0001-252d-4f8b-baea-6bfc6b255ab6";
 
-  const MODEL_NUMBER_UUID =     "7f1a0002-252d-4f8b-baea-6bfc6b255ab6";
+
   const SERIAL_NUMBER_UUID =    "7f1a0003-252d-4f8b-baea-6bfc6b255ab6";
   const USER_NAME_UUID =        "7f1a0004-252d-4f8b-baea-6bfc6b255ab6";
 
@@ -203,7 +203,6 @@
             service = await server.getPrimaryService(CONFIGURATION_SERVICE_UUID);
             
             console.log("Caching CONFIGURATION service characteristics...");
-            await this._cacheCharacteristic(service, MODEL_NUMBER_UUID);
             await this._cacheCharacteristic(service, USER_NAME_UUID);
             await this._cacheCharacteristic(service, SERIAL_NUMBER_UUID);
           } catch (error) {
@@ -648,13 +647,7 @@
 
     /* Discovery Service */
 
-    getModelNumber(){
-      return this._readCharacteristicValue(MODEL_NUMBER_UUID).then((response) => this._decodeString(response))  
-    }
 
-    setModelNumber(str){
-      return this._writeCharacteristicValue(MODEL_NUMBER_UUID,this._encodeString(str))
-    }
 
     getEmailString(){
       return this._readCharacteristicValue(USER_NAME_UUID).then((response) => this._decodeString(response))  
