@@ -4,10 +4,7 @@ var r = g = b = 255; // White by default.
 
 let url_string = window.location.href
 var url = new URL(url_string);
-let engineering_enabled = true
-if(url.searchParams.get("engineering")=="false"){
-  engineering_enabled = false;
-}
+let engineering_enabled = false
 if(url.searchParams.get("engineering")=="true"){
   engineering_enabled = true;
 }
@@ -166,14 +163,46 @@ function connectDevice(){
       )
     )
     FlamingoBle.getLeftMotorSoundStrength().then(leftMotorSoundSlider.handleRead);
-
-
-
+    
     FlamingoBle.getAutoModeSelector().then(handleAutoModeSelectorRead)
 
     if(engineering_enabled){
       document.querySelector('#state').classList.add('engineering');
       //FlamingoBle.startRealtimeEvents(handleRealtimeEvents);
+
+      // Add the SPI Communication Settings card
+      const spiCardContainer = document.getElementById('spi-communication-card-container');
+      spiCardContainer.innerHTML = `
+        <div class="card">
+          <div class="card-info">
+              <small>SPI Communication Settings</small>
+          </div>
+
+          <hr>
+
+          <div class="preference" style="text-align: left; padding: 10px;">
+            <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" 
+              for="reduced-spi-switch">
+              Reduced SPI communication
+            <input type="checkbox" id="reduced-spi-switch" 
+                   class="mdl-switch__input">
+            </label>
+            <div class="mdl-tooltip" for="reduced-spi-switch">Enable to reduce SPI communication frequency</div>
+          </div>
+        </div>
+      `;
+
+      // Initialize the Material Design Lite switch component
+      componentHandler.upgradeElement(document.getElementById('reduced-spi-switch').parentElement);
+
+      // Get the Reduced SPI communication setting
+      FlamingoBle.getReducedSPICommunication().then(handleReducedSPIRead);
+
+      // Add event listener for the checkbox
+      document.querySelector('#reduced-spi-switch').addEventListener('change', function() {
+        console.log("Reduced SPI communication changed to:", this.checked);
+        FlamingoBle.setReducedSPICommunication(this.checked ? 1 : 0);
+      });
 
       FlamingoBle.startErrorCodeEvents(handleErrorCodes);
       FlamingoBle.getErrorCodes();
@@ -410,6 +439,17 @@ document.querySelector('#AutoMode0').addEventListener('click', selectAutoMode);
 document.querySelector('#AutoMode1').addEventListener('click', selectAutoMode);
 document.querySelector('#AutoMode2').addEventListener('click', selectAutoMode);
 document.querySelector('#AutoMode5').addEventListener('click', selectAutoMode);
+
+// Handle Reduced SPI communication checkbox
+function handleReducedSPIRead(enabled) {
+  console.log("Reduced SPI communication:", enabled);
+  let s = document.getElementById("reduced-spi-switch");
+  if (enabled) {
+    s.parentElement.MaterialSwitch.on();
+  } else {
+    s.parentElement.MaterialSwitch.off();
+  }
+}
 
 // document.querySelector('#manualMode').addEventListener('click', changeMode);
 // document.querySelector('#autoMode').addEventListener('click', changeMode);

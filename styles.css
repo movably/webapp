@@ -113,6 +113,8 @@ body.engineering #step_device_info {
 body.connected #sw_update {
   display: inherit;
 }
+
+
 /*body.engineering #step_advancedSliders {
   display: inherit;
 }

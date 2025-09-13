@@ -41,6 +41,7 @@
 
   const LEFT_SEAT_MOTOR_SOUND_UUID  =  "1b25ee0d-dadf-11eb-8d19-0242ac130003";
   const RIGHT_SEAT_MOTOR_SOUND_UUID = "1b25ee0e-dadf-11eb-8d19-0242ac130003";
+  const REDUCED_SPI_COMM_UUID       = "1b25ee1e-dadf-11eb-8d19-0242ac130003";
   const TZInfoFieldUUID             = "1b25ee14-dadf-11eb-8d19-0242ac130003";
 
 
@@ -204,6 +205,14 @@
       this._cacheCharacteristic(service, BASE_AWAY_UPPER_THRESHOLD_UUID);
       this._cacheCharacteristic(service, LEFT_SEAT_MOTOR_SOUND_UUID);
       this._cacheCharacteristic(service, RIGHT_SEAT_MOTOR_SOUND_UUID);
+      
+      // Only cache the REDUCED_SPI_COMM_UUID if engineering mode is enabled
+      let url_string = window.location.href;
+      let url = new URL(url_string);
+      if (url.searchParams.get("engineering") === "true") {
+        this._cacheCharacteristic(service, REDUCED_SPI_COMM_UUID);
+      }
+      
       this._cacheCharacteristic(service, TZInfoFieldUUID);
 
       service = await server.getPrimaryService(WiFiserviceUUID);
@@ -574,6 +583,14 @@
 setBothMotorSoundStrength(value) {
   this.setLeftMotorSoundStrength(value);
   this.setRightMotorSoundStrength(value);
+}
+
+setReducedSPICommunication(enabled) {
+  this._writeCharacteristicValue(REDUCED_SPI_COMM_UUID, new Uint8Array([enabled ? 1 : 0]));
+}
+
+getReducedSPICommunication() {
+  return this._readCharacteristicValue(REDUCED_SPI_COMM_UUID).then((response) => response.getUint8(0));
 }
 
     /* Discovery Service */
