@@ -111,8 +111,10 @@ function onDisconnect(event){
 
       FlamingoBle.startErrorCodeEvents(handleErrorCodes);
       FlamingoBle.getErrorCodes();
+      FlamingoBle.startListenPresenceDetection(handlePresenceDetection);
 
       FlamingoBle.getChairConfiguredFlag().then(handleChairConfiguredChBox);
+      FlamingoBle.getPresenceDetection().then(handlePresenceDetection);
       FlamingoBle.getSerialNumber().then(handleDeviceSerial);
       FlamingoBle.getEmailString().then(handleDeviceEmail);
       FlamingoBle.getWiFiSSIDString().then(handleWiFiSSID);
@@ -253,6 +255,10 @@ async function connectDevice(){
                 await FlamingoBle.startSPIErrorsCodeEvents(handleSPIErrors);
                 await FlamingoBle.getSPIErrorsCodes();
             } catch (e) { console.warn("Error handling SPI error codes:", e); }
+            
+            try {
+                await FlamingoBle.startListenPresenceDetection(handlePresenceDetection);
+            } catch (e) { console.warn("Error starting presence detection listener:", e); }
         }
         
         // WiFi and device information
@@ -283,6 +289,11 @@ async function connectDevice(){
             const flag = await FlamingoBle.getChairConfiguredFlag();
             if (flag !== null && flag !== undefined) handleChairConfiguredChBox(flag);
         } catch (e) { console.warn("Error getting chair configured flag:", e); }
+        
+        try {
+            const presence = await FlamingoBle.getPresenceDetection();
+            if (presence !== null && presence !== undefined) handlePresenceDetection(presence);
+        } catch (e) { console.warn("Error getting presence detection:", e); }
         
         try {
             const serial = await FlamingoBle.getSerialNumber();
@@ -844,6 +855,26 @@ function ChairConfiguredEnable(){
   FlamingoBle.setChairConfiguredFlag(document.querySelector('#triggerWiFiConfiguredEnable').checked)
     .then(_ => FlamingoBle.getChairConfiguredFlag())
     .then((value) => handleChairConfiguredChBox(value));
+}
+
+function handlePresenceDetection(eventOrValue){
+  let value;
+  
+  // Handle both event listener calls and direct value calls
+  if (eventOrValue && eventOrValue.target && eventOrValue.target.value) {
+    // Called as an event listener
+    value = eventOrValue.target.value.getUint8(0);
+  } else {
+    // Called with direct value
+    value = eventOrValue;
+  }
+  
+  console.log("-> PresenceDetection =")
+  console.log(value)
+  // Bit 0: Left Leg presence detected
+  // Bit 1: Right Leg presence detected
+  document.querySelector('#leftLegPresenceDetected').checked = (value & 0x01) !== 0;
+  document.querySelector('#rightLegPresenceDetected').checked = (value & 0x02) !== 0;
 }
 
 

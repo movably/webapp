@@ -41,7 +41,7 @@
 
   const LEFT_LEG_MOVE_CNT_UUID =  "1b25ee1c-dadf-11eb-8d19-0242ac130003";
   const RIGHT_LEG_MOVE_CNT_UUID = "1b25ee1d-dadf-11eb-8d19-0242ac130003";
-
+  const PRESENCE_DETECTION_UUID = "1b25ee1f-dadf-11eb-8d19-0242ac130003";
 
   const TZInfoFieldUUID         = "1b25ee14-dadf-11eb-8d19-0242ac130003";
 
@@ -226,6 +226,7 @@
             await this._cacheCharacteristic(service, TZInfoFieldUUID);
             await this._cacheCharacteristic(service, LEFT_LEG_MOVE_CNT_UUID);
             await this._cacheCharacteristic(service, RIGHT_LEG_MOVE_CNT_UUID);
+            await this._cacheCharacteristic(service, PRESENCE_DETECTION_UUID);
           } catch (error) {
             console.warn("Error accessing ENGINEERING service:", error);
           }
@@ -561,6 +562,26 @@
 
     getChairConfiguredFlag(){
       return this._readCharacteristicValue(CHAIR_CONFIGURED_FLAG_UUID).then((response) => this._decodeUint8(response))  
+    }
+
+    getPresenceDetection(){
+      return this._readCharacteristicValue(PRESENCE_DETECTION_UUID).then((response) => this._decodeUint8(response))  
+    }
+
+    async startListenPresenceDetection(listener) {
+      let characteristic = this._characteristics.get(PRESENCE_DETECTION_UUID);
+      return await characteristic.startNotifications()
+      .then(_ => {
+        characteristic.addEventListener('characteristicvaluechanged', listener);
+      });
+    }
+
+    stopListenPresenceDetection(listener) {
+      let characteristic = this._characteristics.get(PRESENCE_DETECTION_UUID);
+      return characteristic.stopNotifications()
+      .then(_ => {
+        characteristic.removeEventListener('characteristicvaluechanged', listener);
+      });
     }
 
 
