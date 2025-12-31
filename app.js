@@ -296,21 +296,10 @@ function handleChairEventRead(event){
   let s = document.getElementById("auto-switch")
 
 
-  if(v.getUint8(2) == 0){
-    // document.querySelector('#manualMode').checked = true;
-    // document.getElementById('manualMode').checked = true;
-
-    s.parentElement.MaterialSwitch.off();
-
-    // document.querySelector('[name="effectSwitch"]:checked').id = 'manualMode';
-    // console.log("manualMode")
-  }else if(v.getUint8(2) == 1){
-    // document.querySelector('#autoMode').checked = true;
-    // document.getElementById('autoMode').checked = true;
+  if(v.getUint8(2) == 1){
     s.parentElement.MaterialSwitch.on();
-    // document.querySelector('[name="effectSwitch"]:checked').id = 'autoMode';
-    // console.log("autoMode")
-
+  } else {
+    s.parentElement.MaterialSwitch.off();
   }
 }
 
