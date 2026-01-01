@@ -203,22 +203,23 @@ function connectDevice(){
         console.log("Reduced SPI communication changed to:", this.checked);
         FlamingoBle.setReducedSPICommunication(this.checked ? 1 : 0);
       });
-
-      FlamingoBle.startErrorCodeEvents(handleErrorCodes);
-      FlamingoBle.getErrorCodes();
-
-      FlamingoBle.startWiFiStatusCodeEvents(handleWiFiCodes);
-      FlamingoBle.getWiFiStatusCodes();
-      //FlamingoBle.getWiFiPWDString().then(handleWiFiPWD);
-
-      FlamingoBle.getSerialNumber().then(handleDeviceSerial);
-      FlamingoBle.getEmailString().then(handleDeviceEmail);
-      readWiFiSSIDsMultipleTimes();
-      addMOSDateToDropdown("Day")
-      addMOSDateToDropdown("Week")
-      addMOSDateToDropdown("Month")
-      addMOSDateToDropdown("Year")
     }
+    
+    FlamingoBle.startErrorCodeEvents(handleErrorCodes);
+    FlamingoBle.getErrorCodes();
+
+    FlamingoBle.startWiFiStatusCodeEvents(handleWiFiCodes);
+    FlamingoBle.getWiFiStatusCodes();
+    //FlamingoBle.getWiFiPWDString().then(handleWiFiPWD);
+
+    FlamingoBle.getSerialNumber().then(handleDeviceSerial);
+    FlamingoBle.getEmailString().then(handleDeviceEmail);
+    readWiFiSSIDsMultipleTimes();
+    addMOSDateToDropdown("Day")
+    addMOSDateToDropdown("Week")
+    addMOSDateToDropdown("Month")
+    addMOSDateToDropdown("Year")
+    
   })
   .catch(error => {
     document.querySelector('#state').classList.remove('connecting');
