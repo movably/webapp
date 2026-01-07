@@ -428,7 +428,6 @@ function handleAutoModeSelectorRead(modeId){
 document.querySelector('#AutoMode0').addEventListener('click', selectAutoMode);
 document.querySelector('#AutoMode1').addEventListener('click', selectAutoMode);
 document.querySelector('#AutoMode2').addEventListener('click', selectAutoMode);
-document.querySelector('#AutoMode5').addEventListener('click', selectAutoMode);
 
 // Handle Reduced SPI communication checkbox
 function handleReducedSPIRead(enabled) {
