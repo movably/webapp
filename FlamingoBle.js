@@ -42,6 +42,8 @@
   const LEFT_LEG_MOVE_CNT_UUID =  "1b25ee1c-dadf-11eb-8d19-0242ac130003";
   const RIGHT_LEG_MOVE_CNT_UUID = "1b25ee1d-dadf-11eb-8d19-0242ac130003";
   const PRESENCE_DETECTION_UUID = "1b25ee1f-dadf-11eb-8d19-0242ac130003";
+  const LEFT_MOTOR_MAX_CURRENT_UUID =  "1b25ee20-dadf-11eb-8d19-0242ac130003";
+  const RIGHT_MOTOR_MAX_CURRENT_UUID = "1b25ee21-dadf-11eb-8d19-0242ac130003";
 
   const TZInfoFieldUUID         = "1b25ee14-dadf-11eb-8d19-0242ac130003";
 
@@ -227,6 +229,8 @@
             await this._cacheCharacteristic(service, LEFT_LEG_MOVE_CNT_UUID);
             await this._cacheCharacteristic(service, RIGHT_LEG_MOVE_CNT_UUID);
             await this._cacheCharacteristic(service, PRESENCE_DETECTION_UUID);
+            await this._cacheCharacteristic(service, LEFT_MOTOR_MAX_CURRENT_UUID);
+            await this._cacheCharacteristic(service, RIGHT_MOTOR_MAX_CURRENT_UUID);
           } catch (error) {
             console.warn("Error accessing ENGINEERING service:", error);
           }
@@ -642,6 +646,38 @@
         return value;
       }).catch(error => {
         console.error("Error reading right leg odometer:", error);
+        throw error;
+      });  
+    }
+
+    getLeftMotorMaxCurrent() {
+      let characteristic = this._characteristics.get(LEFT_MOTOR_MAX_CURRENT_UUID);
+      if (!characteristic) {
+        console.error("Left motor max current characteristic not found in cache");
+        return Promise.reject(new Error("Characteristic not cached"));
+      }
+      
+      return this._readCharacteristicValue(LEFT_MOTOR_MAX_CURRENT_UUID).then((response) => {
+        const value = this.handleUint32Reading(response);
+        return value;
+      }).catch(error => {
+        console.error("Error reading left motor max current:", error);
+        throw error;
+      });  
+    }
+
+    getRightMotorMaxCurrent() {
+      let characteristic = this._characteristics.get(RIGHT_MOTOR_MAX_CURRENT_UUID);
+      if (!characteristic) {
+        console.error("Right motor max current characteristic not found in cache");
+        return Promise.reject(new Error("Characteristic not cached"));
+      }
+      
+      return this._readCharacteristicValue(RIGHT_MOTOR_MAX_CURRENT_UUID).then((response) => {
+        const value = this.handleUint32Reading(response);
+        return value;
+      }).catch(error => {
+        console.error("Error reading right motor max current:", error);
         throw error;
       });  
     }

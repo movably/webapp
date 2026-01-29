@@ -615,6 +615,32 @@ function readRightOdometerClicked() {
   });
 }
 
+function readLeftMaxCurrentClicked() {
+  console.log("Left max current button clicked");
+  document.querySelector('#leftMaxCurrentValue').value = "Reading...";
+  
+  FlamingoBle.getLeftMotorMaxCurrent().then(value => {
+    console.log("Left max current button read value:", value);
+    document.querySelector('#leftMaxCurrentValue').value = value;
+  }).catch(error => {
+    console.log("Error reading left max current via button:", error);
+    document.querySelector('#leftMaxCurrentValue').value = "Error";
+  });
+}
+
+function readRightMaxCurrentClicked() {
+  console.log("Right max current button clicked");
+  document.querySelector('#rightMaxCurrentValue').value = "Reading...";
+  
+  FlamingoBle.getRightMotorMaxCurrent().then(value => {
+    console.log("Right max current button read value:", value);
+    document.querySelector('#rightMaxCurrentValue').value = value;
+  }).catch(error => {
+    console.log("Error reading right max current via button:", error);
+    document.querySelector('#rightMaxCurrentValue').value = "Error";
+  });
+}
+
 // Global variable to store the auto-update interval
 let odometerAutoUpdateInterval = null;
 
@@ -733,6 +759,10 @@ document.querySelector('#readLeftOdometer').addEventListener('click', readLeftOd
 document.querySelector('#readRightOdometer').addEventListener('click', readRightOdometerClicked);
 document.querySelector('#startAutoUpdate').addEventListener('click', startAutoUpdateClicked);
 document.querySelector('#stopAutoUpdate').addEventListener('click', stopAutoUpdateClicked);
+
+// Max current button event listeners
+document.querySelector('#readLeftMaxCurrent').addEventListener('click', readLeftMaxCurrentClicked);
+document.querySelector('#readRightMaxCurrent').addEventListener('click', readRightMaxCurrentClicked);
 
 // Initialize auto-update button states
 document.querySelector('#startAutoUpdate').disabled = false;

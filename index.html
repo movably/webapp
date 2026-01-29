@@ -522,6 +522,34 @@
 
                         </div>
 
+                        <div class="card">
+                          <div class="card-info">
+                                <small>Presence thresholds</small>
+                            </div>
+                          <hr>
+
+                          <!-- Left max current -->
+                          <div class="card-info" id="left_max_current">
+                            <small>Left max current</small>
+                          </div>
+                          <div class = "mdl-tooltip" for = "left_max_current">Left motor maximum current threshold (read-only).</div>
+                          <div style="display: flex; align-items: center; gap: 10px; margin: 10px 0;">
+                            <input type="text" id="leftMaxCurrentValue" class="sliderValue" readonly style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px; background-color: #f9f9f9;" value="0">
+                            <button id="readLeftMaxCurrent" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" style="min-width: 80px;">Read</button>
+                          </div>
+
+                          <!-- Right max current -->
+                          <div class="card-info" id="right_max_current">
+                            <small>Right max current</small>
+                          </div>
+                          <div class = "mdl-tooltip" for = "right_max_current">Right motor maximum current threshold (read-only).</div>
+                          <div style="display: flex; align-items: center; gap: 10px; margin: 10px 0;">
+                            <input type="text" id="rightMaxCurrentValue" class="sliderValue" readonly style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px; background-color: #f9f9f9;" value="0">
+                            <button id="readRightMaxCurrent" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" style="min-width: 80px;">Read</button>
+                          </div>
+
+                        </div>
+
                   </div>                  
 
                   <!-- <div id="bar-example" style="height: 350px;"></div> -->
