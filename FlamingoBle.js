@@ -88,6 +88,7 @@
       this.automode_period = 0;
       this.automode_period_response = null;
       this.device_found = false;
+      this._gattQueue = Promise.resolve();
       this.data = {
         'sw': 'unknown', 
         'fw': 'unknown',
@@ -96,6 +97,12 @@
         }
       };
 
+    }
+
+    _enqueueGattOperation(operation) {
+      const result = this._gattQueue.then(() => operation());
+      this._gattQueue = result.catch(() => {});
+      return result;
     }
     request(onDisconnect) {
       // let options = {filters:[{services:[ CANDLE_SERVICE_UUID ]}]};
@@ -831,7 +838,11 @@
         return null;
       }
     }
-    async _readCharacteristicValue(characteristicUuid) {
+    _readCharacteristicValue(characteristicUuid) {
+      return this._enqueueGattOperation(() => this._readCharacteristicValueImpl(characteristicUuid));
+    }
+
+    async _readCharacteristicValueImpl(characteristicUuid) {
       try {
         let characteristic = this._characteristics.get(characteristicUuid);
         
@@ -877,7 +888,11 @@
       }
     }
 
-    async _writeCharacteristicValue(characteristicUuid, value) {
+    _writeCharacteristicValue(characteristicUuid, value) {
+      return this._enqueueGattOperation(() => this._writeCharacteristicValueImpl(characteristicUuid, value));
+    }
+
+    async _writeCharacteristicValueImpl(characteristicUuid, value) {
       try {
         let characteristic = this._characteristics.get(characteristicUuid);
         
