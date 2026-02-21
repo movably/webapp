@@ -550,6 +550,29 @@
 
                         </div>
 
+                        <div class="card">
+                          <div class="card-info">
+                                <small>Current Threshold Settings</small>
+                            </div>
+
+                          <hr>
+                          <div class="card-info" id="current_threshold_title">
+                            <small>Leg presence detection current thresholds</small>
+                          </div>
+                          <div class = "mdl-tooltip" for = "current_threshold_title">Set the current threshold for detecting leg presence.</div>
+
+                          <!-- Left Leg Current Threshold Slider -->
+                          <div id="leftCurrentThresholdTitle" class="sliderTitle"></div>
+                          <input type="range" min="0" max="255" value="50"  step="1" class="slider" id="leftCurrentThresholdSlider">
+                          <div id="leftCurrentThresholdValue" class="sliderValue">?</div>
+
+                          <!-- Right Leg Current Threshold Slider -->
+                          <div id="rightCurrentThresholdTitle" class="sliderTitle"></div>
+                          <input type="range" min="0" max="255" value="50"  step="1" class="slider" id="rightCurrentThresholdSlider">
+                          <div id="rightCurrentThresholdValue" class="sliderValue">?</div>
+
+                        </div>
+
                   </div>                  
 
                   <!-- <div id="bar-example" style="height: 350px;"></div> -->

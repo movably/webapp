@@ -35,6 +35,18 @@ rightMotorSoundSlider.registerChanges(FlamingoBle.setRightMotorSoundStrength,
     FlamingoBle.getRightMotorSoundStrength,
     FlamingoBle);
 
+let leftCurrentThresholdSlider = new Slider("leftCurrentThresholdSlider","leftCurrentThresholdTitle","leftCurrentThresholdValue");
+leftCurrentThresholdSlider.setProperties("Left threshold:","0","255", "")
+leftCurrentThresholdSlider.registerChanges(FlamingoBle.setLeftLegCurrentThreshold, 
+    FlamingoBle.getLeftLegCurrentThreshold,
+    FlamingoBle);
+
+let rightCurrentThresholdSlider = new Slider("rightCurrentThresholdSlider","rightCurrentThresholdTitle","rightCurrentThresholdValue");
+rightCurrentThresholdSlider.setProperties("Right threshold:","0","255", "")
+rightCurrentThresholdSlider.registerChanges(FlamingoBle.setRightLegCurrentThreshold, 
+    FlamingoBle.getRightLegCurrentThreshold,
+    FlamingoBle);
+
 let leftLegDutySetSlider = new Slider("leftLegDutySlider","leftLegLockDutyTitle","leftLegLockDutyValue");
 leftLegDutySetSlider.setProperties("Left lock:","200","500", "ppm")
 leftLegDutySetSlider.registerChanges(FlamingoBle.setLeftLegMotorLockStrength, 
@@ -228,6 +240,16 @@ async function connectDevice(){
             const rightLegStrength = await FlamingoBle.getRightLegMotorLockStrength();
             if (rightLegStrength) rightLegDutySetSlider.handleRead(rightLegStrength);
         } catch (e) { console.warn("Error getting right leg motor lock strength:", e); }
+
+        try {
+            const leftCurrentThreshold = await FlamingoBle.getLeftLegCurrentThreshold();
+            if (leftCurrentThreshold !== null && leftCurrentThreshold !== undefined) leftCurrentThresholdSlider.handleRead(leftCurrentThreshold);
+        } catch (e) { console.warn("Error getting left current threshold:", e); }
+
+        try {
+            const rightCurrentThreshold = await FlamingoBle.getRightLegCurrentThreshold();
+            if (rightCurrentThreshold !== null && rightCurrentThreshold !== undefined) rightCurrentThresholdSlider.handleRead(rightCurrentThreshold);
+        } catch (e) { console.warn("Error getting right current threshold:", e); }
         
         try {
             const clockValue = await FlamingoBle.getclockUpdateValue();

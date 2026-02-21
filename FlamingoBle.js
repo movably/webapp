@@ -44,6 +44,8 @@
   const PRESENCE_DETECTION_UUID = "1b25ee1f-dadf-11eb-8d19-0242ac130003";
   const LEFT_MOTOR_MAX_CURRENT_UUID =  "1b25ee20-dadf-11eb-8d19-0242ac130003";
   const RIGHT_MOTOR_MAX_CURRENT_UUID = "1b25ee21-dadf-11eb-8d19-0242ac130003";
+  const LEFT_LEG_CURRENT_THRESHOLD_UUID =  "1b25ee22-dadf-11eb-8d19-0242ac130003";
+  const RIGHT_LEG_CURRENT_THRESHOLD_UUID = "1b25ee23-dadf-11eb-8d19-0242ac130003";
 
   const TZInfoFieldUUID         = "1b25ee14-dadf-11eb-8d19-0242ac130003";
 
@@ -231,6 +233,8 @@
             await this._cacheCharacteristic(service, PRESENCE_DETECTION_UUID);
             await this._cacheCharacteristic(service, LEFT_MOTOR_MAX_CURRENT_UUID);
             await this._cacheCharacteristic(service, RIGHT_MOTOR_MAX_CURRENT_UUID);
+            await this._cacheCharacteristic(service, LEFT_LEG_CURRENT_THRESHOLD_UUID);
+            await this._cacheCharacteristic(service, RIGHT_LEG_CURRENT_THRESHOLD_UUID);
           } catch (error) {
             console.warn("Error accessing ENGINEERING service:", error);
           }
@@ -680,6 +684,22 @@
         console.error("Error reading right motor max current:", error);
         throw error;
       });  
+    }
+
+    setLeftLegCurrentThreshold(threshold) {
+      return this._writeCharacteristicValue(LEFT_LEG_CURRENT_THRESHOLD_UUID, new Uint32Array([threshold]))
+    }
+
+    getLeftLegCurrentThreshold() {
+      return this._readCharacteristicValue(LEFT_LEG_CURRENT_THRESHOLD_UUID).then((response) => this.handleUint32Reading(response));
+    }
+
+    setRightLegCurrentThreshold(threshold) {
+      return this._writeCharacteristicValue(RIGHT_LEG_CURRENT_THRESHOLD_UUID, new Uint32Array([threshold]))
+    }
+
+    getRightLegCurrentThreshold() {
+      return this._readCharacteristicValue(RIGHT_LEG_CURRENT_THRESHOLD_UUID).then((response) => this.handleUint32Reading(response));
     }
 
 
