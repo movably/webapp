@@ -102,7 +102,7 @@
       // let options = {filters:[{services:[ CHAIR_SERVICE_UUID ]}],
       //                optionalServices: ['battery_service']};
       let options = {//acceptAllDevices: true,
-                      filters:[{namePrefix: 'Movably Chair'}],
+                      filters:[{namePrefix: 'Movably Pro'}, {namePrefix: 'Movably Chair'}],
                       //filters:[{namePrefix: 'Flamingo'}],
                       // filters:[{services:[ CHAIR_SERVICE_UUID ]}],
                       optionalServices: [CHAIR_SERVICE_UUID, WiFiserviceUUID, ENGINEERING_SERVICE_UUID, CONFIGURATION_SERVICE_UUID, TIME_SERVICE_UUID, OTAServiceUUID, DISCOVERY_SERVICE_UUID]};
