@@ -168,72 +168,78 @@
 
       let service = await server.getPrimaryService(CHAIR_SERVICE_UUID);
 
-      this._cacheCharacteristic(service, AUTO_MODE_UUID);
-      this._cacheCharacteristic(service, AUTO_PERIOD_UUID);
-      this._cacheCharacteristic(service, CHAIR_STATE_EVENT_UUID);
-      this._cacheCharacteristic(service, CHAIR_TOGGLE_UUID);
-      this._cacheCharacteristic(service, SEND_EVENTS_UUID);
-      this._cacheCharacteristic(service, EVENT_ACK_UUID);
-      this._cacheCharacteristic(service, CHAIR_STATE_UUID);
-      this._cacheCharacteristic(service, AUTO_MODE_SELECTOR_UUID);
-      this._cacheCharacteristic(service, TIME_TO_NEXT_TRANSITION_UUID);
+      await Promise.all([
+        this._cacheCharacteristic(service, AUTO_MODE_UUID),
+        this._cacheCharacteristic(service, AUTO_PERIOD_UUID),
+        this._cacheCharacteristic(service, CHAIR_STATE_EVENT_UUID),
+        this._cacheCharacteristic(service, CHAIR_TOGGLE_UUID),
+        this._cacheCharacteristic(service, SEND_EVENTS_UUID),
+        this._cacheCharacteristic(service, EVENT_ACK_UUID),
+        this._cacheCharacteristic(service, CHAIR_STATE_UUID),
+        this._cacheCharacteristic(service, AUTO_MODE_SELECTOR_UUID),
+        this._cacheCharacteristic(service, TIME_TO_NEXT_TRANSITION_UUID),
+      ]);
 
       service = await server.getPrimaryService(DISCOVERY_SERVICE_UUID);
-      this._cacheCharacteristic(service, FIRMWARE_REVISION_UUID);
-      this._cacheCharacteristic(service, SOFTWARE_REVISION_UUID);
-
+      await Promise.all([
+        this._cacheCharacteristic(service, FIRMWARE_REVISION_UUID),
+        this._cacheCharacteristic(service, SOFTWARE_REVISION_UUID),
+      ]);
 
       service = await server.getPrimaryService(CONFIGURATION_SERVICE_UUID);
-
-      this._cacheCharacteristic(service, MODEL_NUMBER_UUID);
-      this._cacheCharacteristic(service, USER_NAME_UUID);
-      this._cacheCharacteristic(service, SERIAL_NUMBER_UUID);
-
+      await Promise.all([
+        this._cacheCharacteristic(service, MODEL_NUMBER_UUID),
+        this._cacheCharacteristic(service, USER_NAME_UUID),
+        this._cacheCharacteristic(service, SERIAL_NUMBER_UUID),
+      ]);
 
       service = await server.getPrimaryService(ENGINEERING_SERVICE_UUID);
-      this._cacheCharacteristic(service, VEL_UUID);
-      this._cacheCharacteristic(service, ACCEL_UUID);
-      this._cacheCharacteristic(service, DECCEL_UUID);
-      this._cacheCharacteristic(service, TRAJ_VEL_UUID);
-      this._cacheCharacteristic(service, REALTIME_UUID);
-      this._cacheCharacteristic(service, ERRORCODES_UUID);
-      this._cacheCharacteristic(service, ERRORCODES_SPI_UUID);
-      this._cacheCharacteristic(service, CHAIR_CONFIGURED_FLAG_UUID);
-      this._cacheCharacteristic(service, TRIGGER_BY_MOTION_UUID);
-      this._cacheCharacteristic(service, STREAMING_ENABLE_UUID);
-      this._cacheCharacteristic(service, BASE_AWAY_LOWER_THRESHOLD_UUID);
-      this._cacheCharacteristic(service, BASE_AWAY_UPPER_THRESHOLD_UUID);
-      this._cacheCharacteristic(service, LEFT_SEAT_MOTOR_SOUND_UUID);
-      this._cacheCharacteristic(service, RIGHT_SEAT_MOTOR_SOUND_UUID);
-      
-      // Only cache the REDUCED_SPI_COMM_UUID if engineering mode is enabled
       let url_string = window.location.href;
       let url = new URL(url_string);
+      let engineeringCachePromises = [
+        this._cacheCharacteristic(service, VEL_UUID),
+        this._cacheCharacteristic(service, ACCEL_UUID),
+        this._cacheCharacteristic(service, DECCEL_UUID),
+        this._cacheCharacteristic(service, TRAJ_VEL_UUID),
+        this._cacheCharacteristic(service, REALTIME_UUID),
+        this._cacheCharacteristic(service, ERRORCODES_UUID),
+        this._cacheCharacteristic(service, ERRORCODES_SPI_UUID),
+        this._cacheCharacteristic(service, CHAIR_CONFIGURED_FLAG_UUID),
+        this._cacheCharacteristic(service, TRIGGER_BY_MOTION_UUID),
+        this._cacheCharacteristic(service, STREAMING_ENABLE_UUID),
+        this._cacheCharacteristic(service, BASE_AWAY_LOWER_THRESHOLD_UUID),
+        this._cacheCharacteristic(service, BASE_AWAY_UPPER_THRESHOLD_UUID),
+        this._cacheCharacteristic(service, LEFT_SEAT_MOTOR_SOUND_UUID),
+        this._cacheCharacteristic(service, RIGHT_SEAT_MOTOR_SOUND_UUID),
+        this._cacheCharacteristic(service, TZInfoFieldUUID),
+      ];
       if (url.searchParams.get("engineering") === "true") {
-        this._cacheCharacteristic(service, REDUCED_SPI_COMM_UUID);
+        engineeringCachePromises.push(this._cacheCharacteristic(service, REDUCED_SPI_COMM_UUID));
       }
-      
-      this._cacheCharacteristic(service, TZInfoFieldUUID);
+      await Promise.all(engineeringCachePromises);
 
       service = await server.getPrimaryService(WiFiserviceUUID);
-      this._cacheCharacteristic(service, WiFienableWifiUUID);
-      this._cacheCharacteristic(service, WiFissidUUID);
-      this._cacheCharacteristic(service, WiFipasswordUUID);
-      this._cacheCharacteristic(service, WiFistatusUUID);
-      this._cacheCharacteristic(service, WiFicommandUUID);
-      this._cacheCharacteristic(service, WiFiSSIDSingleUUID);
-      this._cacheCharacteristic(service, WiFiSSIDListCounterUUID);
+      await Promise.all([
+        this._cacheCharacteristic(service, WiFienableWifiUUID),
+        this._cacheCharacteristic(service, WiFissidUUID),
+        this._cacheCharacteristic(service, WiFipasswordUUID),
+        this._cacheCharacteristic(service, WiFistatusUUID),
+        this._cacheCharacteristic(service, WiFicommandUUID),
+        this._cacheCharacteristic(service, WiFiSSIDSingleUUID),
+        this._cacheCharacteristic(service, WiFiSSIDListCounterUUID),
+      ]);
 
       service = await server.getPrimaryService(TIME_SERVICE_UUID);
-      this._cacheCharacteristic(service, CURRENT_TIME_UUID);
-
+      await this._cacheCharacteristic(service, CURRENT_TIME_UUID);
 
       service = await server.getPrimaryService(OTAServiceUUID);
-      this._cacheCharacteristic(service, BeginUUID);
-      this._cacheCharacteristic(service, DataUUID);
-      this._cacheCharacteristic(service, Begin_OTA_v2_UUID);
-      this._cacheCharacteristic(service, Data_OTA_v2_UUID);
-      this._cacheCharacteristic(service, Status_OTA_v2_UUID);
+      await Promise.all([
+        this._cacheCharacteristic(service, BeginUUID),
+        this._cacheCharacteristic(service, DataUUID),
+        this._cacheCharacteristic(service, Begin_OTA_v2_UUID),
+        this._cacheCharacteristic(service, Data_OTA_v2_UUID),
+        this._cacheCharacteristic(service, Status_OTA_v2_UUID),
+      ]);
 
       
              
@@ -553,8 +559,7 @@
     }
 
     setLeftMotorSoundStrength(strength){
-      this._writeCharacteristicValue(LEFT_SEAT_MOTOR_SOUND_UUID, new Uint8Array([strength]))
-
+      return this._writeCharacteristicValue(LEFT_SEAT_MOTOR_SOUND_UUID, new Uint8Array([strength]));
     }
 
     getLeftMotorSoundStrength(){
@@ -562,8 +567,7 @@
     }
 
     setRightMotorSoundStrength(strength){
-      this._writeCharacteristicValue(RIGHT_SEAT_MOTOR_SOUND_UUID, new Uint8Array([strength]))
-
+      return this._writeCharacteristicValue(RIGHT_SEAT_MOTOR_SOUND_UUID, new Uint8Array([strength]));
     }
 
     getRightMotorSoundStrength(){
@@ -579,10 +583,9 @@
     }
     //////////////////////////
 
-// Define a function to update both left and right motor sound strength
 setBothMotorSoundStrength(value) {
-  this.setLeftMotorSoundStrength(value);
-  this.setRightMotorSoundStrength(value);
+  return this.setLeftMotorSoundStrength(value)
+    .then(() => this.setRightMotorSoundStrength(value));
 }
 
 setReducedSPICommunication(enabled) {
@@ -668,12 +671,19 @@ getReducedSPICommunication() {
     }
     async _readCharacteristicValue(characteristicUuid) {
       let characteristic = this._characteristics.get(characteristicUuid);
+      if (!characteristic) {
+        return Promise.reject(new Error('Characteristic not available: ' + characteristicUuid));
+      }
       let value = await characteristic.readValue();
       return value;
     }
 
     async _writeCharacteristicValue(characteristicUuid, value) {
       let characteristic = this._characteristics.get(characteristicUuid);
+      if (!characteristic) {
+        console.warn('Characteristic not available:', characteristicUuid);
+        return;
+      }
       // if (this._debug) {
       //   console.debug('WRITE', characteristic.uuid, value);
       // }
