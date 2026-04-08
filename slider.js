@@ -34,11 +34,23 @@ class Slider {
   }
 
   onchange(){
-    this.sliderTextElement.textContent = this.slider.value + " " + this.unit
-    // console.log("slider: ", this.value)
-    this.writeFunction(this.slider.value)
-      .then(_ => this.readFunction())
-      .then((value) => this.handleRead(value));
+    const writtenValue = Number(this.slider.value);
+    this.sliderTextElement.textContent = writtenValue + " " + this.unit;
+    const writeResult = this.writeFunction(writtenValue);
+    if (!writeResult || typeof writeResult.then !== 'function') return;
+    writeResult
+      .then(() => new Promise(resolve => setTimeout(resolve, 300)))
+      .then(() => this.readFunction())
+      .then((readValue) => {
+        if (Math.round(readValue) === Math.round(writtenValue)) {
+          this.sliderTextElement.textContent = readValue + " " + this.unit + " " + String.fromCharCode(10004);
+          this.slider.value = readValue;
+        } else {
+          this.sliderTextElement.textContent = readValue + " " + this.unit;
+          this.slider.value = readValue;
+        }
+      })
+      .catch(() => {});
   }
   
   handleRead(value){

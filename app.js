@@ -1300,7 +1300,7 @@ function startTimer() {
     }
 
     // FlamingoBle.getAutoPeriod().then((response) => TIME_LIMIT = Math.floor(response*60) );
-    FlamingoBle.getTimeToNextTransition().then((response) => timeLeft = Math.floor(response) );
+    FlamingoBle.getTimeToNextTransition().then((response) => timeLeft = Math.floor(response) ).catch(() => {});
     
   }, 3000);
 }
