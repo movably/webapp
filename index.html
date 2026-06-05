@@ -331,6 +331,31 @@
 
                         </div>
 
+                        <div class="card">
+                          <div class="card-info">
+                              <small>Mode Change Timeout</small>
+                          </div>
+
+                          <hr>
+
+                          <div class="mdl-radio__label" style="text-align: left;">Time before auto mode switch (minutes):</div>
+                          <div style="text-align: left;">
+                            <label for="timeout10min">
+                              <input type="radio" id="timeout10min" value="600" name="timeoutSwitch" checked/>
+                              <span class="mdl-radio__label">10 min</span>
+                            </label>
+                            <label for="timeout30min">
+                              <input type="radio" id="timeout30min" value="1800" name="timeoutSwitch"/>
+                              <span class="mdl-radio__label">30 min</span>
+                            </label>
+                            <label for="timeout60min">
+                              <input type="radio" id="timeout60min" value="3600" name="timeoutSwitch"/>
+                              <span class="mdl-radio__label">60 min</span>
+                            </label>
+                          </div>
+
+                        </div>
+
                         <!-- SPI Communication Settings card will be added dynamically when engineering mode is enabled -->
                         <div id="spi-communication-card-container"></div>
 

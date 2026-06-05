@@ -163,6 +163,7 @@ function connectDevice(){
       )
     )
     FlamingoBle.getLeftMotorSoundStrength().then(leftMotorSoundSlider.handleRead);
+    FlamingoBle.getModeChangeTimeoutSec().then(handleModeChangeTimeoutRead);
     
     FlamingoBle.getAutoModeSelector().then(handleAutoModeSelectorRead)
 
@@ -428,6 +429,29 @@ function handleAutoModeSelectorRead(modeId){
 document.querySelector('#AutoMode0').addEventListener('click', selectAutoMode);
 document.querySelector('#AutoMode1').addEventListener('click', selectAutoMode);
 document.querySelector('#AutoMode2').addEventListener('click', selectAutoMode);
+
+function handleModeChangeTimeoutRead(valueSec) {
+  console.log("Mode change timeout:", valueSec, "sec");
+  let closestId;
+  if (valueSec < 1200) {
+    closestId = 'timeout10min';
+  } else if (valueSec < 2700) {
+    closestId = 'timeout30min';
+  } else {
+    closestId = 'timeout60min';
+  }
+  document.getElementById(closestId).checked = true;
+}
+
+function selectModeChangeTimeout() {
+  const valueSec = parseInt(document.querySelector('[name="timeoutSwitch"]:checked').value);
+  console.log("Setting mode change timeout:", valueSec, "sec");
+  FlamingoBle.setModeChangeTimeoutSec(valueSec);
+}
+
+document.querySelector('#timeout10min').addEventListener('click', selectModeChangeTimeout);
+document.querySelector('#timeout30min').addEventListener('click', selectModeChangeTimeout);
+document.querySelector('#timeout60min').addEventListener('click', selectModeChangeTimeout);
 
 // Handle Reduced SPI communication checkbox
 function handleReducedSPIRead(enabled) {

@@ -43,6 +43,7 @@
   const RIGHT_SEAT_MOTOR_SOUND_UUID = "1b25ee0e-dadf-11eb-8d19-0242ac130003";
   const REDUCED_SPI_COMM_UUID       = "1b25ee1e-dadf-11eb-8d19-0242ac130003";
   const TZInfoFieldUUID             = "1b25ee14-dadf-11eb-8d19-0242ac130003";
+  const MODE_CHANGE_TIMEOUT_SEC_UUID = "1b25ee24-dadf-11eb-8d19-0242ac130003";
 
 
   const CONFIGURATION_SERVICE_UUID = "7f1a0001-252d-4f8b-baea-6bfc6b255ab6";
@@ -212,6 +213,7 @@
         this._cacheCharacteristic(service, LEFT_SEAT_MOTOR_SOUND_UUID),
         this._cacheCharacteristic(service, RIGHT_SEAT_MOTOR_SOUND_UUID),
         this._cacheCharacteristic(service, TZInfoFieldUUID),
+        this._cacheCharacteristic(service, MODE_CHANGE_TIMEOUT_SEC_UUID),
       ];
       if (url.searchParams.get("engineering") === "true") {
         engineeringCachePromises.push(this._cacheCharacteristic(service, REDUCED_SPI_COMM_UUID));
@@ -594,6 +596,14 @@ setReducedSPICommunication(enabled) {
 
 getReducedSPICommunication() {
   return this._readCharacteristicValue(REDUCED_SPI_COMM_UUID).then((response) => response.getUint8(0));
+}
+
+getModeChangeTimeoutSec() {
+  return this._readCharacteristicValue(MODE_CHANGE_TIMEOUT_SEC_UUID).then((response) => this.handleUint32Reading(response));
+}
+
+setModeChangeTimeoutSec(seconds) {
+  return this._writeCharacteristicValue(MODE_CHANGE_TIMEOUT_SEC_UUID, new Uint32Array([seconds]));
 }
 
     /* Discovery Service */
