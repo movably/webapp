@@ -663,6 +663,34 @@ function readRightMaxCurrentClicked() {
   });
 }
 
+function readModeChangeTimeoutClicked() {
+  console.log("Mode change timeout read button clicked");
+  document.querySelector('#modeChangeTimeoutValue').value = "Reading...";
+
+  FlamingoBle.getModeChangeTimeoutSec().then(value => {
+    console.log("Mode change timeout read value:", value);
+    document.querySelector('#modeChangeTimeoutValue').value = value;
+  }).catch(error => {
+    console.log("Error reading mode change timeout:", error);
+    document.querySelector('#modeChangeTimeoutValue').value = "Error";
+  });
+}
+
+function writeModeChangeTimeoutClicked() {
+  const value = parseFloat(document.querySelector('#modeChangeTimeoutValue').value);
+  if (isNaN(value) || value < 0) {
+    console.log("Invalid mode change timeout value");
+    return;
+  }
+  console.log("Mode change timeout write button clicked, value:", value);
+
+  FlamingoBle.setModeChangeTimeoutSec(value).then(() => {
+    console.log("Mode change timeout written successfully");
+  }).catch(error => {
+    console.log("Error writing mode change timeout:", error);
+  });
+}
+
 // Global variable to store the auto-update interval
 let odometerAutoUpdateInterval = null;
 
@@ -785,6 +813,10 @@ document.querySelector('#stopAutoUpdate').addEventListener('click', stopAutoUpda
 // Max current button event listeners
 document.querySelector('#readLeftMaxCurrent').addEventListener('click', readLeftMaxCurrentClicked);
 document.querySelector('#readRightMaxCurrent').addEventListener('click', readRightMaxCurrentClicked);
+
+// Mode change timeout button event listeners
+document.querySelector('#readModeChangeTimeout').addEventListener('click', readModeChangeTimeoutClicked);
+document.querySelector('#writeModeChangeTimeout').addEventListener('click', writeModeChangeTimeoutClicked);
 
 // Initialize auto-update button states
 document.querySelector('#startAutoUpdate').disabled = false;

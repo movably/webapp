@@ -46,6 +46,7 @@
   const RIGHT_MOTOR_MAX_CURRENT_UUID = "1b25ee21-dadf-11eb-8d19-0242ac130003";
   const LEFT_LEG_CURRENT_THRESHOLD_UUID =  "1b25ee22-dadf-11eb-8d19-0242ac130003";
   const RIGHT_LEG_CURRENT_THRESHOLD_UUID = "1b25ee23-dadf-11eb-8d19-0242ac130003";
+  const MODE_CHANGE_TIMEOUT_SEC_UUID =     "1b25ee24-dadf-11eb-8d19-0242ac130003";
 
   const TZInfoFieldUUID         = "1b25ee14-dadf-11eb-8d19-0242ac130003";
 
@@ -243,6 +244,7 @@
             await this._cacheCharacteristic(service, RIGHT_MOTOR_MAX_CURRENT_UUID);
             await this._cacheCharacteristic(service, LEFT_LEG_CURRENT_THRESHOLD_UUID);
             await this._cacheCharacteristic(service, RIGHT_LEG_CURRENT_THRESHOLD_UUID);
+            await this._cacheCharacteristic(service, MODE_CHANGE_TIMEOUT_SEC_UUID);
           } catch (error) {
             console.warn("Error accessing ENGINEERING service:", error);
           }
@@ -708,6 +710,14 @@
 
     getRightLegCurrentThreshold() {
       return this._readCharacteristicValue(RIGHT_LEG_CURRENT_THRESHOLD_UUID).then((response) => this.handleUint32Reading(response));
+    }
+
+    getModeChangeTimeoutSec() {
+      return this._readCharacteristicValue(MODE_CHANGE_TIMEOUT_SEC_UUID).then((response) => this.handleUint32Reading(response) / 60.0);
+    }
+
+    setModeChangeTimeoutSec(value) {
+      return this._writeCharacteristicValue(MODE_CHANGE_TIMEOUT_SEC_UUID, new Uint32Array([value * 60]));
     }
 
 

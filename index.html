@@ -573,6 +573,23 @@
 
                         </div>
 
+                        <div class="card">
+                          <div class="card-info">
+                                <small>Mode Change Timeout</small>
+                            </div>
+
+                          <hr>
+                          <div class="card-info" id="mode_change_timeout_title">
+                            <small>Mode change timeout (minutes)</small>
+                          </div>
+                          <div class="mdl-tooltip" for="mode_change_timeout_title">Timeout in minutes before a mode change is applied.</div>
+                          <div style="display: flex; align-items: center; gap: 10px; margin: 10px 0;">
+                            <input type="number" id="modeChangeTimeoutValue" style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" value="0" min="0">
+                            <button id="readModeChangeTimeout" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" style="min-width: 80px;">Read</button>
+                            <button id="writeModeChangeTimeout" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" style="min-width: 80px;">Write</button>
+                          </div>
+                        </div>
+
                   </div>                  
 
                   <!-- <div id="bar-example" style="height: 350px;"></div> -->
