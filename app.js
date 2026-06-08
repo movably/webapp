@@ -381,7 +381,7 @@ function pushNotificationMsg(msg) {
 let chairMode = "manual";
 let rightSide = "";
 let leftSide = "";
-modes = ["manual","auto","away"];
+modes = ["manual","auto","away","sleep"];
 
 function handleChairEventRead(event){
   v = event.target.value;
@@ -408,6 +408,9 @@ function handleChairEventRead(event){
   } else {
     s.parentElement.MaterialSwitch.off();
   }
+
+  let fsmRadio = document.getElementById("FsmState" + mode);
+  if (fsmRadio) fsmRadio.checked = true;
 }
 
 
@@ -433,6 +436,16 @@ function handleChairEvents(event){
 
   if(mode < modes.length){
     chairMode = modes[mode];
+  }
+
+  let fsmRadioEv = document.getElementById("FsmState" + mode);
+  if (fsmRadioEv) fsmRadioEv.checked = true;
+
+  let sEv = document.getElementById("auto-switch");
+  if (mode == 1) {
+    sEv.parentElement.MaterialSwitch.on();
+  } else {
+    sEv.parentElement.MaterialSwitch.off();
   }
 
   // handleChairEventRead(event.target.value);
@@ -786,6 +799,11 @@ document.querySelector('#AutoMode2').addEventListener('click', selectAutoMode);
 document.querySelector('#AutoMode3').addEventListener('click', selectAutoMode);
 document.querySelector('#AutoMode4').addEventListener('click', selectAutoMode);
 
+document.querySelector('#FsmState0').addEventListener('click', selectFsmState);
+document.querySelector('#FsmState1').addEventListener('click', selectFsmState);
+document.querySelector('#FsmState2').addEventListener('click', selectFsmState);
+document.querySelector('#FsmState3').addEventListener('click', selectFsmState);
+
 // document.querySelector('#manualMode').addEventListener('click', changeMode);
 // document.querySelector('#autoMode').addEventListener('click', changeMode);
 document.querySelector('#triggerWiFiConfiguredEnable').addEventListener('click', ChairConfiguredEnable);
@@ -977,6 +995,19 @@ function selectAutoMode() {
   //     FlamingoBle.setMode(1);;
   //     break;
   // }
+}
+
+function selectFsmState() {
+  var state = parseInt(document.querySelector('[name="fsmStateSwitch"]:checked').value);
+  console.log("requesting FSM state: " + state);
+  FlamingoBle.setChairFsmState(state);
+
+  let s = document.getElementById("auto-switch");
+  if (state == 1) {
+    s.parentElement.MaterialSwitch.on();
+  } else {
+    s.parentElement.MaterialSwitch.off();
+  }
 }
 
 function enableWiFiToggle() {

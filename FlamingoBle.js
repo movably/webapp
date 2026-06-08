@@ -23,6 +23,7 @@
   const CHAIR_STATE_UUID = "730c0009-7ec9-4dd5-ba24-44a04e14cf08";
   const AUTO_MODE_SELECTOR_UUID = "730c000a-7ec9-4dd5-ba24-44a04e14cf08";
   const TIME_TO_NEXT_TRANSITION_UUID = "730c000b-7ec9-4dd5-ba24-44a04e14cf08";
+  const CHAIR_FSM_STATE_REQUEST_UUID = "730c000c-7ec9-4dd5-ba24-44a04e14cf08";
 
   const ENGINEERING_SERVICE_UUID = "1b25ee00-dadf-11eb-8d19-0242ac130003";
 
@@ -199,6 +200,7 @@
           await this._cacheCharacteristic(service, CHAIR_STATE_UUID);
           await this._cacheCharacteristic(service, AUTO_MODE_SELECTOR_UUID);
           await this._cacheCharacteristic(service, TIME_TO_NEXT_TRANSITION_UUID);
+          await this._cacheCharacteristic(service, CHAIR_FSM_STATE_REQUEST_UUID);
           
           try {
             console.log("Getting DISCOVERY_SERVICE_UUID...");
@@ -364,6 +366,10 @@
 
     setAutoModeSelector(autoType){
       this._writeCharacteristicValue(AUTO_MODE_SELECTOR_UUID, new Uint8Array([autoType]))
+    }
+
+    setChairFsmState(state) {
+      this._writeCharacteristicValue(CHAIR_FSM_STATE_REQUEST_UUID, new Uint8Array([state]))
     }
 
     getAutoModeSelector(){
